@@ -13,6 +13,6 @@ As the title suggests, the purpose of this project is to offer a solution to the
 
 There's already a solution to this: EHR (Electronic Health Record), and actually some of the healthcare providers in our country have them, but from what I've seen, they're incomplete and barely usable.
 
-The objective is to offer a solution that allows doctors, medical assistants, and patients develop the same tasks and activities they do (writing and reading patients' medical history, taking note of patients' status, updating their pathological conditions, doing a follow-up of their treatments, saving the results of their exams, etc), but with the adventage that the information will be saved in a digital storage system (a database), thus, assuring the data, and making it easy to access, manipulate and update at any place and at any time by any of the users.
+The objective is to offer a solution that allows doctors, medical assistants, and patients to develop the same tasks and activities they do (writing and reading patients' medical history, taking note of patients' status, updating their pathological conditions, doing a follow-up of their treatments, saving the results of their exams, etc), but with the adventage that the information will be saved in a digital storage system (a database), thus, assuring the data, and making it easy to access, manipulate and update at any place and at any time by any of the users.
 
-Integration of medical agenda is also contemplated.
+The integration of a medical agenda is also contemplated.

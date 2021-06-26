@@ -1,4 +1,8 @@
-# NOTES
+# STATUS
+
+draw.io is used to design the ERD. Follow the last updates [here](https://drive.google.com/file/d/1bopIUGfAsqU2xo5X76JYC_uhZU7w2w8w/view?usp=sharing)
+
+## NOTES
 
 - Some entities are repeated in order to improve readability
 - The atribute _active_ of the **User entity**, indicates if the user is an effective user of the system. In case they change their medical society, instead of wiping them from the database their information and records will be kept, but the user won't be able to access the system to schedule new appointments, this is in order to preserve their data and be able to diagnose their relatives in case of some genetical pathology, or have their medical history available in case they decide to come back, or need to transfer it to their new medical society, for example. Another case for this attribute is when a user comes to afiliate, even if their family members are **_not afiliated_**, it's a good idea to register them in order to keep track of genetical issues or whatever illness or disease a family member had or has that could be determinative to diagnose the user.

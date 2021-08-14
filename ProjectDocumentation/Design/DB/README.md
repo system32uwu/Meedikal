@@ -1,6 +1,8 @@
 # STATUS
 
-draw.io is used to design the ERD. Follow the last updates [here](https://drive.google.com/file/d/1bopIUGfAsqU2xo5X76JYC_uhZU7w2w8w/view?usp=sharing)
+draw.io is used to design the ERD. See the latest version [here](https://drive.google.com/file/d/1bopIUGfAsqU2xo5X76JYC_uhZU7w2w8w/view?usp=sharing)
+
+Google Docs is used to document the schema normalization. See the latest version [here](https://docs.google.com/document/d/1mphLukyjfNaWsdtconM9ukx67Bl9pTX2kHrcGjMYA08/edit?usp=sharing)
 
 ## NOTES
 

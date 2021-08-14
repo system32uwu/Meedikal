@@ -21,3 +21,11 @@ También queda contemplado en la solución la integración de la agenda médica.
 ## Future Implementations
 
 Payment system for appointments and medicine (Cash, Paypal, Credit, Debit, BlockChain)
+
+## Motivation
+
+This project was done as the last activity of the educational program [Sembrando TIC](https://sembrandotic.com/) 2021, in order to showcase the acquired skills and technologies through it.
+
+## Work In Progress notice
+
+Some documentation might be in spanish but not yet translated to english or vice-versa, when the development is completed it will get fully translated to both languages. The project is not yet completed but the estimated date for it to be finished is early december.

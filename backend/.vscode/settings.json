@@ -1,0 +1,10 @@
+{
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/venv/Lib/site-packages/sqlalchemy",
+    "${workspaceFolder}/venv/Lib/site-packages/flask_sqlalchemy"
+  ],
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/venv/Lib/site-packages/sqlalchemy",
+    "${workspaceFolder}/venv/Lib/site-packages/flask_sqlalchemy"
+  ]
+}

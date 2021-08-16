@@ -1,60 +1,38 @@
-from dataclasses import dataclass
+from flask import Flask, Blueprint, render_template
 
-from flask import Flask, jsonify
-
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
-from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import DevelopmentConfig
 
-app = Flask(__name__)
+from api.router import apiRouter
 
-app.config.from_object(DevelopmentConfig)
+frontendRouter = Blueprint('app', __name__, url_prefix='/app') # handles /app
 
-db = SQLAlchemy(app)
+@frontendRouter.route("/")
+def frontend():
+    return render_template('index.html')
 
-migrate = Migrate(app,db)
+def create_app(test_config=None) -> Flask:
+    app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build')
 
-@dataclass
-class User(db.Model):
+    app.config.from_object(DevelopmentConfig)
 
-    CI: int
-    name1: str
-    name2: str
-    surname1: str
-    surname2: str
-    sex: str
-    genre: str
-    password: str
+    # --- DB
+    from models import db
 
-    CI = db.Column(db.Integer, primary_key=True)
-    name1 = db.Column(db.String(32), nullable=False)
-    name2 = db.Column(db.String(32))
-    surname1 = db.Column(db.String(32), nullable=False)
-    surname2 = db.Column(db.String(32))
-    sex = db.Column(db.String(1), default='M', nullable=False)
-    genre = db.Column(db.String(16), default='Male')
-    password = db.Column(db.String(128), nullable=False)        
+    db.app = app
 
-    def check_password(self, password) -> bool:
-        return check_password_hash(self.password, password)
+    db.init_app(app)
 
-    
-@app.route("/")
-def hello():
-    
-    u = User(
-            CI=57681923, name1='carlos', name2='jose',
-            surname1='gomez', surname2='gutierrez', sex='M',
-            genre='male', password=generate_password_hash('testpwd')
-            )
+    Migrate(app,db)    
+    # --- DB
 
-    db.session.add(u)
-    db.session.commit()
+    # --- ROUTERS
+    app.register_blueprint(apiRouter) # api
+    app.register_blueprint(frontendRouter) # frontend
+    # --- ROUTERS
 
-    return jsonify(u)
+    return app
 
 if __name__ == '__main__':
-    app.run()
+    create_app().run()

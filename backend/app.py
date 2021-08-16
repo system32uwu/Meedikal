@@ -13,7 +13,7 @@ def frontend():
     return render_template('index.html')
 
 def create_app(test_config=None) -> Flask:
-    app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build')
+    app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build') # serve compiled react app.
 
     app.config.from_object(DevelopmentConfig)
 

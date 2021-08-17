@@ -1,3 +1,5 @@
+.\backend\venv\Scripts\activate && pip install -r backend\requirements.txt
+
 Set-Location .\frontend
 yarn build 
 

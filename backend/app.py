@@ -12,7 +12,7 @@ frontendRouter = Blueprint('app', __name__, url_prefix='/app') # handles /app
 def frontend():
     return render_template('index.html')
 
-def create_app(test_config=None) -> Flask:
+def create_app() -> Flask:
     app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build') # serve compiled react app.
 
     app.config.from_object(DevelopmentConfig)

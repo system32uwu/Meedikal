@@ -37,11 +37,11 @@ class User(db.Model):
 
 @dataclass # since phone is a multivalued attribute, it has its own table.
 class UserPhone(db.Model):
+    __tablename__ = 'userPhone'
 
     CI: int
     phone: str # since phone numbers aren't real numbers it's better to store them as strings. Some countries (like Uruguay), start their cellphone numbers with a 0, which on input would be ignored by the DBMS if the datatype was Integer. 
 
-    __tablename__ = 'userPhone'
     CI = db.Column(db.Integer, db.ForeignKey(User.CI, ondelete='CASCADE'), primary_key=True)
     phone = db.Column(db.VARCHAR(32), primary_key=True) # some countries' phone numbers are quite long 
 
@@ -54,10 +54,10 @@ class Patient(db.Model):
     
 @dataclass # users from the medical personnel, those without further categorization (either doctor or medical assitant), will be stored only in this table and have limited permissions and access
 class MedicalPersonnel(db.Model):
+    __tablename__ = 'medicalPersonnel'
 
     CI: int
 
-    __tablename__ = 'medicalPersonnel'
     CI = db.Column(db.Integer, db.ForeignKey(User.CI, ondelete='CASCADE'), primary_key=True)
 
 @dataclass # users from the medical personnel, who are doctors.
@@ -69,10 +69,10 @@ class Doctor(db.Model):
 
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
 class MedicalAssitant(db.Model):
+    __tablename__ = 'medicalAssistant'
 
     CI: int
 
-    __tablename__ = 'medicalAssistant'
     CI = db.Column(db.Integer, db.ForeignKey(MedicalPersonnel.CI, ondelete='CASCADE'), primary_key=True)
 
 @dataclass
@@ -81,3 +81,17 @@ class Administrative(db.Model):
     CI: int
 
     CI = db.Column(db.Integer, db.ForeignKey(User.CI, ondelete='CASCADE'), primary_key=True)
+
+@dataclass
+class UIsRelatedTo(db.Model): # User1 < uIsRelatedTo > User2
+    __tablename__ = 'uIsRelatedTo'
+    
+    User1: int
+    User2: int
+    typeUser1: str # son
+    typeUser2: str # father
+
+    User1 = db.Column(db.Integer, db.ForeignKey(User.CI, ondelete='CASCADE'), primary_key=True)
+    User2 = db.Column(db.Integer, db.ForeignKey(User.CI, ondelete='CASCADE'), primary_key=True)
+    typeUser1 = db.Column(db.VARCHAR(32))
+    typeUser2 = db.Column(db.VARCHAR(32))

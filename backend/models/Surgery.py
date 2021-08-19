@@ -3,6 +3,7 @@ from . import db
 
 @dataclass
 class Surgery(db.Model):
+    
     ID: int
     name: str
 

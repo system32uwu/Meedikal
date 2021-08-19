@@ -3,6 +3,7 @@ from . import db
 
 @dataclass
 class Treatment(db.Model):
+    
     ID: int
     name: str
     preview: str

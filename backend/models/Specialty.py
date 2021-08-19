@@ -13,12 +13,12 @@ class Specialty(db.Model):
 
 @dataclass
 class mpHasSpec(db.Model): 
+    __tablename__ = 'mpHasSpec'
     
     CIMp: int
     IDSpec: int
     detail: str
 
-    __tablename__ = 'mpHasSpec'
     CIMp = db.Column(db.Integer, db.ForeignKey(MedicalPersonnel.CI, ondelete='CASCADE'), primary_key=True)
     IDSpec = db.Column(db.Integer, db.ForeignKey(Specialty.ID, ondelete='CASCADE'), primary_key=True)
     detail = db.Column(db.VARCHAR(128))

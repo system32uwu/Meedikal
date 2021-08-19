@@ -3,12 +3,12 @@ from . import db
 
 @dataclass
 class Medicine(db.Model):
-    ID: int
+    id: int
     name: str
     description: str
     notes: str
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(128), unique=True, nullable=False) 
     description = db.Column(db.String())
     notes = db.Column(db.String())
@@ -16,14 +16,14 @@ class Medicine(db.Model):
 @dataclass
 class Manufacturer(db.Model):
 
-    ID: int
+    id: int
     name: str
     location: str
     email: str
     phoneNumber: str
     logo: str
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(128), unique=True, nullable=False)
     location = db.Column(db.VARCHAR(256))
     email = db.Column(db.VARCHAR(256))
@@ -34,9 +34,9 @@ class Manufacturer(db.Model):
 class ManufacturedBy(db.Model):
     __tablename__ = 'manufacturedBy'
 
-    IDMed: int
-    IDManufacturer: int
+    idMed: int
+    idManufacturer: int
 
-    IDMed = db.Column(db.Integer, db.ForeignKey(Medicine.ID, ondelete='CASCADE'), primary_key=True)
-    IDManufacturer = db.Column(db.Integer, db.ForeignKey(Manufacturer.ID, ondelete='CASCADE'), primary_key=True)
+    idMed = db.Column(db.Integer, db.ForeignKey(Medicine.id, ondelete='CASCADE'), primary_key=True)
+    idManufacturer = db.Column(db.Integer, db.ForeignKey(Manufacturer.id, ondelete='CASCADE'), primary_key=True)
     

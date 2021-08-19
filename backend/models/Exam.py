@@ -3,23 +3,23 @@ from . import db
 
 @dataclass
 class Exam(db.Model):
-    ID: int
+    id: int
     name: str
     preview: int
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(128), unique=True, nullable=False) 
     preview = db.Column(db.String()) 
 
 @dataclass
 class Parameter(db.Model):
-    ID: int
+    id: int
     name: str
     measureUnit: str
     refMinValue: float
     refMaxValue: float
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(128), nullable=False) 
     measureUnit = db.Column(db.String()) 
     refMinValue = db.Column(db.Float)
@@ -27,24 +27,24 @@ class Parameter(db.Model):
 
 @dataclass
 class Indication(db.Model):
-    ID: int
+    id: int
     name: str
     description: str
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(128), nullable=False) 
     description = db.Column(db.String()) 
 
 class Laboratory(db.Model):
     
-    ID: int
+    id: int
     name: str
     phoneNumber: str
     location: str
     email: str
     logo: str
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(64), unique=True, nullable=False) 
     phoneNumber = db.Column(db.VARCHAR(64), nullable=False) 
     location = db.Column(db.VARCHAR(64), nullable=False) 
@@ -55,27 +55,27 @@ class Laboratory(db.Model):
 class ExHasPar(db.Model):
     __tablename__ = 'exHasPar'
 
-    IDEx: int
-    IDPar: int
+    idEx: int
+    idPar: int
 
-    IDEx = db.Column(db.Integer, db.ForeignKey(Exam.ID, ondelete='CASCADE'), primary_key=True)
-    IDPar = db.Column(db.Integer, db.ForeignKey(Parameter.ID, ondelete='CASCADE'), primary_key=True)
+    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
+    idPar = db.Column(db.Integer, db.ForeignKey(Parameter.id, ondelete='CASCADE'), primary_key=True)
 
 class ExHasInd(db.Model):
     __tablename__ = 'exHasInd'
 
-    IDEx: int
-    IDInd: int
+    idEx: int
+    idInd: int
 
-    IDEx = db.Column(db.Integer, db.ForeignKey(Exam.ID, ondelete='CASCADE'), primary_key=True)
-    IDInd = db.Column(db.Integer, db.ForeignKey(Indication.ID, ondelete='CASCADE'), primary_key=True)
+    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
+    idInd = db.Column(db.Integer, db.ForeignKey(Indication.id, ondelete='CASCADE'), primary_key=True)
 
 # class handlesEx(db.Model):
 #     __tablename__ = 'handlesEx'
 
-#     IDEx: int
-#     IDInd: int
+#     idEx: int
+#     idInd: int
 
-#     IDEx = db.Column(db.Integer, db.ForeignKey(Exam.ID, ondelete='CASCADE'), primary_key=True)
-#     IDLab = db.Column(db.Integer, db.ForeignKey(Laboratory.ID, ondelete='CASCADE'), primary_key=True)
+#     idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
+#     idLab = db.Column(db.Integer, db.ForeignKey(Laboratory.id, ondelete='CASCADE'), primary_key=True)
     

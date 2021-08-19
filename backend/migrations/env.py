@@ -20,7 +20,7 @@ logger = logging.getLogger('alembic.env')
 # for 'autogenerate' support
 
 # import all models here so it picks them up
-from models import User, Specialty, Form, Appointment, Branch, Disease, Exam, Medicine, Treatment, Surgery, Vaccine
+from models import User, Specialty, Form, Appointment, Branch, Disease, Exam, Medicine, Treatment, Surgery, Vaccine, Alert, Notification, Symptom, ClinicalSign
 # target_metadata = mymodel.Base.metadata
 config.set_main_option(
     'sqlalchemy.url',

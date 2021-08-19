@@ -5,20 +5,20 @@ from .User import MedicalPersonnel
 @dataclass
 class Specialty(db.Model):
 
-    ID: int
+    id: int
     title: str
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.VARCHAR(64), unique=True, nullable=False) # It wouldn't make sense to store specialties with the same name multiple times, but neither would setting a 64 characters long PK do so.
 
 @dataclass
 class mpHasSpec(db.Model): 
     __tablename__ = 'mpHasSpec'
     
-    CIMp: int
-    IDSpec: int
+    ciMp: int
+    idSpec: int
     detail: str
 
-    CIMp = db.Column(db.Integer, db.ForeignKey(MedicalPersonnel.CI, ondelete='CASCADE'), primary_key=True)
-    IDSpec = db.Column(db.Integer, db.ForeignKey(Specialty.ID, ondelete='CASCADE'), primary_key=True)
+    ciMp = db.Column(db.Integer, db.ForeignKey(MedicalPersonnel.ci, ondelete='CASCADE'), primary_key=True)
+    idSpec = db.Column(db.Integer, db.ForeignKey(Specialty.id, ondelete='CASCADE'), primary_key=True)
     detail = db.Column(db.VARCHAR(128))

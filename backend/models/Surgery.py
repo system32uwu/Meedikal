@@ -4,8 +4,8 @@ from . import db
 @dataclass
 class Surgery(db.Model):
     
-    ID: int
+    id: int
     name: str
 
-    ID = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.VARCHAR(128), unique=True, nullable=False) 

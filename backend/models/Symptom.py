@@ -1,5 +1,4 @@
-from .Appointment import Appointment
-from .User import Patient
+from .Appointment import AttendsTo
 from dataclasses import dataclass
 from . import db
 
@@ -23,7 +22,9 @@ class registerSy(db.Model): # { Patient < attendsTo > [ Doctor < assignedTo > Ap
     idSy: int
     detail: str
 
-    idAp = db.Column(db.Integer, db.ForeignKey(Appointment.id, ondelete='CASCADE'), primary_key=True)
-    ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPa = db.Column(db.Integer, primary_key=True)
     idSy = db.Column(db.Integer, db.ForeignKey(Symptom.id, ondelete='CASCADE'), primary_key=True)
     detail = db.Column(db.VARCHAR(256))
+
+    __table_args__ = (db.ForeignKeyConstraint([idAp,ciPa], [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),)

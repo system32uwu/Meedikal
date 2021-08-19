@@ -1,5 +1,5 @@
 from .ClinicalSign import ClinicalSign
-from .Appointment import Appointment
+from .Appointment import Appointment, AttendsTo
 from dataclasses import dataclass
 from datetime import datetime
 from . import db
@@ -58,7 +58,9 @@ class Diagnoses(db.Model): # { Patient < attendsTo > [ Doctor < assignedTo > App
     idDis: int
     detail: str
 
-    idAp = db.Column(db.Integer, db.ForeignKey(Appointment.id, ondelete='CASCADE'), primary_key=True)
-    ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
-    idDis = db.Column(db.Integer, db.ForeignKey(ClinicalSign.id, ondelete='CASCADE'), primary_key=True)
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPa = db.Column(db.Integer, primary_key=True)
+    idDis = db.Column(db.Integer, db.ForeignKey(Disease.id, ondelete='CASCADE'), primary_key=True)
     detail = db.Column(db.VARCHAR(256))
+
+    __table_args__ = (db.ForeignKeyConstraint([idAp,ciPa], [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),)

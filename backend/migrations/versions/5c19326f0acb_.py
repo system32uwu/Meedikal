@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ba50812ee767
+Revision ID: 5c19326f0acb
 Revises: 
-Create Date: 2021-08-19 13:55:55.624911
+Create Date: 2021-08-19 16:13:11.732910
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ba50812ee767'
+revision = '5c19326f0acb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -184,6 +184,13 @@ def upgrade():
     sa.ForeignKeyConstraint(['ci'], ['user.ci'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('ci')
     )
+    op.create_table('apTakesPlace',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('idBranch', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['idAp'], ['appointment.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idBranch'], ['branch.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'idBranch')
+    )
     op.create_table('diseaseCat',
     sa.Column('idDisease', sa.Integer(), nullable=False),
     sa.Column('idCat', sa.Integer(), nullable=False),
@@ -277,16 +284,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['ci'], ['user.ci'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('ci', 'phone')
     )
-    op.create_table('attendsTo',
-    sa.Column('idAp', sa.Integer(), nullable=False),
-    sa.Column('ciPa', sa.Integer(), nullable=False),
-    sa.Column('motive', sa.VARCHAR(length=256), nullable=True),
-    sa.Column('number', sa.Integer(), nullable=True),
-    sa.Column('time', sa.Time(), nullable=True),
-    sa.ForeignKeyConstraint(['ciPa'], ['patient.ci'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['idAp'], ['appointment.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('idAp', 'ciPa')
-    )
     op.create_table('designed',
     sa.Column('ciMp', sa.Integer(), nullable=False),
     sa.Column('idF', sa.Integer(), nullable=False),
@@ -302,6 +299,18 @@ def upgrade():
     sa.ForeignKeyConstraint(['ci'], ['medicalPersonnel.ci'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('ci')
     )
+    op.create_table('follows',
+    sa.Column('idFollows', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('idTreatment', sa.Integer(), nullable=False),
+    sa.Column('beginDate', sa.DateTime(), nullable=True),
+    sa.Column('endDate', sa.DateTime(), nullable=True),
+    sa.Column('schedule', sa.JSON(), nullable=True),
+    sa.Column('result', sa.VARCHAR(length=64), nullable=True),
+    sa.ForeignKeyConstraint(['ciPa'], ['patient.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idTreatment'], ['treatment.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idFollows', 'ciPa', 'idTreatment')
+    )
     op.create_table('medicalAssistant',
     sa.Column('ci', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['ci'], ['medicalPersonnel.ci'], ondelete='CASCADE'),
@@ -315,6 +324,26 @@ def upgrade():
     sa.ForeignKeyConstraint(['idSpec'], ['specialty.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('ciMp', 'idSpec')
     )
+    op.create_table('takesMed',
+    sa.Column('idMed', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('detail', sa.VARCHAR(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['ciPa'], ['patient.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idMed'], ['medicine.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idMed', 'ciPa')
+    )
+    op.create_table('takesSurg',
+    sa.Column('idTakenSurg', sa.Integer(), nullable=False),
+    sa.Column('idSurg', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('date', sa.DateTime(), nullable=True),
+    sa.Column('startedAt', sa.DateTime(), nullable=True),
+    sa.Column('finishedAt', sa.DateTime(), nullable=True),
+    sa.Column('result', sa.VARCHAR(length=128), nullable=True),
+    sa.ForeignKeyConstraint(['ciPa'], ['patient.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idSurg'], ['surgery.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idTakenSurg', 'idSurg', 'ciPa')
+    )
     op.create_table('assignedTo',
     sa.Column('idAp', sa.Integer(), nullable=False),
     sa.Column('ciDoc', sa.Integer(), nullable=True),
@@ -322,17 +351,111 @@ def upgrade():
     sa.ForeignKeyConstraint(['idAp'], ['appointment.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('idAp')
     )
+    op.create_table('prescribes',
+    sa.Column('idMed', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('ciDoc', sa.Integer(), nullable=False),
+    sa.Column('date', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['ciDoc'], ['doctor.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idMed', 'ciPa'], ['takesMed.idMed', 'takesMed.ciPa'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idMed', 'ciPa', 'ciDoc', 'date')
+    )
+    op.create_table('takes_care',
+    sa.Column('idFollows', sa.Integer(), nullable=False),
+    sa.Column('idTreatment', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('ciMp', sa.Integer(), nullable=False),
+    sa.Column('date', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['ciMp'], ['medicalPersonnel.ci'], onupdate='CASCADE', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idFollows', 'idTreatment', 'ciPa'], ['follows.idFollows', 'follows.idTreatment', 'follows.ciPa'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idFollows', 'idTreatment', 'ciPa', 'ciMp', 'date')
+    )
+    op.create_table('assistsAp',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('ciMa', sa.Integer(), nullable=False),
+    sa.Column('time', sa.Time(), nullable=False),
+    sa.ForeignKeyConstraint(['ciMa'], ['medicalAssistant.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idAp'], ['assignedTo.idAp'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciMa', 'time')
+    )
+    op.create_table('attendsTo',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('motive', sa.VARCHAR(length=256), nullable=True),
+    sa.Column('number', sa.Integer(), nullable=True),
+    sa.Column('time', sa.Time(), nullable=True),
+    sa.ForeignKeyConstraint(['ciPa'], ['patient.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idAp'], ['assignedTo.idAp'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciPa')
+    )
+    op.create_table('apRefPrevAp',
+    sa.Column('idCurrAp', sa.Integer(), nullable=False),
+    sa.Column('ciPaCurrAp', sa.Integer(), nullable=False),
+    sa.Column('idPrevAp', sa.Integer(), nullable=False),
+    sa.Column('ciPaPrevAp', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['idCurrAp', 'ciPaCurrAp'], ['attendsTo.idAp', 'attendsTo.ciPa'], name='fk_currAp', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idPrevAp', 'ciPaPrevAp'], ['attendsTo.idAp', 'attendsTo.ciPa'], name='fk_prevAp', ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idCurrAp', 'ciPaCurrAp', 'idPrevAp', 'ciPaPrevAp')
+    )
+    op.create_table('diagnoses',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('idDis', sa.Integer(), nullable=False),
+    sa.Column('detail', sa.VARCHAR(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['idAp', 'ciPa'], ['attendsTo.idAp', 'attendsTo.ciPa'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idDis'], ['disease.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciPa', 'idDis')
+    )
+    op.create_table('fills',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('idQuestion', sa.Integer(), nullable=False),
+    sa.Column('idForm', sa.Integer(), nullable=False),
+    sa.Column('response', sa.VARCHAR(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['idAp', 'ciPa'], ['attendsTo.idAp', 'attendsTo.ciPa'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idQuestion', 'idForm'], ['from.idQ', 'from.idF'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciPa', 'idQuestion', 'idForm')
+    )
+    op.create_table('registersCs',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('idCs', sa.Integer(), nullable=False),
+    sa.Column('detail', sa.VARCHAR(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['idAp', 'ciPa'], ['attendsTo.idAp', 'attendsTo.ciPa'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idCs'], ['clinicalSign.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciPa', 'idCs')
+    )
+    op.create_table('registersSy',
+    sa.Column('idAp', sa.Integer(), nullable=False),
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('idSy', sa.Integer(), nullable=False),
+    sa.Column('detail', sa.VARCHAR(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['idAp', 'ciPa'], ['attendsTo.idAp', 'attendsTo.ciPa'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idSy'], ['symptom.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciPa', 'idSy')
+    )
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('registersSy')
+    op.drop_table('registersCs')
+    op.drop_table('fills')
+    op.drop_table('diagnoses')
+    op.drop_table('apRefPrevAp')
+    op.drop_table('attendsTo')
+    op.drop_table('assistsAp')
+    op.drop_table('takes_care')
+    op.drop_table('prescribes')
     op.drop_table('assignedTo')
+    op.drop_table('takesSurg')
+    op.drop_table('takesMed')
     op.drop_table('mpHasSpec')
     op.drop_table('medicalAssistant')
+    op.drop_table('follows')
     op.drop_table('doctor')
     op.drop_table('designed')
-    op.drop_table('attendsTo')
     op.drop_table('userPhone')
     op.drop_table('uTakesVaccine')
     op.drop_table('uSufferedFrom')
@@ -346,6 +469,7 @@ def downgrade():
     op.drop_table('exHasPar')
     op.drop_table('exHasInd')
     op.drop_table('diseaseCat')
+    op.drop_table('apTakesPlace')
     op.drop_table('administrative')
     op.drop_table('vaccine')
     op.drop_table('user')

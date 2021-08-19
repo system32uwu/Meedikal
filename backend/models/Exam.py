@@ -1,4 +1,6 @@
+from .User import Patient
 from dataclasses import dataclass
+from datetime import datetime
 from . import db
 
 @dataclass
@@ -35,6 +37,43 @@ class Indication(db.Model):
     name = db.Column(db.VARCHAR(128), nullable=False) 
     description = db.Column(db.String()) 
 
+@dataclass
+class ExHasPar(db.Model):
+    __tablename__ = 'exHasPar'
+
+    idEx: int
+    idPar: int
+
+    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
+    idPar = db.Column(db.Integer, db.ForeignKey(Parameter.id, ondelete='CASCADE'), primary_key=True)
+
+@dataclass
+class ExHasInd(db.Model):
+    __tablename__ = 'exHasInd'
+
+    idEx: int
+    idInd: int
+
+    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
+    idInd = db.Column(db.Integer, db.ForeignKey(Indication.id, ondelete='CASCADE'), primary_key=True)
+
+@dataclass 
+class TakesEx(db.Model): # Patient < takesEx > Exam
+    __tablename__ = 'takesEx'
+
+    idExTaken: int
+    idEx: int
+    ciPa: int
+    date: datetime
+    results: object
+
+    idExTaken = db.Column(db.Integer, primary_key=True)
+    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
+    ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
+    date = db.Column(db.DateTime)
+    results = db.Column(db.JSON)
+
+@dataclass
 class Laboratory(db.Model):
     
     id: int
@@ -51,25 +90,7 @@ class Laboratory(db.Model):
     email = db.Column(db.VARCHAR(256), nullable=False) 
     logo = db.Column(db.String()) 
 
-
-class ExHasPar(db.Model):
-    __tablename__ = 'exHasPar'
-
-    idEx: int
-    idPar: int
-
-    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
-    idPar = db.Column(db.Integer, db.ForeignKey(Parameter.id, ondelete='CASCADE'), primary_key=True)
-
-class ExHasInd(db.Model):
-    __tablename__ = 'exHasInd'
-
-    idEx: int
-    idInd: int
-
-    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
-    idInd = db.Column(db.Integer, db.ForeignKey(Indication.id, ondelete='CASCADE'), primary_key=True)
-
+#@dataclass
 # class handlesEx(db.Model):
 #     __tablename__ = 'handlesEx'
 

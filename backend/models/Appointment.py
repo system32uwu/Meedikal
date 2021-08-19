@@ -1,3 +1,6 @@
+from .Treatment import Follows
+from .Exam import TakesEx
+from .Form import From
 from .User import MedicalAssitant, Patient, Doctor
 from dataclasses import dataclass
 from . import db
@@ -39,16 +42,14 @@ class AssignedTo(db.Model): # Doctor < assignedTo > Appointment
     ciDoc = db.Column(db.Integer, db.ForeignKey(Doctor.ci, ondelete='CASCADE'))
 
 @dataclass
-class AssistsAp(db.Model): # MedicalAssistant < assistsAp > Appointment
+class AssistsAp(db.Model): # MedicalAssistant < assistsAp > [ Doctor < assignedTo > Appointment ]
     __tablename__ = 'assistsAp'
 
     idAp: int
-    ciPa: int
     ciMa: int
     time: datetime
 
-    idAp = db.Column(db.Integer, db.ForeignKey(Appointment.id, ondelete='CASCADE'), primary_key=True)
-    ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
+    idAp = db.Column(db.Integer, db.ForeignKey(AssignedTo.idAp, ondelete='CASCADE'), primary_key=True)
     ciMa = db.Column(db.Integer, db.ForeignKey(MedicalAssitant.ci, ondelete='CASCADE'), primary_key=True)
     time = db.Column(db.Time, primary_key=True)
 
@@ -62,7 +63,7 @@ class AttendsTo(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appoi
     number: int
     time: time
 
-    idAp = db.Column(db.Integer, db.ForeignKey(Appointment.id, ondelete='CASCADE'), primary_key=True)
+    idAp = db.Column(db.Integer, db.ForeignKey(AssignedTo.idAp, ondelete='CASCADE'), primary_key=True)
     ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
     motive = db.Column(db.VARCHAR(256))
     number = db.Column(db.Integer) # an appointment could either be managed with numbers, or time-based turns, or both. 
@@ -73,11 +74,92 @@ class apRefPrevAp(db.Model): # auto-relationship, used to make reference to a pr
     __tablename__ = 'apRefPrevAp'
 
     idCurrAp: int
-    idPrevAp: int
     ciPaCurrAp: int
+    idPrevAp: int
     ciPaPrevAp: int
 
-    idCurrAp = db.Column(db.Integer, db.ForeignKey(Appointment.id, ondelete='CASCADE'), primary_key=True)
-    idPrevAp = db.Column(db.Integer, db.ForeignKey(Appointment.id, ondelete='CASCADE'), primary_key=True)
-    ciPaCurrAp = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
-    ciPaPrevAp = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
+    idCurrAp = db.Column(db.Integer, primary_key=True)
+    ciPaCurrAp = db.Column(db.Integer, primary_key=True)
+    idPrevAp = db.Column(db.Integer, primary_key=True)
+    ciPaPrevAp = db.Column(db.Integer, primary_key=True)
+
+    __table_args__ = (
+                      db.ForeignKeyConstraint(
+                      [idCurrAp,ciPaCurrAp],
+                      [AttendsTo.idAp,AttendsTo.ciPa],
+                       ondelete='CASCADE',
+                       name='fk_currAp'),
+                       db.ForeignKeyConstraint(
+                      [idPrevAp,ciPaPrevAp],
+                      [AttendsTo.idAp,AttendsTo.ciPa],
+                       ondelete='CASCADE',
+                       name='fk_prevAp'),
+                       )
+
+@dataclass
+class Fills(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appointment ] < fills > [ Question < from > Form]
+    
+    idAp: int
+    ciPa: int
+    idForm: int
+    idQuestion: int
+    response: str
+
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPa = db.Column(db.Integer, primary_key=True)
+    idQuestion = db.Column(db.Integer, primary_key=True)
+    idForm = db.Column(db.Integer, primary_key=True)
+    response = db.Column(db.VARCHAR(256))
+
+    __table_args__ = (db.ForeignKeyConstraint([idAp,ciPa], [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
+                      db.ForeignKeyConstraint([idQuestion,idForm], [From.idQ,From.idF], ondelete='CASCADE'))
+
+@dataclass
+class apRefExam(db.Model): # [ attendsTo ] < apRefExam > [ takesEx ]
+    __tablename__ = 'apRefExam'
+
+    idAp: int
+    ciPaAp: int
+
+    idExTaken: int
+    idEx: int
+    ciPaEx: int
+
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPaAp = db.Column(db.Integer, primary_key=True)
+    
+    idExTaken = db.Column(db.Integer, primary_key=True)
+    idEx = db.Column(db.Integer, primary_key=True)
+    ciPaEx = db.Column(db.Integer, primary_key=True)
+
+    __table_args__ = (db.ForeignKeyConstraint(
+                        [idAp,ciPaAp],
+                        [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
+                      db.ForeignKeyConstraint(
+                        [idExTaken,idEx,ciPaEx],
+                      [TakesEx.idExTaken, TakesEx.idEx, TakesEx.ciPa], ondelete='CASCADE'),)
+
+@dataclass
+class apRefTr(db.Model): # [ attendsTo ] < apRefTr > [ follows ]
+    __tablename__ = 'apRefTr'
+
+    idAp: int
+    ciPaAp: int
+
+    idFollows: int
+    idTreatment: int
+    ciPaTr: int
+
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPaAp = db.Column(db.Integer, primary_key=True)
+    
+    idFollows = db.Column(db.Integer, primary_key=True)
+    idTreatment = db.Column(db.Integer, primary_key=True)
+    ciPaTr = db.Column(db.Integer, primary_key=True)
+
+    __table_args__ = (db.ForeignKeyConstraint(
+                        [idAp,ciPaAp],
+                        [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
+                      db.ForeignKeyConstraint(
+                        [idFollows,idTreatment,ciPaTr],
+                      [Follows.idFollows, Follows.idTreatment, Follows.ciPa], ondelete='CASCADE'),)

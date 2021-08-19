@@ -1,3 +1,5 @@
+from datetime import datetime
+from .User import Doctor, Patient
 from dataclasses import dataclass
 from . import db
 
@@ -40,3 +42,30 @@ class ManufacturedBy(db.Model):
     idMed = db.Column(db.Integer, db.ForeignKey(Medicine.id, ondelete='CASCADE'), primary_key=True)
     idManufacturer = db.Column(db.Integer, db.ForeignKey(Manufacturer.id, ondelete='CASCADE'), primary_key=True)
     
+@dataclass 
+class TakesMed(db.Model):
+    __tablename__ = 'takesMed'
+
+    idMed: int
+    ciPa: int
+    detail: str
+
+    idMed = db.Column(db.Integer, db.ForeignKey(Medicine.id, ondelete='CASCADE'), primary_key=True)
+    ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
+    detail = db.Column(db.VARCHAR(256))
+    
+
+@dataclass 
+class Prescribes(db.Model): # Doctor < prescribes > [ Patient < takesMed > Medicine ]
+
+    idMed: int
+    ciPa: int
+    ciDoc: int
+    date: datetime
+
+    idMed = db.Column(db.Integer, primary_key=True)
+    ciPa = db.Column(db.Integer, primary_key=True)
+    ciDoc = db.Column(db.Integer, db.ForeignKey(Doctor.ci, ondelete='CASCADE'), primary_key=True)
+    date = db.Column(db.DateTime, primary_key=True)
+
+    __table_args__ = (db.ForeignKeyConstraint([idMed,ciPa], [TakesMed.idMed,TakesMed.ciPa], ondelete='CASCADE'),)

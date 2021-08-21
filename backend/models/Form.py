@@ -30,9 +30,13 @@ class From(db.Model):
 
     idQ: int # id of the question
     idF: str # id of the form
+    questionField: str # identifier of React component
+    responseField: str # identifier of React component
 
     idQ = db.Column(db.Integer, db.ForeignKey(Question.id, ondelete='CASCADE'), primary_key=True)
     idF = db.Column(db.Integer, db.ForeignKey(Form.id, ondelete='CASCADE'), primary_key=True)
+    questionField = db.Column(db.String(255))
+    responseField = db.Column(db.String(255))
 
 @dataclass # medicalPersonnel user < designed > form
 class Designed(db.Model):

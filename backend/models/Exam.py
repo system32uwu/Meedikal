@@ -90,13 +90,18 @@ class Laboratory(db.Model):
     email = db.Column(db.VARCHAR(256), nullable=False) 
     logo = db.Column(db.String()) 
 
-#@dataclass
-# class handlesEx(db.Model):
-#     __tablename__ = 'handlesEx'
+@dataclass
+class HandlesEx(db.Model): # [ takesEx ] < handlesEx > Laboratory
+    __tablename__ = 'handlesEx'
 
-#     idEx: int
-#     idInd: int
+    idEx: int
+    idExTaken: int
+    ciPa: int
+    idLab: int
 
-#     idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
-#     idLab = db.Column(db.Integer, db.ForeignKey(Laboratory.id, ondelete='CASCADE'), primary_key=True)
-    
+    idEx = db.Column(db.Integer, primary_key=True)
+    idExTaken = db.Column(db.Integer, primary_key=True)
+    ciPa = db.Column(db.Integer, primary_key=True)
+    idLab = db.Column(db.Integer, db.ForeignKey(Laboratory.id, ondelete='CASCADE'))
+
+    __table_args__ = (db.ForeignKeyConstraint([idEx,idExTaken,ciPa],[TakesEx.idEx,TakesEx.idExTaken,TakesEx.ciPa]),)

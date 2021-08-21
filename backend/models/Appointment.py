@@ -1,4 +1,4 @@
-from .Treatment import Follows
+from .Treatment import Follows, Treatment
 from .Exam import TakesEx
 from .Form import From
 from .User import MedicalAssitant, Patient, Doctor
@@ -70,7 +70,25 @@ class AttendsTo(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appoi
     time = db.Column(db.Time)
 
 @dataclass
-class apRefPrevAp(db.Model): # auto-relationship, used to make reference to a previous appointment
+class Fills(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appointment ] < fills > [ Question < from > Form]
+    
+    idAp: int
+    ciPa: int
+    idForm: int
+    idQuestion: int
+    response: str
+
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPa = db.Column(db.Integer, primary_key=True)
+    idQuestion = db.Column(db.Integer, primary_key=True)
+    idForm = db.Column(db.Integer, primary_key=True)
+    response = db.Column(db.VARCHAR(256))
+
+    __table_args__ = (db.ForeignKeyConstraint([idAp,ciPa], [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
+                      db.ForeignKeyConstraint([idQuestion,idForm], [From.idQ,From.idF], ondelete='CASCADE'))
+
+@dataclass
+class ApRefPrevAp(db.Model): # self-relationship, used to make reference to a previous appointment
     __tablename__ = 'apRefPrevAp'
 
     idCurrAp: int
@@ -97,25 +115,7 @@ class apRefPrevAp(db.Model): # auto-relationship, used to make reference to a pr
                        )
 
 @dataclass
-class Fills(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appointment ] < fills > [ Question < from > Form]
-    
-    idAp: int
-    ciPa: int
-    idForm: int
-    idQuestion: int
-    response: str
-
-    idAp = db.Column(db.Integer, primary_key=True)
-    ciPa = db.Column(db.Integer, primary_key=True)
-    idQuestion = db.Column(db.Integer, primary_key=True)
-    idForm = db.Column(db.Integer, primary_key=True)
-    response = db.Column(db.VARCHAR(256))
-
-    __table_args__ = (db.ForeignKeyConstraint([idAp,ciPa], [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
-                      db.ForeignKeyConstraint([idQuestion,idForm], [From.idQ,From.idF], ondelete='CASCADE'))
-
-@dataclass
-class apRefExam(db.Model): # [ attendsTo ] < apRefExam > [ takesEx ]
+class ApRefExam(db.Model): # [ attendsTo ] < apRefExam > [ takesEx ]
     __tablename__ = 'apRefExam'
 
     idAp: int
@@ -140,7 +140,7 @@ class apRefExam(db.Model): # [ attendsTo ] < apRefExam > [ takesEx ]
                       [TakesEx.idExTaken, TakesEx.idEx, TakesEx.ciPa], ondelete='CASCADE'),)
 
 @dataclass
-class apRefTr(db.Model): # [ attendsTo ] < apRefTr > [ follows ]
+class ApRefTr(db.Model): # [ attendsTo ] < apRefTr > [ follows ]
     __tablename__ = 'apRefTr'
 
     idAp: int
@@ -163,3 +163,45 @@ class apRefTr(db.Model): # [ attendsTo ] < apRefTr > [ follows ]
                       db.ForeignKeyConstraint(
                         [idFollows,idTreatment,ciPaTr],
                       [Follows.idFollows, Follows.idTreatment, Follows.ciPa], ondelete='CASCADE'),)
+
+@dataclass
+class suggestsTr(db.Model): # [ attendsTo ] < suggestsTr > Treatment
+    __tablename__ = 'suggestsTr'
+
+    idAp: int
+    ciPaAp: int
+    idTreatment: int
+
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPaAp = db.Column(db.Integer, primary_key=True)
+    idTreatment = db.Column(db.Integer, db.ForeignKey(Treatment.id, ondelete='CASCADE'), primary_key=True)
+
+    __table_args__ = (db.ForeignKeyConstraint(
+                        [idAp,ciPaAp],
+                        [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),)
+
+
+@dataclass
+class requiresEx(db.Model): # [ attendsTo ] < requiresEx > [ takesEx ]
+    __tablename__ = 'requiresEx'
+
+    idAp: int
+    ciPaAp: int
+
+    idExTaken: int
+    idEx: int
+    ciPaEx: int
+
+    idAp = db.Column(db.Integer, primary_key=True)
+    ciPaAp = db.Column(db.Integer, primary_key=True)
+    
+    idExTaken = db.Column(db.Integer, primary_key=True)
+    idEx = db.Column(db.Integer, primary_key=True)
+    ciPaEx = db.Column(db.Integer, primary_key=True)
+
+    __table_args__ = (db.ForeignKeyConstraint(
+                        [idAp,ciPaAp],
+                        [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
+                      db.ForeignKeyConstraint(
+                        [idExTaken,idEx,ciPaEx],
+                      [TakesEx.idExTaken, TakesEx.idEx, TakesEx.ciPa], ondelete='CASCADE'),)

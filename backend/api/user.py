@@ -1,4 +1,4 @@
-from flask import jsonify, Blueprint, request
+from flask import json, jsonify, Blueprint, request
 from models.User import User
 router = Blueprint('user', __name__, url_prefix='/user')
 
@@ -8,6 +8,9 @@ def allUsers():
 
 @router.route('', methods=['POST']) # POST /api/user
 def userByCi():
-    ci = request.form['ci'] # enviado desde postman como form-data
-    print(f'ci es: {ci}')
-    return jsonify(User.query.filter(User.ci == ci).first())
+    try:
+        userData = json.loads(request.data)
+        ci = userData['ci']
+        return jsonify(User.query.filter(User.ci == ci).first())   
+    except:
+        return 'missing ci', 400 # if there was no request.data or userData['ci], return this.

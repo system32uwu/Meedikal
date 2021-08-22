@@ -95,7 +95,7 @@ class Administrative(db.Model):
 
     ci = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
 
-    base = relationship('User', primaryjoin='User.ci == Administrative.ci') # in order to get the base attributes
+    base = relationship('User') # in order to get the base attributes
 
 @dataclass
 class UIsRelatedTo(db.Model): # User1 < uIsRelatedTo > User2

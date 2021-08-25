@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash
-from . import db
+from .db import BaseModel, db
 from datetime import datetime
 
 @dataclass # base user class
-class User(db.Model):
+class User(BaseModel):
 
     ci: int
     name1: str
@@ -30,7 +30,7 @@ class User(db.Model):
     birthdate = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.VARCHAR(256))
     email = db.Column(db.VARCHAR(256))
-    active = db.Column(db.BOOLEAN, default=True, nullable=False)
+    active = db.Column(db.BOOLEAN, nullable=False)
     password = db.Column(db.VARCHAR(128), nullable=False)
 
     phoneNumbers = relationship('UserPhone', back_populates='users')
@@ -39,7 +39,7 @@ class User(db.Model):
         return check_password_hash(self.password, password)
 
 @dataclass # since phone is a multivalued attribute, it has its own table.
-class UserPhone(db.Model):
+class UserPhone(BaseModel):
     __tablename__ = 'userPhone'
 
     ci: int
@@ -51,26 +51,26 @@ class UserPhone(db.Model):
     users = relationship('User', back_populates='phoneNumbers')
 
 @dataclass
-class Patient(db.Model):
+class Patient(BaseModel):
 
     ci: int
 
     ci = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
 
-    base = relationship('User') # in order to get the base attributes
+    base: User = relationship('User') # in order to get the base attributes
     
 @dataclass # users from the medical personnel, those without further categorization (either doctor or medical assitant), will be stored only in this table and have limited permissions and access
-class MedicalPersonnel(db.Model):
+class MedicalPersonnel(BaseModel):
     __tablename__ = 'medicalPersonnel'
 
     ci: int
 
     ci = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
 
-    base = relationship('User') # in order to get the base attributes
+    base: User = relationship('User') # in order to get the base attributes
 
 @dataclass # users from the medical personnel, who are doctors. 
-class Doctor(db.Model):
+class Doctor(BaseModel):
 
     ci: int
 
@@ -79,7 +79,7 @@ class Doctor(db.Model):
     base = relationship('MedicalPersonnel') # in order to get the base attributes
 
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
-class MedicalAssitant(db.Model):
+class MedicalAssitant(BaseModel):
     __tablename__ = 'medicalAssistant'
 
     ci: int
@@ -89,16 +89,16 @@ class MedicalAssitant(db.Model):
     base = relationship('MedicalPersonnel') # in order to get the base attributes
 
 @dataclass
-class Administrative(db.Model):
+class Administrative(BaseModel):
 
     ci: int
 
     ci = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
 
-    base = relationship('User') # in order to get the base attributes
+    base: User = relationship('User') # in order to get the base attributes
 
 @dataclass
-class UIsRelatedTo(db.Model): # User1 < uIsRelatedTo > User2
+class UIsRelatedTo(BaseModel): # User1 < uIsRelatedTo > User2
     __tablename__ = 'uIsRelatedTo'
     
     user1: int

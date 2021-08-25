@@ -1,18 +1,19 @@
 from dataclasses import dataclass
-from . import db
+from sqlalchemy.orm import relationship
+from .db import db, BaseModel
 from .User import MedicalPersonnel
 
 @dataclass
-class Specialty(db.Model):
+class Specialty(BaseModel):
 
     id: int
     title: str
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.VARCHAR(64), unique=True, nullable=False) # It wouldn't make sense to store specialties with the same name multiple times, but neither would setting a 64 characters long PK do so.
-
+    
 @dataclass
-class mpHasSpec(db.Model): 
+class MpHasSpec(BaseModel): 
     __tablename__ = 'mpHasSpec'
     
     ciMp: int

@@ -2,11 +2,11 @@ from .ClinicalSign import ClinicalSign
 from .Appointment import Appointment, AttendsTo
 from dataclasses import dataclass
 from datetime import datetime
-from . import db
-from .User import Patient, User
+from .db import db, BaseModel
+from .User import User
 
 @dataclass
-class Disease(db.Model):
+class Disease(BaseModel):
     id: int
     name: str
     description: str
@@ -16,7 +16,7 @@ class Disease(db.Model):
     description = db.Column(db.VARCHAR(512)) 
 
 @dataclass
-class Category(db.Model):
+class Category(BaseModel):
     id: int
     name: str
 
@@ -24,7 +24,7 @@ class Category(db.Model):
     name = db.Column(db.VARCHAR(128), unique=True, nullable=False) 
 
 @dataclass
-class DiseaseCat(db.Model): # Disease <diseaseCat> Category
+class DiseaseCat(BaseModel): # Disease <diseaseCat> Category
     __tablename__ = 'diseaseCat'
 
     idDisease: int
@@ -34,7 +34,7 @@ class DiseaseCat(db.Model): # Disease <diseaseCat> Category
     idCat = db.Column(db.Integer, db.ForeignKey(Category.id, ondelete='CASCADE'), primary_key=True) 
 
 @dataclass
-class USufferedFrom(db.Model): # User < uSufferedFrom > Disease
+class USufferedFrom(BaseModel): # User < uSufferedFrom > Disease
     __tablename__ = 'uSufferedFrom'
 
     ciUser: int
@@ -51,7 +51,7 @@ class USufferedFrom(db.Model): # User < uSufferedFrom > Disease
 
 
 @dataclass
-class Diagnoses(db.Model): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < diagnoses > Disease
+class Diagnoses(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < diagnoses > Disease
 
     idAp: int
     ciPa: int

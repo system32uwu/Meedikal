@@ -1,3 +1,16 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from .Alert import *
+from .Appointment import *
+from .Branch import *
+from .ClinicalSign import *
+from .Disease import *
+from .Exam import *
+from .Form import *
+from .Medicine import *
+from .Notification import *
+from .Specialty import *
+from .State import *
+from .Surgery import *
+from .Symptom import *
+from .Treatment import *
+from .User import *
+from .Vaccine import *

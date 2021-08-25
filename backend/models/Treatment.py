@@ -1,10 +1,10 @@
 from datetime import datetime
 from .User import MedicalPersonnel, Patient
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 
 @dataclass
-class Treatment(db.Model):
+class Treatment(BaseModel):
     
     id: int
     name: str
@@ -19,7 +19,7 @@ class Treatment(db.Model):
     avgSessionTime = db.Column(db.Integer)
 
 @dataclass
-class Follows(db.Model): # Patient < follows > Treatment
+class Follows(BaseModel): # Patient < follows > Treatment
     idFollows: int
     idTreatment: int
     ciPa: int
@@ -37,7 +37,7 @@ class Follows(db.Model): # Patient < follows > Treatment
     result = db.Column(db.VARCHAR(64))
 
 @dataclass
-class TakesCare(db.Model): # MedicalPersonnel < takesCare > [ Patient < follows > Treatment ] 
+class TakesCare(BaseModel): # MedicalPersonnel < takesCare > [ Patient < follows > Treatment ] 
     __tablename__ = 'takesCare'
     idFollows: int
     idTreatment: int

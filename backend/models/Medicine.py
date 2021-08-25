@@ -1,10 +1,10 @@
 from datetime import datetime
 from .User import Doctor, Patient
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 
 @dataclass
-class Medicine(db.Model):
+class Medicine(BaseModel):
     id: int
     name: str
     description: str
@@ -16,7 +16,7 @@ class Medicine(db.Model):
     notes = db.Column(db.String())
 
 @dataclass
-class Manufacturer(db.Model):
+class Manufacturer(BaseModel):
 
     id: int
     name: str
@@ -33,7 +33,7 @@ class Manufacturer(db.Model):
     logo = db.Column(db.String())
 
 @dataclass 
-class ManufacturedBy(db.Model):
+class ManufacturedBy(BaseModel):
     __tablename__ = 'manufacturedBy'
 
     idMed: int
@@ -43,7 +43,7 @@ class ManufacturedBy(db.Model):
     idManufacturer = db.Column(db.Integer, db.ForeignKey(Manufacturer.id, ondelete='CASCADE'), primary_key=True)
     
 @dataclass 
-class TakesMed(db.Model):
+class TakesMed(BaseModel):
     __tablename__ = 'takesMed'
 
     idMed: int
@@ -56,7 +56,7 @@ class TakesMed(db.Model):
     
 
 @dataclass 
-class Prescribes(db.Model): # Doctor < prescribes > [ Patient < takesMed > Medicine ]
+class Prescribes(BaseModel): # Doctor < prescribes > [ Patient < takesMed > Medicine ]
 
     idMed: int
     ciPa: int

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 from .User import Patient
 from datetime import datetime
 
 @dataclass
-class State(db.Model):
+class State(BaseModel):
 
     id: int
     name: str
@@ -13,7 +13,7 @@ class State(db.Model):
     name = db.Column(db.VARCHAR(64), nullable=False)
 
 @dataclass
-class registersSt(db.Model): # Patient < registersSt > State 
+class registersSt(BaseModel): # Patient < registersSt > State 
 
     __tablename__ = 'registersSt'
 

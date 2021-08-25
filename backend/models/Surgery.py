@@ -1,9 +1,10 @@
 from datetime import datetime
 from .User import Doctor, MedicalAssitant, Patient
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
+
 @dataclass
-class Surgery(db.Model):
+class Surgery(BaseModel):
     
     id: int
     name: str
@@ -12,7 +13,7 @@ class Surgery(db.Model):
     name = db.Column(db.VARCHAR(128), unique=True, nullable=False) 
 
 @dataclass 
-class TakesSurg(db.Model):
+class TakesSurg(BaseModel):
     __tablename__ = 'takesSurg'
 
     idTakenSurg: int
@@ -32,7 +33,7 @@ class TakesSurg(db.Model):
     result = db.Column(db.VARCHAR(128))
 
 @dataclass 
-class HandlesSurg(db.Model):
+class HandlesSurg(BaseModel):
     __tablename__ = 'handlesSurg'
 
     idTakenSurg: int
@@ -49,7 +50,7 @@ class HandlesSurg(db.Model):
                     [TakesSurg.idTakenSurg,TakesSurg.idSurg,TakesSurg.ciPa], ondelete='CASCADE'),)
 
 @dataclass 
-class AssistsSurg(db.Model):
+class AssistsSurg(BaseModel):
     __tablename__ = 'assistsSurg'
 
     idTakenSurg: int

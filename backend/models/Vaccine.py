@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 from .User import User
 from datetime import datetime
 
 @dataclass
-class Vaccine(db.Model):
+class Vaccine(BaseModel):
     id: int
     name: str
     validity: int # in days
@@ -14,7 +14,7 @@ class Vaccine(db.Model):
     validity = db.Column(db.Integer)
 
 @dataclass
-class UTakesVaccine(db.Model): # user < uTakesVaccine > Vaccine
+class UTakesVaccine(BaseModel): # user < uTakesVaccine > Vaccine
     __tablename__ = 'uTakesVaccine'
 
     idVaccine: int

@@ -1,10 +1,10 @@
 from .User import MedicalPersonnel
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 from datetime import datetime
 
 @dataclass
-class Form(db.Model):
+class Form(BaseModel):
 
     id: int
     title: str
@@ -17,7 +17,7 @@ class Form(db.Model):
     content = db.Column(db.JSON)
 
 @dataclass
-class Question(db.Model):
+class Question(BaseModel):
 
     id: int
     text: str
@@ -26,7 +26,7 @@ class Question(db.Model):
     text = db.Column(db.VARCHAR(64), nullable=False) 
 
 @dataclass # question < from > form
-class From(db.Model):
+class From(BaseModel):
 
     idQ: int # id of the question
     idF: str # id of the form
@@ -39,7 +39,7 @@ class From(db.Model):
     responseField = db.Column(db.String(255))
 
 @dataclass # medicalPersonnel user < designed > form
-class Designed(db.Model):
+class Designed(BaseModel):
 
     ciMp: int # id of the user
     idF: str # id of the form

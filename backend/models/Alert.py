@@ -1,9 +1,9 @@
 from .User import User
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 
 @dataclass
-class Alert(db.Model): # allergies, behaviours, traumas...
+class Alert(BaseModel): # allergies, behaviours, traumas...
 
     id: int
     title: str
@@ -12,7 +12,7 @@ class Alert(db.Model): # allergies, behaviours, traumas...
     title = db.Column(db.VARCHAR(64), nullable=False) 
 
 @dataclass
-class UHasAlert(db.Model): # user < UHasAlert > Alert
+class UHasAlert(BaseModel): # user < UHasAlert > Alert
 
     __tablename__ = 'uHasAlert'
 

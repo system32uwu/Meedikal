@@ -1,9 +1,9 @@
 from .Appointment import AttendsTo
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 
 @dataclass
-class ClinicalSign(db.Model):
+class ClinicalSign(BaseModel):
     __tablename__ = 'clinicalSign'
 
     id: int
@@ -15,7 +15,7 @@ class ClinicalSign(db.Model):
     description = db.Column(db.VARCHAR(512)) 
 
 @dataclass
-class registersCs(db.Model): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersCs > ClinicalSign
+class registersCs(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersCs > ClinicalSign
     __tablename__ = 'registersCs'
 
     idAp: int

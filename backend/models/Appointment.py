@@ -3,7 +3,7 @@ from .Exam import TakesEx
 from .Form import From
 from .User import MedicalAssitant, Patient, Doctor
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 from datetime import datetime, date, time
 from sqlalchemy import Enum
 
@@ -11,7 +11,7 @@ appointmentStates = ('OK','CANCELLED', 'RESCHEDULING')
 appointmentStatesEnum = Enum(*appointmentStates, name='appointmentState')
 
 @dataclass
-class Appointment(db.Model):
+class Appointment(BaseModel):
 
     id: int
     name: str
@@ -32,7 +32,7 @@ class Appointment(db.Model):
     maxTurns = db.Column(db.Integer, default=1)
 
 @dataclass
-class AssignedTo(db.Model): # Doctor < assignedTo > Appointment
+class AssignedTo(BaseModel): # Doctor < assignedTo > Appointment
     __tablename__ = 'assignedTo'
 
     idAp: int
@@ -42,7 +42,7 @@ class AssignedTo(db.Model): # Doctor < assignedTo > Appointment
     ciDoc = db.Column(db.Integer, db.ForeignKey(Doctor.ci, ondelete='CASCADE'))
 
 @dataclass
-class AssistsAp(db.Model): # MedicalAssistant < assistsAp > [ Doctor < assignedTo > Appointment ]
+class AssistsAp(BaseModel): # MedicalAssistant < assistsAp > [ Doctor < assignedTo > Appointment ]
     __tablename__ = 'assistsAp'
 
     idAp: int
@@ -54,7 +54,7 @@ class AssistsAp(db.Model): # MedicalAssistant < assistsAp > [ Doctor < assignedT
     time = db.Column(db.Time, primary_key=True)
 
 @dataclass
-class AttendsTo(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appointment]
+class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appointment]
     __tablename__ = 'attendsTo'
 
     idAp: int
@@ -70,7 +70,7 @@ class AttendsTo(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appoi
     time = db.Column(db.Time)
 
 @dataclass
-class Fills(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appointment ] < fills > [ Question < from > Form]
+class Fills(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appointment ] < fills > [ Question < from > Form]
     
     idAp: int
     ciPa: int
@@ -88,7 +88,7 @@ class Fills(db.Model): # Patient < attendsTo > [ Doctor < assignedTo > Appointme
                       db.ForeignKeyConstraint([idQuestion,idForm], [From.idQ,From.idF], ondelete='CASCADE'))
 
 @dataclass
-class ApRefPrevAp(db.Model): # self-relationship, used to make reference to a previous appointment
+class ApRefPrevAp(BaseModel): # self-relationship, used to make reference to a previous appointment
     __tablename__ = 'apRefPrevAp'
 
     idCurrAp: int
@@ -115,7 +115,7 @@ class ApRefPrevAp(db.Model): # self-relationship, used to make reference to a pr
                        )
 
 @dataclass
-class ApRefExam(db.Model): # [ attendsTo ] < apRefExam > [ takesEx ]
+class ApRefExam(BaseModel): # [ attendsTo ] < apRefExam > [ takesEx ]
     __tablename__ = 'apRefExam'
 
     idAp: int
@@ -140,7 +140,7 @@ class ApRefExam(db.Model): # [ attendsTo ] < apRefExam > [ takesEx ]
                       [TakesEx.idExTaken, TakesEx.idEx, TakesEx.ciPa], ondelete='CASCADE'),)
 
 @dataclass
-class ApRefTr(db.Model): # [ attendsTo ] < apRefTr > [ follows ]
+class ApRefTr(BaseModel): # [ attendsTo ] < apRefTr > [ follows ]
     __tablename__ = 'apRefTr'
 
     idAp: int
@@ -165,7 +165,7 @@ class ApRefTr(db.Model): # [ attendsTo ] < apRefTr > [ follows ]
                       [Follows.idFollows, Follows.idTreatment, Follows.ciPa], ondelete='CASCADE'),)
 
 @dataclass
-class suggestsTr(db.Model): # [ attendsTo ] < suggestsTr > Treatment
+class suggestsTr(BaseModel): # [ attendsTo ] < suggestsTr > Treatment
     __tablename__ = 'suggestsTr'
 
     idAp: int
@@ -182,7 +182,7 @@ class suggestsTr(db.Model): # [ attendsTo ] < suggestsTr > Treatment
 
 
 @dataclass
-class requiresEx(db.Model): # [ attendsTo ] < requiresEx > [ takesEx ]
+class requiresEx(BaseModel): # [ attendsTo ] < requiresEx > [ takesEx ]
     __tablename__ = 'requiresEx'
 
     idAp: int

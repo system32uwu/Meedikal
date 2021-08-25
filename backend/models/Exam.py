@@ -1,10 +1,10 @@
 from .User import Patient
 from dataclasses import dataclass
 from datetime import datetime
-from . import db
+from .db import db, BaseModel
 
 @dataclass
-class Exam(db.Model):
+class Exam(BaseModel):
     id: int
     name: str
     preview: int
@@ -14,7 +14,7 @@ class Exam(db.Model):
     preview = db.Column(db.String()) 
 
 @dataclass
-class Parameter(db.Model):
+class Parameter(BaseModel):
     id: int
     name: str
     measureUnit: str
@@ -28,7 +28,7 @@ class Parameter(db.Model):
     refMaxValue = db.Column(db.Float)
 
 @dataclass
-class Indication(db.Model):
+class Indication(BaseModel):
     id: int
     name: str
     description: str
@@ -38,7 +38,7 @@ class Indication(db.Model):
     description = db.Column(db.String()) 
 
 @dataclass
-class ExHasPar(db.Model):
+class ExHasPar(BaseModel):
     __tablename__ = 'exHasPar'
 
     idEx: int
@@ -48,7 +48,7 @@ class ExHasPar(db.Model):
     idPar = db.Column(db.Integer, db.ForeignKey(Parameter.id, ondelete='CASCADE'), primary_key=True)
 
 @dataclass
-class ExHasInd(db.Model):
+class ExHasInd(BaseModel):
     __tablename__ = 'exHasInd'
 
     idEx: int
@@ -58,7 +58,7 @@ class ExHasInd(db.Model):
     idInd = db.Column(db.Integer, db.ForeignKey(Indication.id, ondelete='CASCADE'), primary_key=True)
 
 @dataclass 
-class TakesEx(db.Model): # Patient < takesEx > Exam
+class TakesEx(BaseModel): # Patient < takesEx > Exam
     __tablename__ = 'takesEx'
 
     idExTaken: int
@@ -74,7 +74,7 @@ class TakesEx(db.Model): # Patient < takesEx > Exam
     results = db.Column(db.JSON)
 
 @dataclass
-class Laboratory(db.Model):
+class Laboratory(BaseModel):
     
     id: int
     name: str
@@ -91,7 +91,7 @@ class Laboratory(db.Model):
     logo = db.Column(db.String()) 
 
 @dataclass
-class HandlesEx(db.Model): # [ takesEx ] < handlesEx > Laboratory
+class HandlesEx(BaseModel): # [ takesEx ] < handlesEx > Laboratory
     __tablename__ = 'handlesEx'
 
     idEx: int

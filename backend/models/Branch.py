@@ -1,10 +1,10 @@
 from .Treatment import TakesCare
 from .Appointment import Appointment
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 
 @dataclass
-class Branch(db.Model):
+class Branch(BaseModel):
 
     id: int
     name: str
@@ -17,7 +17,7 @@ class Branch(db.Model):
     location = db.Column(db.VARCHAR(64), nullable=False) 
 
 @dataclass
-class ApTakesPlace(db.Model): # Appointment < apTakesPlace > Branch
+class ApTakesPlace(BaseModel): # Appointment < apTakesPlace > Branch
     __tablename__ = 'apTakesPlace'
 
     idAp: int
@@ -27,7 +27,7 @@ class ApTakesPlace(db.Model): # Appointment < apTakesPlace > Branch
     idBranch = db.Column(db.Integer, db.ForeignKey(Branch.id, ondelete='CASCADE'))
 
 @dataclass
-class TrTakesPlace(db.Model): # takesCare < trTakesPlace > Branch
+class TrTakesPlace(BaseModel): # takesCare < trTakesPlace > Branch
     __tablename__ = 'trTakesPlace'
 
     idFollows: int

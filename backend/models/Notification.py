@@ -1,10 +1,10 @@
 from .User import User
 from dataclasses import dataclass
-from . import db
+from .db import db, BaseModel
 from datetime import datetime
 
 @dataclass
-class Notification(db.Model):
+class Notification(BaseModel):
 
     id: int
     date: datetime
@@ -17,7 +17,7 @@ class Notification(db.Model):
     content = db.Column(db.VARCHAR(512)) 
 
 @dataclass
-class UReceivesNot(db.Model): # user < UReceivesNot > notification
+class UReceivesNot(BaseModel): # user < UReceivesNot > notification
 
     __tablename__ = 'uReceivesNot'
 

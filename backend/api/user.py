@@ -1,14 +1,16 @@
+from dataclasses import asdict
 from models.Specialty import MpHasSpec, Specialty
-from models.User import User, Patient, MedicalPersonnel, Doctor, MedicalAssitant, Administrative, UserPhone
+from models.User import User, Patient, MedicalPersonnel, Doctor, MedicalAssitant, Administrative, UserPhone, UIsRelatedTo
 from flask import json, jsonify, Blueprint, request
 from sqlalchemy.orm.query import Query
 
 from werkzeug.security import generate_password_hash
 
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 from .crud import get_or_create, put, patch, delete
 from .returnMessages import provideData, recordAlreadyExists, recordCUDSuccessfully, recordDoesntExists, notFound
+
 
 router = Blueprint('user', __name__, url_prefix='/user')
 
@@ -26,15 +28,36 @@ def filterByType(userType=None) -> Query:
     elif userType == 'administrative':
         return User.query.filter(User.ci == Administrative.ci)
 
-def userToReturn(user: User): # remove the password before returning the object
-    delattr(user,'password')
+def removePassword(user): # remove the password before returning the object
+    user.pop('password', None)
+
+def userToReturn(user: User, userType=None):
+
+    obj = {"user": asdict(user), 
+           "phoneNumbers": [asdict(p) for p in UserPhone.query.filter(
+                                    UserPhone.ci == user.ci).all()],
+           "relatives": [asdict(r) for r in UIsRelatedTo.query.filter(or_(
+                                    UIsRelatedTo.user1==user.ci,
+                                    UIsRelatedTo.user2==user.ci)).all()]}
+
+    if userType == 'medicalPersonnel':
+        obj['specialties'] = [asdict(sp) for sp in Specialty.query.filter(and_(
+                                        MpHasSpec.ciMp == user.ci,
+                                        MpHasSpec.idSpec == Specialty.id)).all()]
+    removePassword(obj['user'])
+
+    return obj
 
 @router.route('/all') # GET /api/user/all/{userType}
 @router.route('/all/<userType>')
 def allUsers(userType=None):
     users = filterByType(userType).all()
-    [userToReturn(user) for user in users]   
-    return jsonify(users), 200
+    usersToReturn = []
+    
+    for user in users:
+        usersToReturn.append(userToReturn(user, userType))
+
+    return jsonify(usersToReturn), 200
 
 @router.route('/<int:ci>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
 def userByCi(ci):
@@ -43,8 +66,7 @@ def userByCi(ci):
         return recordDoesntExists("user")
     else:
         if request.method == 'GET':
-            userToReturn(user)
-            return jsonify(user), 200
+            return jsonify(userToReturn(user)), 200
         else:
             user.delete()
             return recordCUDSuccessfully(delete=True)
@@ -52,16 +74,24 @@ def userByCi(ci):
 @router.route('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
 def userBySurname1(surname1, userType=None):
     users = filterByType(userType).filter(User.surname1 == surname1).all()
-    [userToReturn(user) for user in users]
-    return jsonify(users), 200
+    usersToReturn = []
+
+    for user in users:
+        usersToReturn.append(userToReturn(user, userType))
+
+    return jsonify(usersToReturn), 200
 
 @router.route('/<name1>/<surname1>/<userType>') # GET /api/user/{name1}/{surname1}/{userType}
 def userByName1nSurname1(name1,surname1, userType=None):
     users = filterByType(userType).filter(and_(
                                             User.surname1 == surname1,
                                             User.name1 == name1)).all()
-    [userToReturn(user) for user in users]  
-    return jsonify(users), 200
+    usersToReturn = []
+    
+    for user in users:
+        usersToReturn.append(userToReturn(user, userType))
+
+    return jsonify(usersToReturn), 200
 
 @router.route('', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH /api/user
 def create_or_update():
@@ -95,7 +125,23 @@ def create_or_update():
             delete(UserPhone,ci=user.ci)
         
         for phone in phones:
-            get_or_create(model=UserPhone, toInsert=UserPhone(ci=user.ci,phone=phone), ci=user.ci, phone=phone)
+            get_or_create(model=UserPhone, 
+                          toInsert=UserPhone(ci=user.ci,phone=phone),
+                          ci=user.ci, phone=phone)
+
+        relatives = userData['relatedTo']
+        
+        if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
+            delete(UIsRelatedTo,user1=user.ci)
+            delete(UIsRelatedTo,user2=user.ci)
+        
+        for relative in relatives:
+            get_or_create(model=UIsRelatedTo, 
+                          toInsert=UIsRelatedTo(user1=user.ci,
+                                                user2=relative.ci,
+                                                typeUser1=relative.typeUser1,
+                                                typeUser2=relative.typeUser2),
+                          user1=user.ci, user2=relative.ci)
 
         if userData['userType'] == 'patient':
             get_or_create(model=Patient, toInsert=Patient(ci=user.ci), ci=user.ci)
@@ -121,21 +167,18 @@ def create_or_update():
     except:
         return provideData()
 
-@router.route("/<int:ci>/phoneNumbers")
-def getUserPhoneNumbers(ci):
-    return jsonify(UserPhone.query.filter(UserPhone.ci == ci).all()), 200
-
 # -- MEDICAL PERSONNEL USERS
 
 @router.route('/mp/<int:specialtyId>') # GET /api/user/mp/{specialtyId}
 def medicalPersonnelBySpecialty(specialtyId:int):
-    return jsonify(filterByType(userType='medicalPersonnel').filter(and_(
+    userType = 'medicalPersonnel'
+    users = filterByType(userType).filter(and_(
                                             MpHasSpec.idSpec == specialtyId,
                                             MpHasSpec.ciMp == User.ci 
-                                            )).all()), 200
+                                            )).all()
+    usersToReturn = []
+    
+    for user in users:
+        usersToReturn.append(userToReturn(user, userType))
 
-@router.route('/mp/<int:ci>/specialties') # GET /api/user/mp/{ci}/specialties
-def medicalPersonnelSpecialties(ci:int):
-    return jsonify(Specialty.query.filter(and_(
-                                        MpHasSpec.ciMp == ci,
-                                        MpHasSpec.idSpec == Specialty.id)).all()), 200
+    return jsonify(usersToReturn), 200

@@ -80,38 +80,3 @@ class BaseModel(db.Model):
         except:
             db.session.rollback()
             return None
-
-def get_or_create(model, toInsert, **kwargs):
-    instance = db.session.query(model).filter_by(**kwargs).one_or_none()
-    if instance:
-        return instance, False
-    else:
-        try:
-            db.session.add(toInsert)
-            db.session.commit()
-
-            return toInsert, True
-        except Exception:  # The actual exception depends on the specific database so we catch all exceptions. This is similar to the official documentation: https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html
-            db.session.rollback()
-            instance = db.session.query(model).filter_by(**kwargs).one()
-
-            return instance, False
-
-def put(model, toPut, **kwargs):
-    instance = db.session.query(model).filter_by(**kwargs).one_or_none()
-    
-    if not instance:
-        return instance, False
-    else:
-        try:
-            for key, value in dict(toPut).items():
-                if key != '_sa_instance_state':
-                    setattr(instance,key,value)
-
-            db.session.commit()
-
-            return instance, True
-        except Exception:  # The actual exception depends on the specific database so we catch all exceptions. This is similar to the official documentation: https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html
-            db.session.rollback()
-            instance = db.session.query(model).filter_by(**kwargs).one()
-            return instance, False

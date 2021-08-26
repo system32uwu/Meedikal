@@ -33,8 +33,6 @@ class User(BaseModel):
     active = db.Column(db.BOOLEAN, nullable=False)
     password = db.Column(db.VARCHAR(128), nullable=False)
 
-    phoneNumbers = relationship('UserPhone', back_populates='users')
-
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
 
@@ -47,8 +45,6 @@ class UserPhone(BaseModel):
 
     ci = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
     phone = db.Column(db.VARCHAR(32), primary_key=True) # some countries' phone numbers are quite long 
-
-    users = relationship('User', back_populates='phoneNumbers')
 
 @dataclass
 class Patient(BaseModel):

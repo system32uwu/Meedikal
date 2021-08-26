@@ -92,7 +92,7 @@ def create_or_update():
         phones = userData['phoneNumbers']
         
         if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
-                delete(UserPhone,ci=user.ci)
+            delete(UserPhone,ci=user.ci)
         
         for phone in phones:
             get_or_create(model=UserPhone, toInsert=UserPhone(ci=user.ci,phone=phone), ci=user.ci, phone=phone)

@@ -1,6 +1,7 @@
+from models.db import BaseModel
 from models import db
 
-def get_or_create(model, toInsert, **kwargs):
+def getOrCreate(model: BaseModel, toInsert, **kwargs):
     instance = db.session.query(model).filter_by(**kwargs).one_or_none()
     if instance:
         return instance, False
@@ -16,7 +17,7 @@ def get_or_create(model, toInsert, **kwargs):
 
             return instance, False
 
-def put(model, toPut, **kwargs): # PUT replaces the entire record
+def put(model:BaseModel, toPut, **kwargs): # PUT replaces the entire record
     instance = db.session.query(model).filter_by(**kwargs).one_or_none()
     
     if not instance:
@@ -35,7 +36,7 @@ def put(model, toPut, **kwargs): # PUT replaces the entire record
             instance = db.session.query(model).filter_by(**kwargs).one()
             return instance, False
 
-def patch(model, toPatch, **kwargs): # PATCH updates the provided values
+def patch(model:BaseModel, toPatch, **kwargs): # PATCH updates the provided values
     instance = db.session.query(model).filter_by(**kwargs).one_or_none()
     
     if not instance:
@@ -54,7 +55,7 @@ def patch(model, toPatch, **kwargs): # PATCH updates the provided values
             instance = db.session.query(model).filter_by(**kwargs).one()
             return instance, False
 
-def delete(model, **kwargs): # DELETE by the given filters
+def delete(model:BaseModel, **kwargs): # DELETE by the given filters
     instances = db.session.query(model).filter_by(**kwargs).all()
     
     if not instances:
@@ -68,3 +69,17 @@ def delete(model, **kwargs): # DELETE by the given filters
         except Exception: 
             db.session.rollback()
             return False
+
+def crud(operation:str,model:BaseModel,obj,**kwargs):
+    if operation == 'POST':
+        return getOrCreate(model=model,toInsert=obj,**kwargs)
+    elif operation == 'PUT':
+        return put(model=model,toPut=obj,**kwargs)
+    elif operation == 'PATCH':
+        return patch(model=model,toPatch=obj,**kwargs)
+    elif operation == 'DELETE':
+        return delete(model=model,**kwargs)
+
+# returns : {"result": "<EntityType> (created|updated|deleted) succesfully" }, 200 | {"result": "<EntityType> not (created|updated|deleted)", "error": "<EntityType> already exists"}, 400 
+def crudReturn(operation:str, model:BaseModel): 
+    pass

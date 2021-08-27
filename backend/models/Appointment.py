@@ -1,5 +1,5 @@
 from .Treatment import Follows, Treatment
-from .Exam import TakesEx
+from .Exam import Exam, TakesEx
 from .Form import From
 from .User import MedicalAssitant, Patient, Doctor
 from dataclasses import dataclass
@@ -165,7 +165,7 @@ class ApRefTr(BaseModel): # [ attendsTo ] < apRefTr > [ follows ]
                       [Follows.idFollows, Follows.idTreatment, Follows.ciPa], ondelete='CASCADE'),)
 
 @dataclass
-class suggestsTr(BaseModel): # [ attendsTo ] < suggestsTr > Treatment
+class SuggestsTr(BaseModel): # [ attendsTo ] < suggestsTr > Treatment
     __tablename__ = 'suggestsTr'
 
     idAp: int
@@ -180,28 +180,18 @@ class suggestsTr(BaseModel): # [ attendsTo ] < suggestsTr > Treatment
                         [idAp,ciPaAp],
                         [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),)
 
-
 @dataclass
-class requiresEx(BaseModel): # [ attendsTo ] < requiresEx > [ takesEx ]
+class RequiresEx(BaseModel): # [ attendsTo ] < requiresEx > Exam
     __tablename__ = 'requiresEx'
 
     idAp: int
     ciPaAp: int
-
-    idExTaken: int
     idEx: int
-    ciPaEx: int
 
     idAp = db.Column(db.Integer, primary_key=True)
     ciPaAp = db.Column(db.Integer, primary_key=True)
-    
-    idExTaken = db.Column(db.Integer, primary_key=True)
-    idEx = db.Column(db.Integer, primary_key=True)
-    ciPaEx = db.Column(db.Integer, primary_key=True)
+    idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE') ,primary_key=True)
 
     __table_args__ = (db.ForeignKeyConstraint(
                         [idAp,ciPaAp],
-                        [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),
-                      db.ForeignKeyConstraint(
-                        [idExTaken,idEx,ciPaEx],
-                      [TakesEx.idExTaken, TakesEx.idEx, TakesEx.ciPa], ondelete='CASCADE'),)
+                        [AttendsTo.idAp,AttendsTo.ciPa], ondelete='CASCADE'),)

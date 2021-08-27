@@ -1,6 +1,8 @@
 from dataclasses import asdict
-from models.Specialty import MpHasSpec, Specialty
-from models.User import User, Patient, MedicalPersonnel, Doctor, MedicalAssitant, Administrative, UserPhone, UIsRelatedTo
+
+from models.Specialty import *
+from models.User import *
+
 from flask import json, jsonify, Blueprint, request
 from sqlalchemy.orm.query import Query
 
@@ -32,10 +34,10 @@ def removePassword(user): # remove the password before returning the object
 
 def userToReturn(user: User, userType=None):
 
-    obj = {"user": asdict(user), 
-           "phoneNumbers": [asdict(p) for p in UserPhone.query.filter(
+    obj = {'user': asdict(user), 
+           'phoneNumbers': [asdict(p) for p in UserPhone.query.filter(
                                     UserPhone.ci == user.ci).all()],
-           "relatives": [asdict(r) for r in UIsRelatedTo.query.filter(or_(
+           'relatives': [asdict(r) for r in UIsRelatedTo.query.filter(or_(
                                     UIsRelatedTo.user1==user.ci,
                                     UIsRelatedTo.user2==user.ci)).all()]}
 
@@ -62,7 +64,7 @@ def allUsers(userType=None):
 def userByCi(ci):
     user = filterByType(None).filter(User.ci == ci).first()
     if user is None:
-        return recordDoesntExists("user")
+        return recordDoesntExists('user')
     else:
         if request.method == 'GET':
             return jsonify(userToReturn(user)), 200
@@ -98,33 +100,33 @@ def create_or_update():
     try:
         userData = json.loads(request.data)
 
-        u = User(ci=userData['ci'], name1=userData['name1'], name2=userData['name2'],
-                    surname1=userData['surname1'], surname2=userData['surname2'], 
-                    sex=userData['sex'], genre=userData['genre'], 
+        u = User(ci=userData['ci'], name1=userData['name1'], name2=userData.get('name2', None),
+                    surname1=userData['surname1'], surname2=userData.get('surname2', None), 
+                    sex=userData['sex'], genre=userData.get('genre', None), 
                     birthdate=userData['birthdate'], location=userData['location'],
                     email=userData['email'], active=userData['active'],
                     password=generate_password_hash(userData['password']))
 
         if request.method == 'POST':
-            user, created = (get_or_create(model=User, toInsert=u, ci=userData['ci']))
+            user, created = (getOrCreate(model=User, toInsert=u, ci=userData['ci']))
             if not created:
-                return recordAlreadyExists()
+                return recordAlreadyExists(tablename='user')
         elif request.method == 'PUT':
             user, putted = (put(model=User, toPut=u, ci=userData['ci']))
             if not putted:
-                return recordDoesntExists()
+                return recordDoesntExists(tablename='user')
         elif request.method == 'PATCH':
             user, patched = (patch(model=User, toPatch=u, ci=userData['ci']))
             if not patched:
-                return recordDoesntExists()
+                return recordDoesntExists(tablename='user')
         
         phones = userData['phoneNumbers']
-        
+
         if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
             delete(UserPhone,ci=user.ci)
         
         for phone in phones:
-            get_or_create(model=UserPhone, 
+            getOrCreate(model=UserPhone, 
                           toInsert=UserPhone(ci=user.ci,phone=phone),
                           ci=user.ci, phone=phone)
 
@@ -135,7 +137,7 @@ def create_or_update():
             delete(UIsRelatedTo,user2=user.ci)
         
         for relative in relatives:
-            get_or_create(model=UIsRelatedTo, 
+            getOrCreate(model=UIsRelatedTo, 
                           toInsert=UIsRelatedTo(user1=user.ci,
                                                 user2=relative.ci,
                                                 typeUser1=relative.typeUser1,
@@ -143,41 +145,47 @@ def create_or_update():
                           user1=user.ci, user2=relative.ci)
 
         if userData['userType'] == 'patient':
-            get_or_create(model=Patient, toInsert=Patient(ci=user.ci), ci=user.ci)
+            getOrCreate(model=Patient, toInsert=Patient(ci=user.ci), ci=user.ci)
         elif userData['userType'] == 'medicalPersonnel':
-            mp, _created = (get_or_create(model=MedicalPersonnel, toInsert=MedicalPersonnel(ci=user.ci), ci=user.ci))
+            mp, _created = (getOrCreate(model=MedicalPersonnel, toInsert=MedicalPersonnel(ci=user.ci), ci=user.ci))
             
             if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
                 delete(MpHasSpec,ciMp=mp.ci)
 
             for specialty in userData['specialties']:
-                spec, __created = (get_or_create(model=Specialty, toInsert=Specialty(title=specialty['title']), title=specialty['title']))
-                get_or_create(model=MpHasSpec, toInsert=MpHasSpec(idSpec=spec.id, ciMp=mp.ci, detail=specialty['detail']), idSpec=spec.id, ciMp=mp.ci)
+                spec, __created = (getOrCreate(model=Specialty, toInsert=Specialty(title=specialty['title']), title=specialty['title']))
+                getOrCreate(model=MpHasSpec, toInsert=MpHasSpec(idSpec=spec.id, ciMp=mp.ci, detail=specialty['detail']), idSpec=spec.id, ciMp=mp.ci)
             
             if userData['subType'] == 'doctor':
-                get_or_create(model=Doctor, toInsert=Doctor(ci=mp.ci), ci=mp.ci)
+                getOrCreate(model=Doctor, toInsert=Doctor(ci=mp.ci), ci=mp.ci)
             elif userData['subType'] == 'medicalAssistant':
-                get_or_create(model=MedicalAssitant, toInsert=MedicalAssitant(ci=mp.ci), ci=mp.ci)
+                getOrCreate(model=MedicalAssitant, toInsert=MedicalAssitant(ci=mp.ci), ci=mp.ci)
 
             if request.method == 'POST':
-                return recordCUDSuccessfully("user",create=True)
+                return recordCUDSuccessfully('user',create=True)
             else:
-                return recordCUDSuccessfully("user",update=True)
+                return recordCUDSuccessfully('user',update=True)
     except:
         return provideData()
 
 # -- MEDICAL PERSONNEL USERS
 
-@router.route('/mp/<int:specialtyId>') # GET /api/user/mp/{specialtyId}
-def medicalPersonnelBySpecialty(specialtyId:int):
-    userType = 'medicalPersonnel'
-    users = filterByType(userType).filter(and_(
+@router.route('/mp/<subType>/<specialty>') # GET /api/user/mp/{subType}/{specialtyId}
+def medicalPersonnelBySpecialty(subType:str,specialty:str):
+    specialty = Specialty.query.filter(Specialty.title == specialty).first()
+
+    if specialty is None:
+        return recordDoesntExists("specialty")
+    else:
+        specialtyId = specialty.id
+
+    users = filterByType(subType).filter(and_(
                                             MpHasSpec.idSpec == specialtyId,
                                             MpHasSpec.ciMp == User.ci 
                                             )).all()
     usersToReturn = []
     
     for user in users:
-        usersToReturn.append(userToReturn(user, userType))
+        usersToReturn.append(userToReturn(user, 'medicalPersonnel'))
 
     return jsonify(usersToReturn), 200

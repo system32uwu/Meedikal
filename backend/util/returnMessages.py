@@ -1,19 +1,19 @@
-def recordDoesntExists(record:str):
-    return f"{record} doesn't exist", 400
+def recordDoesntExists(tablename:str):
+    return {"error": f"{tablename} doesn't exist"}, 400
 
-def recordAlreadyExists(record:str):
-    return f"{record} doesn't exist", 400
+def recordAlreadyExists(tablename:str):
+    return {"error": f"{tablename} doesn't exist"}, 400
 
-def notFound(record:str):
-    return f"no {record} was found", 400
+def notFound(tablename:str):
+    return {"error": f"no {tablename} was found"}, 400
 
 def provideData():
-    return "provide data", 400
+    return {"error": "no data was provided"}, 400
 
-def recordCUDSuccessfully(record:str,create=False, update=False, delete=False):
+def recordCUDSuccessfully(tablename:str,create=False, update=False, delete=False):
     if create:
-        return f"{record} created successfully", 200
+        return {"result": f"{tablename} created successfully"}, 200
     elif update:
-        return f"{record} updated successfully", 200
+        return {"result": f"{tablename} updated successfully"}, 200
     else:
-        return f"{record} deleted successfully", 200
+        return {"result": f"{tablename} deleted successfully"}, 200

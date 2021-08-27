@@ -92,7 +92,7 @@ def userByName1nSurname1(name1,surname1, userType=None):
 
     return jsonify(usersToReturn), 200
 
-@router.route('', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH /api/user
+@router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
 def create_or_update():
 
     try:

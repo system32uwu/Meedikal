@@ -1,3 +1,4 @@
+from util.JSONEncoder import JsonExtendEncoder
 from flask import Flask, Blueprint, render_template
 
 from flask_migrate import Migrate
@@ -16,6 +17,9 @@ def create_app() -> Flask:
     app = Flask(__name__, static_folder='../frontend/build/static', template_folder='../frontend/build') # serve compiled react app.
 
     app.config.from_object(DevelopmentConfig)
+
+    # --- CUSTOM
+    app.json_encoder = JsonExtendEncoder
 
     # --- DB
     from models import db

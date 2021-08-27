@@ -32,18 +32,6 @@ def create_app() -> Flask:
     app.register_blueprint(frontendRouter) # frontend
     # --- ROUTERS
 
-    # -- QUERY EXAMPLE
-
-    # from models.User import User,Patient
-
-    # patients = Patient.query.all()
-
-    # for u in patients:
-    #     print(f'CI: {u.ci} firstName: {u.base.name1}')
-
-    # for phoneNumber in u.base.phoneNumbers:
-    #     print(f' /// phone: {phoneNumber.phone}')
-
     return app
 
 if __name__ == '__main__':

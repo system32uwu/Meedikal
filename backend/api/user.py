@@ -8,9 +8,8 @@ from werkzeug.security import generate_password_hash
 
 from sqlalchemy import and_, or_
 
-from .crud import get_or_create, put, patch, delete
-from .returnMessages import provideData, recordAlreadyExists, recordCUDSuccessfully, recordDoesntExists, notFound
-
+from util.crud import *
+from util.returnMessages import *
 
 router = Blueprint('user', __name__, url_prefix='/user')
 

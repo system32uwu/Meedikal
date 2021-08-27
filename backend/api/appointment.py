@@ -11,7 +11,7 @@ from models.Appointment import Appointment
 
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
-@router.route("/<int:id>", methods=['GET','DELETE'])
+@router.route("/<int:id>", methods=['GET','DELETE']) # GET | DELETE /api/appointment/{id}
 def hello(id):
     appointment = Appointment.query.filter(Appointment.id==id).first()
 
@@ -24,7 +24,7 @@ def hello(id):
             appointment.delete()
             return recordCUDSuccessfully(delete=True)
 
-@router.route("", methods=['POST', 'PUT', 'PATCH'])
+@router.route("", methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/appointment
 def create_or_update():
 
     try:
@@ -42,20 +42,19 @@ def create_or_update():
             else:
                 return recordCUDSuccessfully("appointment",create=True)
 
-        if request.method == 'PUT' or request.method == 'PATCH': # add id
-            ap.id = apData['id']
-
         if request.method == 'PUT':
+            ap.id = apData['id']
             appointment, putted = (put(Appointment,ap,id=ap.id))
             if not putted:
                 return recordDoesntExists()
             else:
-                return recordCUDSuccessfully("user",update=True)
+                return recordCUDSuccessfully("appointment",update=True)
         elif request.method == 'PATCH':
+            ap.id = apData['id']
             appointment, patched = (patch(Appointment,ap,id=ap.id))
             if not patched:
                 return recordDoesntExists()
             else:
-                return recordCUDSuccessfully("user",update=True)
+                return recordCUDSuccessfully("appointment",update=True)
     except:
         return provideData()

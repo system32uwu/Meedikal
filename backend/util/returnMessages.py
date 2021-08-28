@@ -10,10 +10,10 @@ def notFound(tablename:str):
 def provideData():
     return {"error": "no data was provided"}, 400
 
-def recordCUDSuccessfully(tablename:str,create=False, update=False, delete=False):
-    if create:
+def recordCUDSuccessfully(tablename:str,method:str):
+    if method == 'POST':
         return {"result": f"{tablename} created successfully"}, 200
-    elif update:
+    elif method == 'PUT' or method == 'PATCH':
         return {"result": f"{tablename} updated successfully"}, 200
-    elif delete:
+    elif method == 'DELETE':
         return {"result": f"{tablename} deleted successfully"}, 200

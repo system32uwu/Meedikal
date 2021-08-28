@@ -1,5 +1,7 @@
+from .returnMessages import *
 from models.db import BaseModel
 from models import db
+from flask import jsonify
 
 def getOrCreate(model: BaseModel, toInsert, **kwargs):
     instance = db.session.query(model).filter_by(**kwargs).one_or_none()
@@ -70,16 +72,34 @@ def delete(model:BaseModel, **kwargs): # DELETE by the given filters
             db.session.rollback()
             return False
 
-def crud(operation:str,model:BaseModel,obj,**kwargs):
-    if operation == 'POST':
-        return getOrCreate(model=model,toInsert=obj,**kwargs)
-    elif operation == 'PUT':
-        return put(model=model,toPut=obj,**kwargs)
-    elif operation == 'PATCH':
-        return patch(model=model,toPatch=obj,**kwargs)
-    elif operation == 'DELETE':
-        return delete(model=model,**kwargs)
+# returns : {"result": "{EntityType} (created|updated|deleted) succesfully" }, 200 | {"result": "<EntityType> not (created|updated|deleted)", "error": "<EntityType> already exists"}, 400
+def crud(operation:str,model:BaseModel,obj,jsonReturn=False, messageReturn=False,**kwargs):
+    result = None
+    opState = False
+    message = None
 
-# returns : {"result": "<EntityType> (created|updated|deleted) succesfully" }, 200 | {"result": "<EntityType> not (created|updated|deleted)", "error": "<EntityType> already exists"}, 400 
-def crudReturn(operation:str, model:BaseModel): 
-    pass
+    if operation == 'POST':
+        result, opState = (getOrCreate(model=model,toInsert=obj,**kwargs))
+    elif operation == 'PUT':
+        result, opState = (put(model=model,toPut=obj,**kwargs))
+    elif operation == 'PATCH':
+        result, opState = (patch(model=model,toPatch=obj,**kwargs))
+    elif operation == 'DELETE':
+        opState = delete(model=model,**kwargs)
+
+    if jsonReturn: # when querying
+        return jsonify(result), 400 if opState == False else 200
+    elif messageReturn:
+        if not opState:
+            if operation == 'POST':
+                message = recordAlreadyExists(model.__tablename__)
+            else:
+                message = recordDoesntExists(model.__tablename__)
+        if message is None: # no errors yet
+            message = recordCUDSuccessfully(model.__tablename__, operation)
+        return message
+    else:
+        if result is not None:
+            return result, opState
+        else: 
+            return opState # delete only returns True or False

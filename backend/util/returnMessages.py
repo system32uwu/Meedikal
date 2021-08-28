@@ -1,5 +1,5 @@
-def recordDoesntExists(tablename:str):
-    return {"error": f"{tablename} doesn't exists"}, 400
+def recorddoesntExist(tablename:str):
+    return {"error": f"{tablename} doesn't exist"}, 400
 
 def recordAlreadyExists(tablename:str):
     return {"error": f"{tablename} already exists"}, 400

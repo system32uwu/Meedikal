@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from .returnMessages import *
 from models.db import BaseModel
 from models import db
@@ -86,15 +87,21 @@ def crud(operation:str,model:BaseModel,obj,jsonReturn=False, messageReturn=False
         result, opState = (patch(model=model,toPatch=obj,**kwargs))
     elif operation == 'DELETE':
         opState = delete(model=model,**kwargs)
+    elif operation == 'GET':
+        opState = False if obj is None else True
+        result = obj
+
+    if not opState:
+        if operation == 'POST':
+            message = recordAlreadyExists(model.__tablename__)
+            return message
+        else:
+            message = recorddoesntExist(model.__tablename__)
+            return message
 
     if jsonReturn: # when querying
-        return jsonify(result), 400 if opState == False else 200
+        return jsonify(result), 200
     elif messageReturn:
-        if not opState:
-            if operation == 'POST':
-                message = recordAlreadyExists(model.__tablename__)
-            else:
-                message = recordDoesntExists(model.__tablename__)
         if message is None: # no errors yet
             message = recordCUDSuccessfully(model.__tablename__, operation)
         return message

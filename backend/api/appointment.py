@@ -16,7 +16,7 @@ def hello(id):
     appointment = Appointment.query.filter(Appointment.id==id).first()
 
     if appointment is None:
-        return recordDoesntExists('appointment')
+        return recorddoesntExist('appointment')
     else:
         if request.method == 'GET':
             return jsonify(asdict(appointment)), 200
@@ -51,19 +51,19 @@ def createOrUpdate():
             ap.id = apData['id']
             appointment, putted = (put(Appointment,ap,id=ap.id))
             if not putted:
-                return recordDoesntExists('appointment')
+                return recorddoesntExist('appointment')
             else:
                 asigned = AssignedTo(idAp=appointment.id, ciDoc=ciDoc)
                 _asigned, _putted = (put(model=AssignedTo,toInsert=asigned, idAp=ap.id))
                 if not _putted:
-                    return recordDoesntExists("assignedTo")
+                    return recorddoesntExist("assignedTo")
                 else:
                     return recordCUDSuccessfully('appointment',update=True)
         elif request.method == 'PATCH':
             ap.id = apData['id']
             appointment, patched = (patch(Appointment,ap,id=ap.id))
             if not patched:
-                return recordDoesntExists('appointment')
+                return recorddoesntExist('appointment')
             else:
                 return recordCUDSuccessfully('appointment',update=True)
     except:
@@ -88,21 +88,21 @@ def medicalAssistantAssistsAp():
             assistsAp, patched = (patch(AssistsAp,toPatch=aP,idAp=aP.idAp,ciMa=aP.ciMa, time=aP.time))
 
             if not patched:
-                return recordDoesntExists('assistsAp')
+                return recorddoesntExist('assistsAp')
             else:
                 return recordCUDSuccessfully('assistsAp', update=True)
         elif request.method == 'PUT':
             assistsAp, putted = (put(AssistsAp,toPut=aP,idAp=aP.idAp,ciMa=aP.ciMa, time=aP.time))
 
             if not putted:
-                return recordDoesntExists('assistsAp')
+                return recorddoesntExist('assistsAp')
             else:
                 return recordCUDSuccessfully('assistsAp', update=True)
         elif request.method == 'DELETE':
             deleted = delete(AssistsAp,idAp=aP.idAp,ciMa=aP.ciMa, time=aP.time)
 
             if not deleted:
-                return recordDoesntExists('assistsAp')
+                return recorddoesntExist('assistsAp')
             else:
                 return recordCUDSuccessfully('assistsAp', delete=True)
     except:
@@ -128,21 +128,21 @@ def patientAttendsToAp():
             attendsTo, patched = (patch(AttendsTo,toPatch=aT,idAp=aT.idAp,ciPa=aT.ciPa))
 
             if not patched:
-                return recordDoesntExists('attendsTo')
+                return recorddoesntExist('attendsTo')
             else:
                 return recordCUDSuccessfully('attendsTo', update=True)
         elif request.method == 'PUT':
             attendsTo, putted = (put(AttendsTo,toPut=aT,idAp=aT.idAp,ciPa=aT.ciPa))
 
             if not putted:
-                return recordDoesntExists('attendsTo')
+                return recorddoesntExist('attendsTo')
             else:
                 return recordCUDSuccessfully('attendsTo', update=True)
         elif request.method == 'DELETE':
             deleted = delete(AttendsTo,idAp=aT.idAp,ciPa=aT.ciPa)
 
             if not deleted:
-                return recordDoesntExists('attendsTo')
+                return recorddoesntExist('attendsTo')
             else:
                 return recordCUDSuccessfully('attendsTo', delete=True)
     except:
@@ -185,19 +185,19 @@ def patientApData():
                                         idCurrAp=apRef.idCurrAp,ciPaCurrAp=apRef.ciPaCurrAp,
                                         idPrevAp=apRef.idPrevAp,ciPaPrevAp=apRef.ciPaPrevAp))
                     if not putted:
-                        return recordDoesntExists('apRefPrevAp')
+                        return recorddoesntExist('apRefPrevAp')
                 elif request.method == 'PATCH':
                     apRefPrevAp, patched = (patch(ApRefPrevAp,toPatch=apRef,
                                         idCurrAp=apRef.idCurrAp,ciPaCurrAp=apRef.ciPaCurrAp,
                                         idPrevAp=apRef.idPrevAp,ciPaPrevAp=apRef.ciPaPrevAp))
                     if not patched:
-                        return recordDoesntExists('apRefPrevAp')
+                        return recorddoesntExist('apRefPrevAp')
                 elif request.method == 'DELETE':
                     deleted = delete(ApRefPrevAp,
                                     idCurrAp=apRef.idCurrAp,ciPaCurrAp=apRef.ciPaCurrAp,
                                     idPrevAp=apRef.idPrevAp,ciPaPrevAp=apRef.ciPaPrevAp)
                     if not deleted:
-                        return recordDoesntExists('apRefPrevAp')
+                        return recorddoesntExist('apRefPrevAp')
         
         if apRefExamData is not None:
 
@@ -220,21 +220,21 @@ def patientApData():
                                         idExTaken=apRef.idExTaken,idEx=apRef.idEx,
                                         ciPaEx=apRef.ciPaEx))
                     if not putted:
-                        return recordDoesntExists('apRefExam')
+                        return recorddoesntExist('apRefExam')
                 elif request.method == 'PATCH':
                     apRefExam, patched = (patch(ApRefExam,toPatch=apRef,
                                         idAp=apRef.idAp,ciPaAp=apRef.ciPaAp,
                                         idExTaken=apRef.idExTaken,idEx=apRef.idEx,
                                         ciPaEx=apRef.ciPaEx))
                     if not patched:
-                        return recordDoesntExists('apRefExam')
+                        return recorddoesntExist('apRefExam')
                 elif request.method == 'DELETE':
                     deleted = delete(ApRefExam,
                                      idAp=apRef.idAp,ciPaAp=apRef.ciPaAp,
                                      idExTaken=apRef.idExTaken,idEx=apRef.idEx,
                                      ciPaEx=apRef.ciPaEx)
                     if not deleted:
-                        return recordDoesntExists('apRefExam')
+                        return recorddoesntExist('apRefExam')
         
         apRefTr = ApRefTr(idAp=apRefTrData['idAp'],
                           ciPaAp=apRefTrData['ciPaAp'],

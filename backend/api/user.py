@@ -34,6 +34,9 @@ def removePassword(user): # remove the password before returning the object
 
 def userToReturn(user: User, userType=None):
 
+    if user is None:
+        return None
+
     obj = {'user': asdict(user), 
            'phoneNumbers': [asdict(p) for p in UserPhone.query.filter(
                                     UserPhone.ci == user.ci).all()],
@@ -58,19 +61,12 @@ def allUsers(userType=None):
     for user in users:
         usersToReturn.append(userToReturn(user, userType))
 
-    return jsonify(usersToReturn), 200
+    return crud(operation=request.method,model=User,obj=usersToReturn,jsonReturn=True)
 
-@router.route('/<int:ci>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
-def userByCi(ci):
-    user = filterByType(None).filter(User.ci == ci).first()
-    if user is None:
-        return recordDoesntExists('user')
-    else:
-        if request.method == 'GET':
-            return jsonify(userToReturn(user)), 200
-        else:
-            user.delete()
-            return recordCUDSuccessfully(delete=True)
+@router.route('/<int:ci>/<userType>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
+def userByCi(ci:int, userType:str):
+    user = userToReturn(filterByType(None).filter(User.ci == ci).first(), userType=userType)
+    return crud(operation=request.method,model=User,obj=user,jsonReturn=True)
 
 @router.route('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
 def userBySurname1(surname1, userType=None):
@@ -80,7 +76,7 @@ def userBySurname1(surname1, userType=None):
     for user in users:
         usersToReturn.append(userToReturn(user, userType))
 
-    return jsonify(usersToReturn), 200
+    return crud(operation=request.method, model=User, obj=usersToReturn, jsonReturn=True)
 
 @router.route('/<name1>/<surname1>/<userType>') # GET /api/user/{name1}/{surname1}/{userType}
 def userByName1nSurname1(name1,surname1, userType=None):
@@ -114,11 +110,11 @@ def create_or_update():
         elif request.method == 'PUT':
             user, putted = (put(model=User, toPut=u, ci=userData['ci']))
             if not putted:
-                return recordDoesntExists(tablename='user')
+                return recorddoesntExist(tablename='user')
         elif request.method == 'PATCH':
             user, patched = (patch(model=User, toPatch=u, ci=userData['ci']))
             if not patched:
-                return recordDoesntExists(tablename='user')
+                return recorddoesntExist(tablename='user')
         
         phones = userData['phoneNumbers']
 
@@ -175,7 +171,7 @@ def medicalPersonnelBySpecialty(subType:str,specialty:str):
     specialty = Specialty.query.filter(Specialty.title == specialty).first()
 
     if specialty is None:
-        return recordDoesntExists("specialty")
+        return recorddoesntExist("specialty")
     else:
         specialtyId = specialty.id
 

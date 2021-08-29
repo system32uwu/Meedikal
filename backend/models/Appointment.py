@@ -49,8 +49,8 @@ class AssistsAp(BaseModel): # MedicalAssistant < assistsAp > [ Doctor < assigned
     ciMa: int
     time: datetime
 
-    idAp = db.Column(db.Integer, db.ForeignKey(AssignedTo.idAp, ondelete='CASCADE'), primary_key=True)
-    ciMa = db.Column(db.Integer, db.ForeignKey(MedicalAssitant.ci, ondelete='CASCADE'), primary_key=True)
+    idAp = db.Column(db.Integer, db.ForeignKey(AssignedTo.idAp, ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
+    ciMa = db.Column(db.Integer, db.ForeignKey(MedicalAssitant.ci, ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
     time = db.Column(db.Time, primary_key=True)
 
 @dataclass

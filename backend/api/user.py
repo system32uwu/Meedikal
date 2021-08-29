@@ -1,19 +1,37 @@
 from dataclasses import asdict
 
-from models.Specialty import *
-from models.User import *
-
-from flask import json, jsonify, Blueprint, request
+from flask import json, Blueprint, request
+from sqlalchemy import and_
 from sqlalchemy.orm.query import Query
 
 from werkzeug.security import generate_password_hash
 
-from sqlalchemy import and_, or_
-
+from models.Specialty import *
+from models.User import *
 from util.crud import *
 from util.returnMessages import *
 
 router = Blueprint('user', __name__, url_prefix='/user')
+
+def getTypes(ci):
+    types = [User.__tablename__]
+
+    if Administrative.query.filter(Administrative.ci==ci).one_or_none() is not None:
+        types.append(Administrative.__tablename__)
+    
+    if Patient.query.filter(Patient.ci==ci).one_or_none() is not None:
+        types.append(Patient.__tablename__)
+    
+    if MedicalPersonnel.query.filter(MedicalPersonnel.ci==ci).one_or_none() is not None:
+        types.append(MedicalPersonnel.__tablename__)
+    
+        if Doctor.query.filter(Doctor.ci==ci).one_or_none() is not None:
+            types.append(Doctor.__tablename__)
+        
+        elif MedicalAssitant.query.filter(MedicalAssitant.ci==ci).one_or_none() is not None:
+            types.append(MedicalAssitant.__tablename__)
+    
+    return types
 
 def filterByType(userType=None) -> Query:
     if userType == None:
@@ -29,11 +47,7 @@ def filterByType(userType=None) -> Query:
     elif userType == 'administrative':
         return User.query.filter(User.ci == Administrative.ci)
 
-def removePassword(user): # remove the password before returning the object
-    user.pop('password', None)
-
 def userToReturn(user: User, userType=None, relationType=None):
-
     if user is None:
         return None
 
@@ -41,9 +55,10 @@ def userToReturn(user: User, userType=None, relationType=None):
            'phoneNumbers': [asdict(p) for p in UserPhone.query.filter(
                                     UserPhone.ci == user.ci).all()],
            'relatives': [asdict(r) for r in UIsRelatedTo.query.filter(
-                                    UIsRelatedTo.user1==user.ci).all()]}
+                                    UIsRelatedTo.user1==user.ci).all()],
+            'types': getTypes(user.ci)}
 
-    if userType == 'medicalPersonnel':
+    if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
         obj['specialties'] = [asdict(sp) for sp in Specialty.query.filter(and_(
                                         MpHasSpec.ciMp == user.ci,
                                         MpHasSpec.idSpec == Specialty.id)).all()]
@@ -51,7 +66,7 @@ def userToReturn(user: User, userType=None, relationType=None):
     if relationType is not None:
         obj['relationType'] = relationType
 
-    removePassword(obj['user'])
+    obj['user'].pop('password', None)
 
     return obj
 
@@ -62,11 +77,23 @@ def allUsers(userType=None):
     return crud(operation=request.method, model=User, 
                 obj=[userToReturn(u) for u in users], jsonReturn=True)
 
-@router.route('/<int:ci>/<userType>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
-def userByCi(ci:int, userType:str):
-    user = userToReturn(filterByType(None).filter(User.ci == ci).first(), userType=userType)
-    return crud(operation=request.method,model=User,obj=user,
-                jsonReturn=True, ci=user.ci)
+@router.route('/<int:ci>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
+@router.route('/<int:ci>/<userType>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}/{userType}
+@router.route('/<int:ci>/<int:logicalCD>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}/{logicalCD}
+@router.route('/<int:ci>/<userType>/<int:logicalCD>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}/{userType}/{logicalCD}
+def userByCi(ci:int, userType:str=None, logicalCD:int=None): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
+    user = filterByType(userType).filter(User.ci == ci).first()
+    if logicalCD is not None:
+        if user is not None:
+            user.update(active=bool(logicalCD))
+    else:
+        if user is not None:
+            print(request.method)
+            return crud(operation=request.method,model=User,obj=userToReturn(user), ci=user.ci,
+                        jsonReturn= True if request.method == 'GET' else False, 
+                        messageReturn= True if request.method == 'DELETE' else False )
+        else:
+            return recordDoesntExist(User.__tablename__)
 
 @router.get('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
 def userBySurname1(surname1, userType=None):
@@ -85,69 +112,74 @@ def userByName1nSurname1(name1,surname1, userType=None):
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
 def create_or_update():
-
     try:
-        userData = json.loads(request.data)
+        userData = json.loads(request.data) # ci is a mandatory field
 
-        u = User(ci=userData['ci'], name1=userData['name1'], name2=userData.get('name2', None),
-                    surname1=userData['surname1'], surname2=userData.get('surname2', None), 
-                    sex=userData['sex'], genre=userData.get('genre', None), 
-                    birthdate=userData['birthdate'], location=userData['location'],
-                    email=userData['email'], active=userData['active'],
-                    password=generate_password_hash(userData['password']))
-
-        return crud(operation=request.method, model=User, obj=u, ci=userData['ci'])
-
-        relatives = userData['relatedTo']
+        u = User(ci=userData['ci'], name1=userData.get('name1', None), name2=userData.get('name2', None),
+                 surname1=userData.get('surname1', None), surname2=userData.get('surname2', None), 
+                 sex=userData.get('sex', None), genre=userData.get('genre', None), 
+                 birthdate=userData.get('birthdate', None), location=userData.get('location', None),
+                 email=userData.get('email', None), active=userData.get('active', True),)
         
-        if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
-            delete(UIsRelatedTo,user1=user.ci)
-            delete(UIsRelatedTo,user2=user.ci)
-        
-        for relative in relatives:
-            getOrCreate(model=UIsRelatedTo, 
-                          toInsert=UIsRelatedTo(user1=user.ci,
-                                                user2=relative.ci,
-                                                typeUser1=relative.typeUser1,
-                                                typeUser2=relative.typeUser2),
-                          user1=user.ci, user2=relative.ci)
+        if userData.get('password', None) is not None:
+            u.password=generate_password_hash(userData['password']) # if password is not provided it raises an exception
 
-        if userData['userType'] == 'patient':
-            getOrCreate(model=Patient, toInsert=Patient(ci=user.ci), ci=user.ci)
-        elif userData['userType'] == 'medicalPersonnel':
-            mp, _created = (getOrCreate(model=MedicalPersonnel, toInsert=MedicalPersonnel(ci=user.ci), ci=user.ci))
-            
-            if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
-                delete(MpHasSpec,ciMp=mp.ci)
-
-            for specialty in userData['specialties']:
-                spec, __created = (getOrCreate(model=Specialty, toInsert=Specialty(title=specialty['title']), title=specialty['title']))
-                getOrCreate(model=MpHasSpec, toInsert=MpHasSpec(idSpec=spec.id, ciMp=mp.ci, detail=specialty['detail']), idSpec=spec.id, ciMp=mp.ci)
-            
-            if userData['subType'] == 'doctor':
-                getOrCreate(model=Doctor, toInsert=Doctor(ci=mp.ci), ci=mp.ci)
-            elif userData['subType'] == 'medicalAssistant':
-                getOrCreate(model=MedicalAssitant, toInsert=MedicalAssitant(ci=mp.ci), ci=mp.ci)
-
-            if request.method == 'POST':
-                return recordCUDSuccessfully('user',create=True)
-            else:
-                return recordCUDSuccessfully('user',update=True)
+        return crud(operation=request.method, model=User, obj=u, messageReturn=True, ci=userData['ci'])
     except:
         return provideData()
+
+@router.route('/patient/<int:ci>', methods=['POST', 'DELETE']) # create or delete patient table
+def patient(ci:int):
+    return crud(request.method, model=Patient, obj=Patient(ci=ci),
+                messageReturn=True,ci=ci)
+
+@router.route('/mp/<int:ci>', methods=['POST', 'DELETE']) # create or delete patient table
+@router.route('/mp/<int:ci>/<subType>', methods=['POST', 'DELETE']) # create or delete patient table
+def medicalPersonnel(ci:int, subType=None):
+    if subType is None:
+        return crud(request.method, model=MedicalPersonnel, 
+                    obj=MedicalPersonnel(ci=ci), messageReturn=True, ci=ci)
+    else:
+        mp, created = (crud(request.method, model=MedicalPersonnel, 
+                            obj=MedicalPersonnel(ci=ci), tupleReturn=True, ci=ci))
+    
+        if not created:
+            return recordAlreadyExists(MedicalPersonnel.__tablename__)
+        else:
+            if subType == 'doctor':
+                return crud(request.method, model=Doctor, 
+                            obj=Doctor(ci=mp.ci), messageReturn=True, ci=mp.ci)
+            elif subType == 'medicalAssistant':
+                return crud(request.method, model=MedicalAssitant, 
+                            obj=MedicalAssitant(ci=ci), messageReturn=True, ci=mp.ci)
+            else:
+                return provideData()
 
 @router.route('/phoneNumbers', methods=['POST','PUT','PATCH'])
 def phoneNumbers():
     try:
         data = json.loads(request.data)
-        phones = [UserPhone(ci=p.ci,phone=p.phone) for p in data]
-        return crud(operation=request.method,model=UserPhone,obj=phones,deleteBeforeUpdate=True)
-    except:
+        phones = [UserPhone(ci=p['ci'],phone=p['phone']) for p in data['phones']]
+        
+        if request.method == 'PUT' or request.method == 'PATCH':
+            delete(UserPhone,ci=phones[0].ci)
+        
+        for phone in phones:
+            result, opState = (crud(operation='POST',model=UserPhone,
+                               obj=phone, tupleReturn=True, ci=phone.ci, phone=phone.phone))
+            if not opState:
+                if request.method == 'POST':
+                    return recordAlreadyExists(UserPhone.__tablename__, asdict(phone))
+
+        return recordCUDSuccessfully(UserPhone.__tablename__, request.method)
+
+    except Exception as exc:
+        print(f"exc: {exc}")
         return provideData()
 
 @router.get('/phoneNumbers/<int:ci>')
 def getPhoneNumbers(ci:int):
-    phones = UserPhone.query.filter(UserPhone.ci == ci).all()
+    phones = [asdict(p) for p in UserPhone.query.filter(UserPhone.ci == ci).all()]
     return crud(operation=request.method,model=UserPhone,obj=phones,
                 jsonReturn=True,ci=ci)
 
@@ -155,19 +187,28 @@ def getPhoneNumbers(ci:int):
 def relatives():
     try:
         data = json.loads(request.data)
-        _relatives = [UIsRelatedTo(user1=relative.user1, user2=relative.user2,
-                               typeUser1=relative.typeUser1,
-                               typeUser2=relative.typeUser2,)
-                               for relative in data]
+        _relatives = [UIsRelatedTo(user1=relative['user1'], user2=relative['user2'],
+                               relationType=relative['relationType'])
+                               for relative in data['relatives']]
 
-        return crud(operation=request.method,model=UserPhone,obj=_relatives,deleteBeforeUpdate=True, user1=_relatives[0].user1)
+        if request.method == 'PUT' or request.method == 'PATCH':
+            delete(UIsRelatedTo,user1=_relatives[0].user1)
+        
+        for r in _relatives:
+            result, opState = (crud(operation='POST',model=UIsRelatedTo,
+                               obj=r, tupleReturn=True, user1=r.user1, user2=r.user2))
+            if not opState:
+                if request.method == 'POST':
+                    return recordAlreadyExists(UIsRelatedTo.__tablename__, asdict(r))
+
+        return recordCUDSuccessfully(UIsRelatedTo.__tablename__, request.method)
     except:
         return provideData()
 
 @router.get('/relatives/<int:ci>')
 def getRelatives(ci:int):
     _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == ci).all()
-    #               user1 is <son> of user2
+    #               user1 is <relationType> of user2
     __relatives = [userToReturn(user, 
                     relationType = next(r.relationType for r in _relatives
                                         if r.user2 == user.ci))
@@ -178,20 +219,30 @@ def getRelatives(ci:int):
     return crud(operation=request.method,model=UIsRelatedTo,obj=__relatives,
                 jsonReturn=True,ci=ci)
 
+@router.get('/mp/specialties/<int:ci>') # get specialties of mp user
+def getSpecialties(ci:int):
+    _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == ci).all()
+
+    __specialties = [Specialty.query.filter(Specialty.id == sp.idSpec).first()
+                    for sp in _specialties]
+
+    return crud(operation=request.method,model=Specialty,obj=__specialties,
+                jsonReturn=True,ci=ci)
+
 # -- MEDICAL PERSONNEL USERS
-@router.get('/mp/<subType>/<specialty>') # GET /api/user/mp/{subType}/{specialtyId}
-def medicalPersonnelBySpecialty(subType:str,specialty:str):
-    specialty = Specialty.query.filter(Specialty.title == specialty).first()
+@router.get('/mp/<specialty>/<type>') # GET /api/user/mp/{specialtyName}/{mpUserType}
+def medicalPersonnelBySpecialty(specialty:str, type:str):
+    specialty = Specialty.query.filter(Specialty.title == specialty).one_or_none()
 
     if specialty is None:
         return recordDoesntExist(Specialty.__tablename__)
     else:
         specialtyId = specialty.id
 
-    users = filterByType(subType).filter(and_(
+    users = filterByType(type).filter(and_(
                                             MpHasSpec.idSpec == specialtyId,
                                             MpHasSpec.ciMp == User.ci 
                                             )).all()
 
     return crud(operation=request.method, model=User, 
-                obj=[userToReturn(u) for u in users], jsonReturn=True)
+                obj=[userToReturn(u, userType=type) for u in users], jsonReturn=True)

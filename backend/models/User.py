@@ -97,12 +97,12 @@ class Administrative(BaseModel):
 class UIsRelatedTo(BaseModel): # User1 < uIsRelatedTo > User2
     __tablename__ = 'uIsRelatedTo'
     
+    _id:int
     user1: int
     user2: int
-    typeUser1: str # son
-    typeUser2: str # father
+    relationType: str # user1 is father of user2
 
+    _id = db.Column(db.Integer,primary_key=True, autoincrement=True)
     user1 = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
     user2 = db.Column(db.Integer, db.ForeignKey(User.ci, ondelete='CASCADE'), primary_key=True)
-    typeUser1 = db.Column(db.VARCHAR(32))
-    typeUser2 = db.Column(db.VARCHAR(32))
+    relationType = db.Column(db.VARCHAR(32))

@@ -74,18 +74,26 @@ def delete(model:BaseModel, **kwargs): # DELETE by the given filters
             return False
 
 # returns : {"result": "{EntityType} (created|updated|deleted) succesfully" }, 200 | {"result": "<EntityType> not (created|updated|deleted)", "error": "<EntityType> already exists"}, 400
-def crud(operation:str,model:BaseModel,obj,jsonReturn=False, messageReturn=False,**kwargs):
+def crud(operation:str,model:BaseModel,obj,jsonReturn=False, messageReturn=False,deleteBeforeUpdate=False,**kwargs):
     result = None
     opState = False
     message = None
 
-    if operation == 'POST':
-        result, opState = (getOrCreate(model=model,toInsert=obj,**kwargs))
-    elif operation == 'PUT':
-        result, opState = (put(model=model,toPut=obj,**kwargs))
-    elif operation == 'PATCH':
-        result, opState = (patch(model=model,toPatch=obj,**kwargs))
-    elif operation == 'DELETE':
+    if (operation == 'PUT' or operation == 'PATCH') and deleteBeforeUpdate:
+        delete(model,**kwargs)
+
+    if not isinstance(obj,list):
+        obj = [obj]
+
+    for _obj in obj:
+        if operation == 'POST':
+            result, opState = (getOrCreate(model=model,toInsert=_obj,**kwargs))
+        elif operation == 'PUT':
+            result, opState = (put(model=model,toPut=_obj,**kwargs))
+        elif operation == 'PATCH':
+            result, opState = (patch(model=model,toPatch=_obj,**kwargs))
+
+    if operation == 'DELETE':
         opState = delete(model=model,**kwargs)
     elif operation == 'GET':
         opState = False if obj is None else True
@@ -96,7 +104,7 @@ def crud(operation:str,model:BaseModel,obj,jsonReturn=False, messageReturn=False
             message = recordAlreadyExists(model.__tablename__)
             return message
         else:
-            message = recorddoesntExist(model.__tablename__)
+            message = recordDoesntExist(model.__tablename__)
             return message
 
     if jsonReturn: # when querying

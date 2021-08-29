@@ -32,7 +32,7 @@ def filterByType(userType=None) -> Query:
 def removePassword(user): # remove the password before returning the object
     user.pop('password', None)
 
-def userToReturn(user: User, userType=None):
+def userToReturn(user: User, userType=None, relationType=None):
 
     if user is None:
         return None
@@ -40,55 +40,48 @@ def userToReturn(user: User, userType=None):
     obj = {'user': asdict(user), 
            'phoneNumbers': [asdict(p) for p in UserPhone.query.filter(
                                     UserPhone.ci == user.ci).all()],
-           'relatives': [asdict(r) for r in UIsRelatedTo.query.filter(or_(
-                                    UIsRelatedTo.user1==user.ci,
-                                    UIsRelatedTo.user2==user.ci)).all()]}
+           'relatives': [asdict(r) for r in UIsRelatedTo.query.filter(
+                                    UIsRelatedTo.user1==user.ci).all()]}
 
     if userType == 'medicalPersonnel':
         obj['specialties'] = [asdict(sp) for sp in Specialty.query.filter(and_(
                                         MpHasSpec.ciMp == user.ci,
                                         MpHasSpec.idSpec == Specialty.id)).all()]
+
+    if relationType is not None:
+        obj['relationType'] = relationType
+
     removePassword(obj['user'])
 
     return obj
 
-@router.route('/all') # GET /api/user/all/{userType}
-@router.route('/all/<userType>')
+@router.get('/all') # GET /api/user/all/{userType}
+@router.get('/all/<userType>')
 def allUsers(userType=None):
     users = filterByType(userType).all()
-    usersToReturn = []
-    
-    for user in users:
-        usersToReturn.append(userToReturn(user, userType))
-
-    return crud(operation=request.method,model=User,obj=usersToReturn,jsonReturn=True)
+    return crud(operation=request.method, model=User, 
+                obj=[userToReturn(u) for u in users], jsonReturn=True)
 
 @router.route('/<int:ci>/<userType>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
 def userByCi(ci:int, userType:str):
     user = userToReturn(filterByType(None).filter(User.ci == ci).first(), userType=userType)
-    return crud(operation=request.method,model=User,obj=user,jsonReturn=True)
+    return crud(operation=request.method,model=User,obj=user,
+                jsonReturn=True, ci=user.ci)
 
-@router.route('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
+@router.get('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
 def userBySurname1(surname1, userType=None):
     users = filterByType(userType).filter(User.surname1 == surname1).all()
-    usersToReturn = []
+    return crud(operation=request.method, model=User, 
+                obj=[userToReturn(u) for u in users], jsonReturn=True)
 
-    for user in users:
-        usersToReturn.append(userToReturn(user, userType))
-
-    return crud(operation=request.method, model=User, obj=usersToReturn, jsonReturn=True)
-
-@router.route('/<name1>/<surname1>/<userType>') # GET /api/user/{name1}/{surname1}/{userType}
+@router.get('/<name1>/<surname1>/<userType>') # GET /api/user/{name1}/{surname1}/{userType}
 def userByName1nSurname1(name1,surname1, userType=None):
     users = filterByType(userType).filter(and_(
                                             User.surname1 == surname1,
                                             User.name1 == name1)).all()
-    usersToReturn = []
-    
-    for user in users:
-        usersToReturn.append(userToReturn(user, userType))
 
-    return jsonify(usersToReturn), 200
+    return crud(operation=request.method, model=User, 
+                obj=[userToReturn(u) for u in users], jsonReturn=True)
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
 def create_or_update():
@@ -103,28 +96,7 @@ def create_or_update():
                     email=userData['email'], active=userData['active'],
                     password=generate_password_hash(userData['password']))
 
-        if request.method == 'POST':
-            user, created = (getOrCreate(model=User, toInsert=u, ci=userData['ci']))
-            if not created:
-                return recordAlreadyExists(tablename='user')
-        elif request.method == 'PUT':
-            user, putted = (put(model=User, toPut=u, ci=userData['ci']))
-            if not putted:
-                return recorddoesntExist(tablename='user')
-        elif request.method == 'PATCH':
-            user, patched = (patch(model=User, toPatch=u, ci=userData['ci']))
-            if not patched:
-                return recorddoesntExist(tablename='user')
-        
-        phones = userData['phoneNumbers']
-
-        if request.method == 'PUT': # since put replaces, delete everything and then add whatever was sent
-            delete(UserPhone,ci=user.ci)
-        
-        for phone in phones:
-            getOrCreate(model=UserPhone, 
-                          toInsert=UserPhone(ci=user.ci,phone=phone),
-                          ci=user.ci, phone=phone)
+        return crud(operation=request.method, model=User, obj=u, ci=userData['ci'])
 
         relatives = userData['relatedTo']
         
@@ -164,14 +136,55 @@ def create_or_update():
     except:
         return provideData()
 
-# -- MEDICAL PERSONNEL USERS
+@router.route('/phoneNumbers', methods=['POST','PUT','PATCH'])
+def phoneNumbers():
+    try:
+        data = json.loads(request.data)
+        phones = [UserPhone(ci=p.ci,phone=p.phone) for p in data]
+        return crud(operation=request.method,model=UserPhone,obj=phones,deleteBeforeUpdate=True)
+    except:
+        return provideData()
 
-@router.route('/mp/<subType>/<specialty>') # GET /api/user/mp/{subType}/{specialtyId}
+@router.get('/phoneNumbers/<int:ci>')
+def getPhoneNumbers(ci:int):
+    phones = UserPhone.query.filter(UserPhone.ci == ci).all()
+    return crud(operation=request.method,model=UserPhone,obj=phones,
+                jsonReturn=True,ci=ci)
+
+@router.route('/relatives', methods=['POST','PUT','PATCH'])
+def relatives():
+    try:
+        data = json.loads(request.data)
+        _relatives = [UIsRelatedTo(user1=relative.user1, user2=relative.user2,
+                               typeUser1=relative.typeUser1,
+                               typeUser2=relative.typeUser2,)
+                               for relative in data]
+
+        return crud(operation=request.method,model=UserPhone,obj=_relatives,deleteBeforeUpdate=True, user1=_relatives[0].user1)
+    except:
+        return provideData()
+
+@router.get('/relatives/<int:ci>')
+def getRelatives(ci:int):
+    _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == ci).all()
+    #               user1 is <son> of user2
+    __relatives = [userToReturn(user, 
+                    relationType = next(r.relationType for r in _relatives
+                                        if r.user2 == user.ci))
+                    for user in 
+                    [User.query.filter(User.ci==r.user2).first()
+                     for r in _relatives]]
+
+    return crud(operation=request.method,model=UIsRelatedTo,obj=__relatives,
+                jsonReturn=True,ci=ci)
+
+# -- MEDICAL PERSONNEL USERS
+@router.get('/mp/<subType>/<specialty>') # GET /api/user/mp/{subType}/{specialtyId}
 def medicalPersonnelBySpecialty(subType:str,specialty:str):
     specialty = Specialty.query.filter(Specialty.title == specialty).first()
 
     if specialty is None:
-        return recorddoesntExist("specialty")
+        return recordDoesntExist(Specialty.__tablename__)
     else:
         specialtyId = specialty.id
 
@@ -179,9 +192,6 @@ def medicalPersonnelBySpecialty(subType:str,specialty:str):
                                             MpHasSpec.idSpec == specialtyId,
                                             MpHasSpec.ciMp == User.ci 
                                             )).all()
-    usersToReturn = []
-    
-    for user in users:
-        usersToReturn.append(userToReturn(user, 'medicalPersonnel'))
 
-    return jsonify(usersToReturn), 200
+    return crud(operation=request.method, model=User, 
+                obj=[userToReturn(u) for u in users], jsonReturn=True)

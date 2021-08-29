@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: db8f41ac18e1
+Revision ID: 99d9657f5f02
 Revises: 
-Create Date: 2021-08-21 11:52:40.784239
+Create Date: 2021-08-29 02:54:45.917474
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'db8f41ac18e1'
+revision = '99d9657f5f02'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -136,6 +136,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('title')
     )
+    op.create_table('state',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.VARCHAR(length=64), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('surgery',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.VARCHAR(length=128), nullable=False),
@@ -215,6 +220,8 @@ def upgrade():
     op.create_table('from',
     sa.Column('idQ', sa.Integer(), nullable=False),
     sa.Column('idF', sa.Integer(), nullable=False),
+    sa.Column('questionField', sa.String(length=255), nullable=True),
+    sa.Column('responseField', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['idF'], ['form.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['idQ'], ['question.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('idQ', 'idF')
@@ -245,13 +252,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('idAlert')
     )
     op.create_table('uIsRelatedTo',
+    sa.Column('_id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user1', sa.Integer(), nullable=False),
     sa.Column('user2', sa.Integer(), nullable=False),
-    sa.Column('typeUser1', sa.VARCHAR(length=32), nullable=True),
-    sa.Column('typeUser2', sa.VARCHAR(length=32), nullable=True),
+    sa.Column('relationType', sa.VARCHAR(length=32), nullable=True),
     sa.ForeignKeyConstraint(['user1'], ['user.ci'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user2'], ['user.ci'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('user1', 'user2')
+    sa.PrimaryKeyConstraint('_id', 'user1', 'user2')
     )
     op.create_table('uReceivesNot',
     sa.Column('idNot', sa.Integer(), nullable=False),
@@ -300,7 +307,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('ci')
     )
     op.create_table('follows',
-    sa.Column('idFollows', sa.Integer(), nullable=False),
+    sa.Column('idFollows', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('ciPa', sa.Integer(), nullable=False),
     sa.Column('idTreatment', sa.Integer(), nullable=False),
     sa.Column('beginDate', sa.DateTime(), nullable=True),
@@ -324,8 +331,18 @@ def upgrade():
     sa.ForeignKeyConstraint(['idSpec'], ['specialty.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('ciMp', 'idSpec')
     )
+    op.create_table('registersSt',
+    sa.Column('ciPa', sa.Integer(), nullable=False),
+    sa.Column('idState', sa.Integer(), nullable=False),
+    sa.Column('fromDate', sa.DateTime(), nullable=False),
+    sa.Column('toDate', sa.DateTime(), nullable=True),
+    sa.Column('notes', sa.VARCHAR(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['ciPa'], ['patient.ci'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['idState'], ['state.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('ciPa', 'idState', 'fromDate')
+    )
     op.create_table('takesEx',
-    sa.Column('idExTaken', sa.Integer(), nullable=False),
+    sa.Column('idExTaken', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('idEx', sa.Integer(), nullable=False),
     sa.Column('ciPa', sa.Integer(), nullable=False),
     sa.Column('date', sa.DateTime(), nullable=True),
@@ -343,7 +360,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('idMed', 'ciPa')
     )
     op.create_table('takesSurg',
-    sa.Column('idTakenSurg', sa.Integer(), nullable=False),
+    sa.Column('idTakenSurg', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('idSurg', sa.Integer(), nullable=False),
     sa.Column('ciPa', sa.Integer(), nullable=False),
     sa.Column('date', sa.DateTime(), nullable=True),
@@ -505,12 +522,10 @@ def upgrade():
     op.create_table('requiresEx',
     sa.Column('idAp', sa.Integer(), nullable=False),
     sa.Column('ciPaAp', sa.Integer(), nullable=False),
-    sa.Column('idExTaken', sa.Integer(), nullable=False),
     sa.Column('idEx', sa.Integer(), nullable=False),
-    sa.Column('ciPaEx', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['idAp', 'ciPaAp'], ['attendsTo.idAp', 'attendsTo.ciPa'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['idExTaken', 'idEx', 'ciPaEx'], ['takesEx.idExTaken', 'takesEx.idEx', 'takesEx.ciPa'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('idAp', 'ciPaAp', 'idExTaken', 'idEx', 'ciPaEx')
+    sa.ForeignKeyConstraint(['idEx'], ['exam.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('idAp', 'ciPaAp', 'idEx')
     )
     op.create_table('suggestsTr',
     sa.Column('idAp', sa.Integer(), nullable=False),
@@ -546,6 +561,7 @@ def downgrade():
     op.drop_table('takesSurg')
     op.drop_table('takesMed')
     op.drop_table('takesEx')
+    op.drop_table('registersSt')
     op.drop_table('mpHasSpec')
     op.drop_table('medicalAssistant')
     op.drop_table('follows')
@@ -571,6 +587,7 @@ def downgrade():
     op.drop_table('treatment')
     op.drop_table('symptom')
     op.drop_table('surgery')
+    op.drop_table('state')
     op.drop_table('specialty')
     op.drop_table('question')
     op.drop_table('parameter')

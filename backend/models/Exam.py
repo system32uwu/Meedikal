@@ -67,7 +67,7 @@ class TakesEx(BaseModel): # Patient < takesEx > Exam
     date: datetime
     results: object
 
-    idExTaken = db.Column(db.Integer, primary_key=True)
+    idExTaken = db.Column(db.Integer, primary_key=True, autoincrement=True)
     idEx = db.Column(db.Integer, db.ForeignKey(Exam.id, ondelete='CASCADE'), primary_key=True)
     ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
     date = db.Column(db.DateTime)

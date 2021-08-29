@@ -28,7 +28,7 @@ class Follows(BaseModel): # Patient < follows > Treatment
     schedule: object
     result: str
 
-    idFollows = db.Column(db.Integer, primary_key=True)
+    idFollows = db.Column(db.Integer, primary_key=True, autoincrement=True)
     ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
     idTreatment = db.Column(db.Integer, db.ForeignKey(Treatment.id, ondelete='CASCADE'), primary_key=True)
     beginDate = db.Column(db.DateTime)

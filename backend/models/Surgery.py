@@ -24,7 +24,7 @@ class TakesSurg(BaseModel):
     finishedAt: datetime
     result: str
 
-    idTakenSurg = db.Column(db.Integer, primary_key=True)
+    idTakenSurg = db.Column(db.Integer, primary_key=True, autoincrement=True)
     idSurg = db.Column(db.Integer, db.ForeignKey(Surgery.id, ondelete='CASCADE'), primary_key=True)
     ciPa = db.Column(db.Integer, db.ForeignKey(Patient.ci, ondelete='CASCADE'), primary_key=True)
     date = db.Column(db.DateTime)

@@ -54,8 +54,10 @@ def patientAttendsToAp():
     except:
         return provideData()
 
+# -- DATA INPUTTED WHEN A PATIENT IS BEING INTERVIEWED IN AN APPOINTMENT
+
 @router.route('/patientApData/apRefPrevAp', methods=['POST','PUT', 'PATCH','DELETE'])
-def apRefPrevAp():
+def apRefPrevAp(): # input a reference to a previous appointment
         try:
             data = json.loads(request.data)
 
@@ -86,14 +88,14 @@ def apRefPrevAp():
             return provideData()
 
 @router.get('/patientApData/apRefPrevAp/<int:idAp>/<int:ciPa>') # GET references to appointments of an appointment
-def getApRefPrevAp(idAp:int,ciPa:int):
+def getApRefPrevAp(idAp:int,ciPa:int): 
         appointments = [asdict(ap) for ap in ApRefPrevAp.query.filter(and_(
                         ApRefPrevAp.idCurrAp == idAp,
                         ApRefPrevAp.ciPaCurrAp == ciPa)).all()]
         return crud(request.method,ApRefPrevAp,appointments)
 
 @router.route('/patientApData/apRefExam', methods=['POST','PUT', 'PATCH','DELETE'])
-def apRefExam():
+def apRefExam(): # input a reference to an exam
         try:
             data = json.loads(request.data)
 
@@ -133,7 +135,7 @@ def getApRefExam(idAp:int,ciPa:int):
         return crud(request.method,ApRefExam,apRefs)
 
 @router.route('/patientApData/apRefTr', methods=['POST','PUT', 'PATCH','DELETE'])
-def apRefTr():
+def apRefTr(): # input a reference to a treatment
         try:
             data = json.loads(request.data)
 
@@ -173,7 +175,7 @@ def getApRefTr(idAp:int,ciPa:int):
         return crud(request.method,ApRefTr,apRefs)
 
 @router.route('/patientApData/fills', methods=['POST','PUT', 'PATCH','DELETE'])
-def fills():
+def fills(): # input a response to a question of the interview
         try:
             data = json.loads(request.data)
 
@@ -212,7 +214,7 @@ def getFills(idAp:int,ciPa:int):
         return crud(request.method,Fills,fills)
 
 @router.route('/patientApData/suggestsTr', methods=['POST','PUT', 'PATCH','DELETE'])
-def suggestedTrs():
+def suggestsTrs(): # input suggested treatments when concluding the appointment
         try:
             data = json.loads(request.data)
 
@@ -250,7 +252,7 @@ def getSuggestedTrs(idAp:int,ciPa:int):
         return crud(request.method,SuggestsTr,suggestedTrs)
 
 @router.route('/patientApData/suggestsTr', methods=['POST','PUT', 'PATCH','DELETE'])
-def suggestedTrs():
+def requiredExams(): # input required exams when concluding the appointment
         try:
             data = json.loads(request.data)
 

@@ -70,6 +70,10 @@ def userToReturn(user: User, userType=None, relationType=None):
 
     return obj
 
+@router.get('/jaja')
+def jajax():
+    return crudv2('userPhone', UserPhone, request)
+
 @router.get('/all') # GET /api/user/all/{userType}
 @router.get('/all/<userType>')
 def allUsers(userType=None):

@@ -25,3 +25,5 @@ backend/venv/
 __pycache__
 
 backend/config.py
+
+backend/test.py

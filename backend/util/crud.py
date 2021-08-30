@@ -1,7 +1,11 @@
+from dataclasses import asdict
+from sqlalchemy.inspection import inspect
 from .returnMessages import *
 from models.db import BaseModel
 from models import db
-from flask import jsonify
+from flask import json, jsonify
+from sqlalchemy import Column
+
 
 def getOrCreate(model: BaseModel, toInsert, **kwargs):
     instance = db.session.query(model).filter_by(**kwargs).one_or_none()
@@ -121,3 +125,25 @@ def crud(operation:str,model:BaseModel,obj,jsonReturn=False, messageReturn=False
             return result, opState
         else: 
             return opState # delete only returns True or False
+
+def polymorphicPrimaryKeys(model): # gets the primary keys of a class
+    mapper = inspect(model)
+    yield from (column for column in mapper.columns if column.primary_key) 
+
+def crudv2(key:str, model:BaseModel, body:object, method:str):
+    try:
+        data = json.loads(body)
+        
+        dictData = data[key]
+        
+        objs = [model(**data) for data in dictData] # instantiate the objects to operate with
+
+        primaryKeys = [pk for pk in polymorphicPrimaryKeys(model)] # get the primary key(s) of the model
+        
+        filters = {f"{pk.key}": asdict(obj)[pk.key] for pk in primaryKeys
+                                for obj in objs}
+
+        print(filters)
+    except Exception as exc:
+        print(f'exc: {exc}')
+        return provideData()

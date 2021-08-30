@@ -7,6 +7,8 @@ from util.returnMessages import *
 
 from models.Appointment import *
 
+from sqlalchemy.inspection import inspect
+
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 @router.route('/<int:id>', methods=['GET','DELETE']) # GET | DELETE /api/appointment/{id}

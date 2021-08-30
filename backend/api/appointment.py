@@ -7,8 +7,6 @@ from util.returnMessages import *
 
 from models.Appointment import *
 
-from sqlalchemy.inspection import inspect
-
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 @router.route('/<int:id>', methods=['GET','DELETE']) # GET | DELETE /api/appointment/{id}
@@ -18,18 +16,8 @@ def apById(id):
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/appointment
 def createOrUpdate():
-
-    try:
-        apData = json.loads(request.data)
-
-        ap = Appointment(id=apData.get('id', None), name=apData['name'], date=apData.get('date', None),
-                         state=apData.get('state','OK'), timeBegins=apData.get('timeBegins', None), 
-                         timeEnds=apData.get('timeEnds', None), etpp=apData.get('etpp', None),
-                         maxTurns=apData.get('maxTurns', None))
-        
-        return crudv2(request.method,Appointment,ap,messageReturn=True,id=ap.id)
-    except:
-        return provideData()
+    return crudv2('appointment',Appointment,request,messageReturn=True, 
+                   createWithoutFiltering=True)
 
 @router.route('/medicalAssistantAssistsAp', methods=['POST','PATCH', 'PUT', 'DELETE'])
 def medicalAssistantAssistsAp():

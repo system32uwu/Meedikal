@@ -4,8 +4,6 @@ from flask import json, Blueprint, request
 from sqlalchemy import and_
 from sqlalchemy.orm.query import Query
 
-from werkzeug.security import generate_password_hash
-
 from models.Specialty import *
 from models.User import *
 from util.crud import *
@@ -33,7 +31,9 @@ def getTypes(ci):
     
     return types
 
-def filterByType(userType=None) -> Query:
+def filterByType(userType=None, request=None) -> Query:
+    if request is not None:
+        userType = json.loads(request.data).get('userType', None)
     if userType == None:
         return User.query
     elif userType == 'patient':
@@ -70,137 +70,78 @@ def userToReturn(user: User, userType=None, relationType=None):
 
     return obj
 
-@router.get('/all') # GET /api/user/all/{userType}
-@router.get('/all/<userType>')
-def allUsers(userType=None):
-    users = filterByType(userType).all()
-    return crudv2(preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
+@router.get('/all') # GET /api/user/all
+def allUsers():
+    users = filterByType(request=request).all()
+    return crudv2(request=request, preparedResult=[userToReturn(u) for u in users])
 
-@router.route('/<int:ci>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
-@router.route('/<int:ci>/<userType>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}/{userType}
-@router.route('/<int:ci>/<int:logicalCD>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}/{logicalCD}
-def userByCi(ci:int, userType:str=None, logicalCD:int=None): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
-    user = filterByType(userType).filter(User.ci == ci).one_or_none()
-    if logicalCD is not None:
+@router.route('', methods=['GET']) # GET /api/user
+def userByCi():
+    user = filterByType(request=request).filter(User.ci == json.loads(request.data)['ci']).one_or_none()
+    return crudv2(request=request,preparedResult=userToReturn(user))
+
+@router.route('', methods=['DELETE']) # DELETE /api/user
+def deleteUserBy(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
+    data = json.loads(request.data)
+    user = filterByType(request=request).filter(User.ci == data['ci']).one_or_none()
+    if data.get('logicalCD', None) is not None:
         if user is not None:
-            user.update(active=bool(logicalCD))
+            user.update(active=bool(data['logicalCD']))
+            return recordCUDSuccessfully(User.__tablename__,request.method)
     else:
-        if user is not None:
-            return crudv2(request.method,User,userToReturn(user), ci=user.ci)
-        else:
-            return recordDoesntExist(User.__tablename__)
+        return crudv2(User,request)
 
-@router.get('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
-def userBySurname1(surname1, userType=None):
-    users = filterByType(userType).filter(User.surname1 == surname1).all()
-    return crudv2(request.method, User, [userToReturn(u) for u in users])
+@router.get('/surname1') # GET /api/user/surname1
+def userBySurname1():
+    data = json.loads(request.data)
+    users = filterByType(request=request).filter(User.surname1 == data['surname1']).all()
+    return crudv2(User, preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
 
-@router.get('/<name1>/<surname1>/<userType>') # GET /api/user/{name1}/{surname1}/{userType}
-def userByName1nSurname1(name1,surname1, userType=None):
-    users = filterByType(userType).filter(and_(
-                                            User.surname1 == surname1,
-                                            User.name1 == name1)).all()
+@router.get('/name1surname1') # GET /api/user/name1surname1
+def userByName1nSurname1():
+    data = json.loads(request.data)
+    users = filterByType(request=request).filter(and_(
+                                            User.surname1 == data['surname1'],
+                                            User.name1 == data['name1'])).all()
 
-    return crudv2(request.method, User, [userToReturn(u) for u in users])
+    return crudv2(User, preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
 def create_or_update():
-    try:
-        userData = json.loads(request.data) # ci is a mandatory field
+    return crudv2(User, request)
 
-        u = User(ci=userData['ci'], name1=userData.get('name1', None), name2=userData.get('name2', None),
-                 surname1=userData.get('surname1', None), surname2=userData.get('surname2', None), 
-                 sex=userData.get('sex', None), genre=userData.get('genre', None), 
-                 birthdate=userData.get('birthdate', None), location=userData.get('location', None),
-                 email=userData.get('email', None), active=userData.get('active', True),)
-        
-        if userData.get('password', None) is not None:
-            u.password=generate_password_hash(userData['password']) # if password is not provided it raises an exception
+@router.route('/patient', methods=['POST', 'DELETE']) # create or delete patient table
+def patient():
+    return crudv2(Patient, request)
 
-        return crudv2(request.method, User, u, ci=userData['ci'])
-    except:
-        return provideData()
+@router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # create or delete medicalPersonnel | doctor | medicalassistant user
+def medicalPersonnel():
+    return crudv2(MedicalPersonnel,request)
 
-@router.route('/patient/<int:ci>', methods=['POST', 'DELETE']) # create or delete patient table
-def patient(ci:int):
-    return crudv2(request.method, Patient, Patient(ci=ci),ci=ci)
+@router.route('/doctor', methods=['POST', 'DELETE']) # create or delete medicalPersonnel | doctor | medicalassistant user
+def doctor():
+    return crudv2(Doctor,request)
 
-@router.route('/mp/<int:ci>', methods=['POST', 'DELETE']) # create or delete patient table
-@router.route('/mp/<int:ci>/<subType>', methods=['POST', 'DELETE']) # create or delete patient table
-def medicalPersonnel(ci:int, subType=None):
-    if subType is None:
-        return crudv2(request.method, MedicalPersonnel, MedicalPersonnel(ci=ci), ci=ci)
-    else:
-        mp, created = (crudv2(request.method, MedicalPersonnel, 
-                            MedicalPersonnel(ci=ci), tupleReturn=True, ci=ci))
-    
-        if not created:
-            return recordAlreadyExists(MedicalPersonnel.__tablename__)
-        else:
-            if subType == 'doctor':
-                return crudv2(request.method, Doctor, 
-                            Doctor(ci=mp.ci), messageReturn=True, ci=mp.ci)
-            elif subType == 'medicalAssistant':
-                return crudv2(request.method, MedicalAssitant, 
-                            MedicalAssitant(ci=ci), messageReturn=True, ci=mp.ci)
-            else:
-                return provideData()
+@router.route('/medicalAssistant', methods=['POST', 'DELETE']) # create or delete medicalPersonnel | doctor | medicalassistant user
+def medicalAssistant():
+    return crudv2(MedicalAssitant,request)
 
-@router.route('/phoneNumbers', methods=['POST','PUT','PATCH'])
+@router.route('/phoneNumbers', methods=['POST', 'DELETE'])
 def phoneNumbers():
-    try:
-        data = json.loads(request.data)
-        phones = [UserPhone(ci=p['ci'],phone=p['phone']) for p in data['phones']]
-        
-        if request.method == 'PUT' or request.method == 'PATCH':
-            delete(UserPhone,ci=phones[0].ci)
-        
-        for phone in phones:
-            result, opState = (crudv2('POST',UserPhone, phone, tupleReturn=True,
-                              ci=phone.ci, phone=phone.phone))
-            if not opState:
-                if request.method == 'POST':
-                    return recordAlreadyExists(UserPhone.__tablename__, asdict(phone))
+    return crudv2(UserPhone,request)
 
-        return recordCUDSuccessfully(UserPhone.__tablename__, request.method)
+@router.get('/phoneNumbers')
+def getPhoneNumbers():
+    phones = [asdict(p) for p in UserPhone.query.filter(UserPhone.ci == json.loads(request.data)['ci']).all()]
+    return crudv2(request=request,preparedResult=phones)
 
-    except Exception as exc:
-        return provideData()
-
-@router.get('/phoneNumbers/<int:ci>')
-def getPhoneNumbers(ci:int):
-    phones = [asdict(p) for p in UserPhone.query.filter(UserPhone.ci == ci).all()]
-    return crudv2(request.method,UserPhone,phones)
-
-@router.route('/relatives', methods=['POST','PUT','PATCH', 'DELETE'])
+@router.route('/relatives', methods=['POST', 'PATCH', 'DELETE'])
 def relatives():
-    try:
-        data = json.loads(request.data)
+    return crudv2(UIsRelatedTo,request)
 
-        _relatives = [UIsRelatedTo(user1=relative['user1'], user2=relative['user2'],
-                               relationType=relative['relationType'])
-                               for relative in data['relatives']]
-
-        if request.method == 'DELETE':
-            return crudv2(request.method,UIsRelatedTo,user1=_relatives[0].user1)
-
-        if request.method == 'PUT' or request.method == 'PATCH':
-            delete(UIsRelatedTo,user1=_relatives[0].user1)
-        
-        for r in _relatives:
-            result, opState = (crudv2('POST',UIsRelatedTo,r, tupleReturn=True,
-                              user1=r.user1, user2=r.user2))
-            if not opState:
-                if request.method == 'POST':
-                    return recordAlreadyExists(UIsRelatedTo.__tablename__, asdict(r))
-
-        return recordCUDSuccessfully(UIsRelatedTo.__tablename__, request.method)
-    except:
-        return provideData()
-
-@router.get('/relatives/<int:ci>')
-def getRelatives(ci:int):
-    _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == ci).all()
+@router.get('/relatives')
+def getRelatives():
+    _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == json.loads(request.data)['ci']).all()
     #               user1 is <relationType> of user2
     __relatives = [userToReturn(user, 
                     relationType = next(r.relationType for r in _relatives
@@ -209,30 +150,32 @@ def getRelatives(ci:int):
                     [User.query.filter(User.ci==r.user2).first()
                      for r in _relatives]]
 
-    return crudv2(request.method, UIsRelatedTo, __relatives, ci=ci)
+    return crudv2(request=request, preparedResult=__relatives)
 
-@router.get('/mp/specialties/<int:ci>') # get specialties of mp user
-def getSpecialties(ci:int):
-    _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == ci).all()
+@router.get('/medicalPersonnel/specialties') # get specialties of mp user
+def getSpecialties():
+    _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == json.loads(request.data)['ci']).all()
 
-    __specialties = [Specialty.query.filter(Specialty.id == sp.idSpec).first()
+    __specialties = [asdict(Specialty.query.filter(Specialty.id == sp.idSpec).first())
                     for sp in _specialties]
 
-    return crudv2(request.method, Specialty, __specialties, ci=ci)
+    return crudv2(request=request,preparedResult=__specialties)
 
 # -- MEDICAL PERSONNEL USERS
-@router.get('/mp/<specialty>/<type>') # GET /api/user/mp/{specialtyName}/{mpUserType}
-def medicalPersonnelBySpecialty(specialty:str, type:str):
-    specialty = Specialty.query.filter(Specialty.title == specialty).one_or_none()
+@router.get('/medicalPersonnel/specialty') # GET /api/user/medicalPersonnel/specialty get medicalpersonnel users by specialty
+def medicalPersonnelBySpecialty():
+    data = json.loads(request.data)
+
+    specialty = Specialty.query.filter(Specialty.title == data['specialty']).one_or_none()
 
     if specialty is None:
         return recordDoesntExist(Specialty.__tablename__)
     else:
         specialtyId = specialty.id
 
-    users = filterByType(type).filter(and_(
+    users = filterByType(data['userType']).filter(and_(
                                             MpHasSpec.idSpec == specialtyId,
                                             MpHasSpec.ciMp == User.ci 
                                             )).all()
 
-    return crudv2(request.method,User, [userToReturn(u, userType=type) for u in users])
+    return crudv2(request=request, preparedResult=[userToReturn(u, userType=data['userType']) for u in users])

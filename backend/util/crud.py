@@ -2,6 +2,7 @@ from dataclasses import asdict
 from flask.wrappers import Request
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.expression import text
+from werkzeug.security import generate_password_hash
 from .returnMessages import *
 from models.db import BaseModel
 from models import db
@@ -9,12 +10,26 @@ from flask import json, jsonify
 
 def get(model:BaseModel,filterStr:str):
     instances = db.session.query(model).filter(filterStr).all()
-    if len(instances) < 1:
-        return instances, False
-    else:
-        return instances, True
+    return instances, False if len(instances) < 1 else True
 
 def getOrCreate(model: BaseModel, toInsert, filterStr:str):
+    # if filterStr is not None:
+    #     instances, status = (get(model,filterStr))
+
+    #     if status: # already exists, won't create
+    #         return instances, False
+    #     else:
+    #         try:
+    #             db.session.add(toInsert)
+    #             db.session.commit()
+    #             return toInsert, True
+    #         except Exception:
+    #             db.session.rollback()
+    #             return instances, False
+    # else:
+    #     db.session.add(toInsert)
+    #     db.session.commit()
+    #     return toInsert, True
     instances, status = (get(model,filterStr))
 
     if status: # already exists, won't create
@@ -82,21 +97,34 @@ def getPrimaryKeys(model): # gets the primary key(s) of a class
     mapper = inspect(model)
     yield from (column for column in mapper.columns if column.primary_key) 
 
-def crudv2(key:str=None, model:BaseModel=None, request:Request=None, operator='AND',
-           jsonReturn=False, messageReturn=False,tupleReturn=False, autoReturn=True, preparedResult=None):
+def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
+           jsonReturn=False, messageReturn=False,tupleReturn=False, autoReturn=True,
+           preparedResult=False, createWithoutFiltering=False):
     
     result = None
     opState = None
     message = None
+    
+    if autoReturn:
+        if request.method == 'GET':
+            jsonReturn = True
+        else:
+            messageReturn = True
 
-    if preparedResult is not None:
+    if preparedResult is not False:
         if jsonReturn:
+            if preparedResult is None:
+                return jsonify([]), 400
             return jsonify(preparedResult), 200
-
+        if messageReturn is not None:
+            return messageReturn
     try:
         data = json.loads(request.data)
 
-        dictData = data[key]
+        dictData = data[model.__tablename__]
+
+        if dictData.get('password', None) is not None:
+            dictData['password'] = generate_password_hash(dictData['password'])
 
         if not isinstance(dictData, list): # convert to list in order to make things easier
             dictData = [dictData]
@@ -105,23 +133,22 @@ def crudv2(key:str=None, model:BaseModel=None, request:Request=None, operator='A
 
         primaryKeys = [pk for pk in getPrimaryKeys(model)] # get the primary key(s) of the model
              
-        # make if statements with the possible requests methods, pass the filterStr
-
         for obj in objs:
 
             filters = {f"{pk.key}": asdict(obj)[pk.key] for pk in primaryKeys
                        if asdict(obj)[pk.key] is not None}
             filterStr = ''
 
-            for key,value in filters.items():
-                if len(filterStr) > 0:
-                    filterStr += operator
-                filterStr += f" {key} = {value} "
+            if not createWithoutFiltering:
+                for key,value in filters.items():
+                    if len(filterStr) > 0:
+                        filterStr += operator
+                    filterStr += f" {key} = {value} "
 
-            filterStr = text(filterStr)
+                filterStr = text(filterStr)
 
             if request.method == 'POST':
-                result, opState = (getOrCreate(model=model,toInsert=obj,filter=filterStr))
+                result, opState = (getOrCreate(model,obj,filterStr))
             elif request.method == 'PUT':
                 result, opState = (put(model=model,toPut=obj,filter=filterStr))
             elif request.method == 'PATCH':
@@ -129,13 +156,7 @@ def crudv2(key:str=None, model:BaseModel=None, request:Request=None, operator='A
             elif request.method == 'DELETE':
                 opState = delete(model=model,filter=filterStr)
             elif request.method == 'GET':
-                result, opState = get(model,filterStr)
-
-        if autoReturn:
-            if request.method == 'GET':
-                jsonReturn = True
-            else:
-                messageReturn = True
+                result, opState = (get(model,filterStr))
         
         if not opState:
             if request.method == 'POST':

@@ -170,15 +170,19 @@ def phoneNumbers():
 @router.get('/phoneNumbers/<int:ci>')
 def getPhoneNumbers(ci:int):
     phones = [asdict(p) for p in UserPhone.query.filter(UserPhone.ci == ci).all()]
-    return crud(operation=request.method,model=UserPhone,obj=phones,ci=ci)
+    return crud(request.method,UserPhone,phones)
 
-@router.route('/relatives', methods=['POST','PUT','PATCH'])
+@router.route('/relatives', methods=['POST','PUT','PATCH', 'DELETE'])
 def relatives():
     try:
         data = json.loads(request.data)
+
         _relatives = [UIsRelatedTo(user1=relative['user1'], user2=relative['user2'],
                                relationType=relative['relationType'])
                                for relative in data['relatives']]
+
+        if request.method == 'DELETE':
+            return crud(request.method,UIsRelatedTo,user1=_relatives[0].user1)
 
         if request.method == 'PUT' or request.method == 'PATCH':
             delete(UIsRelatedTo,user1=_relatives[0].user1)

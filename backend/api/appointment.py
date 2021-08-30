@@ -14,7 +14,7 @@ router = Blueprint('appointment', __name__, url_prefix='/appointment')
 @router.route('/<int:id>', methods=['GET','DELETE']) # GET | DELETE /api/appointment/{id}
 def apById(id):
     ap = asdict(Appointment.query.filter(Appointment.id==id).one_or_none())
-    return crud(request.method, Appointment, ap, id=ap.id)
+    return crudv2(request.method, Appointment, ap, id=ap.id)
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/appointment
 def createOrUpdate():
@@ -27,7 +27,7 @@ def createOrUpdate():
                          timeEnds=apData.get('timeEnds', None), etpp=apData.get('etpp', None),
                          maxTurns=apData.get('maxTurns', None))
         
-        return crud(request.method,Appointment,ap,messageReturn=True,id=ap.id)
+        return crudv2(request.method,Appointment,ap,messageReturn=True,id=ap.id)
     except:
         return provideData()
 
@@ -39,7 +39,7 @@ def medicalAssistantAssistsAp():
         aP = AssistsAp(idAp=assistsData['idAp'], ciMa=assistsData['ciMa'],
                        time=assistsData['time'])
         
-        return crud(request.method,AssistsAp,aP)
+        return crudv2(request.method,AssistsAp,aP)
     except:
         return provideData()
 
@@ -52,7 +52,7 @@ def patientAttendsToAp():
                        motive=attendsToData.get('motive', None), number=attendsToData.get('number', None),
                        time=attendsToData.get('time', None))
         
-        return crud(request.method,AttendsTo,aT, idAp=aT.idAp, ciPa=aT.ciPa)
+        return crudv2(request.method,AttendsTo,aT, idAp=aT.idAp, ciPa=aT.ciPa)
     except:
         return provideData()
 
@@ -71,13 +71,13 @@ def apRefPrevAp(): # input a reference to a previous appointment
                                   ciPaPrevAp=ref['ciPa']) for ref in apRefPrevApData]
 
             if request.method == 'DELETE':
-                return crud(request.method, ApRefPrevAp, idCurrAp=apRefs[0].idCurrAp,ciPaCurrAp=apRefs[0].ciPaCurrAp)
+                return crudv2(request.method, ApRefPrevAp, idCurrAp=apRefs[0].idCurrAp,ciPaCurrAp=apRefs[0].ciPaCurrAp)
 
             elif request.method == 'PUT' or request.method == 'PATCH':
                 delete(ApRefPrevAp, idCurrAp=apRefs[0].idCurrAp,ciPaCurrAp=apRefs[0].ciPaCurrAp)
             
             for apRef in apRefs:
-                result, opState = (crud('POST',ApRefPrevAp,apRef, tupleReturn=True,
+                result, opState = (crudv2('POST',ApRefPrevAp,apRef, tupleReturn=True,
                               idCurrAp=apRef.idCurrAp,ciPaCurrAp=apRef.ciPaCurrAp,
                               idPrevAp=apRef.idPrevAp,ciPaPrevAp=apRef.ciPaPrevAp))
                 if not opState:
@@ -94,7 +94,7 @@ def getApRefPrevAp(idAp:int,ciPa:int):
         appointments = [asdict(ap) for ap in ApRefPrevAp.query.filter(and_(
                         ApRefPrevAp.idCurrAp == idAp,
                         ApRefPrevAp.ciPaCurrAp == ciPa)).all()]
-        return crud(request.method,ApRefPrevAp,appointments)
+        return crudv2(request.method,ApRefPrevAp,appointments)
 
 @router.route('/patientApData/apRefExam', methods=['POST','PUT', 'PATCH','DELETE'])
 def apRefExam(): # input a reference to an exam
@@ -111,13 +111,13 @@ def apRefExam(): # input a reference to an exam
                                 for ref in apRefExamData]
 
             if request.method == 'DELETE':
-                return crud(request.method, ApRefExam, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+                return crudv2(request.method, ApRefExam, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
 
             elif request.method == 'PUT' or request.method == 'PATCH':
                 delete(ApRefExam, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
             
             for apRef in apRefs:
-                result, opState = (crud('POST',ApRefExam,apRef, tupleReturn=True,
+                result, opState = (crudv2('POST',ApRefExam,apRef, tupleReturn=True,
                                   idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, idExTaken=apRef.idExTaken,
                                   idEx=apRef.idEx,ciPaEx=apRef.ciPaEx))
                 if not opState:
@@ -134,7 +134,7 @@ def getApRefExam(idAp:int,ciPa:int):
         apRefs = [asdict(apRef) for apRef in ApRefExam.query.filter(and_(
                         ApRefExam.idAp == idAp,
                         ApRefExam.ciPaAp == ciPa)).all()]
-        return crud(request.method,ApRefExam,apRefs)
+        return crudv2(request.method,ApRefExam,apRefs)
 
 @router.route('/patientApData/apRefTr', methods=['POST','PUT', 'PATCH','DELETE'])
 def apRefTr(): # input a reference to a treatment
@@ -151,13 +151,13 @@ def apRefTr(): # input a reference to a treatment
                               for ref in apRefTrData]
 
             if request.method == 'DELETE':
-                return crud(request.method, ApRefTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+                return crudv2(request.method, ApRefTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
 
             elif request.method == 'PUT' or request.method == 'PATCH':
                 delete(ApRefTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
             
             for apRef in apRefs:
-                result, opState = (crud('POST',ApRefTr,apRef, tupleReturn=True,
+                result, opState = (crudv2('POST',ApRefTr,apRef, tupleReturn=True,
                                   idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, idFollows=apRef.idFollows,
                                   idTreatment=apRef.idTreatment,ciPaTr=apRef.ciPaTr))
                 if not opState:
@@ -174,7 +174,7 @@ def getApRefTr(idAp:int,ciPa:int):
         apRefs = [asdict(apRef) for apRef in ApRefTr.query.filter(and_(
                         ApRefTr.idAp == idAp,
                         ApRefTr.ciPaAp == ciPa)).all()]
-        return crud(request.method,ApRefTr,apRefs)
+        return crudv2(request.method,ApRefTr,apRefs)
 
 @router.route('/patientApData/fills', methods=['POST','PUT', 'PATCH','DELETE'])
 def fills(): # input a response to a question of the interview
@@ -191,13 +191,13 @@ def fills(): # input a response to a question of the interview
                             for ref in fillsData]
 
             if request.method == 'DELETE':
-                return crud(request.method, Fills, idAp=_fills[0].idAp,ciPa=_fills[0].ciPa)
+                return crudv2(request.method, Fills, idAp=_fills[0].idAp,ciPa=_fills[0].ciPa)
 
             elif request.method == 'PUT' or request.method == 'PATCH':
                 delete(Fills, idAp=_fills[0].idAp,ciPa=_fills[0].ciPa)
             
             for fill in _fills:
-                result, opState = (crud('POST',Fills,_fills, tupleReturn=True,
+                result, opState = (crudv2('POST',Fills,_fills, tupleReturn=True,
                                   idAp=fill.idAp,ciPa=fill.ciPa, idForm=fill.idForm,
                                   idQuestion=fill.idQuestion))
                 if not opState:
@@ -213,7 +213,7 @@ def getFills(idAp:int,ciPa:int):
         fills = [asdict(fill) for fill in Fills.query.filter(and_(
                         Fills.idAp == idAp,
                         Fills.ciPa == ciPa)).all()]
-        return crud(request.method,Fills,fills)
+        return crudv2(request.method,Fills,fills)
 
 @router.route('/patientApData/suggestsTr', methods=['POST','PUT', 'PATCH','DELETE'])
 def suggestsTrs(): # input suggested treatments when concluding the appointment
@@ -228,13 +228,13 @@ def suggestsTrs(): # input suggested treatments when concluding the appointment
                                  for ref in apSuggestedTrData]
 
             if request.method == 'DELETE':
-                return crud(request.method, SuggestsTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+                return crudv2(request.method, SuggestsTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
 
             elif request.method == 'PUT' or request.method == 'PATCH':
                 delete(SuggestsTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
             
             for apRef in apRefs:
-                result, opState = (crud('POST',SuggestsTr,apRef, tupleReturn=True,
+                result, opState = (crudv2('POST',SuggestsTr,apRef, tupleReturn=True,
                                   idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, 
                                   idTreatment=apRef.idTreatment))
                 if not opState:
@@ -251,7 +251,7 @@ def getSuggestedTrs(idAp:int,ciPa:int):
         suggestedTrs = [asdict(sgtr) for sgtr in SuggestsTr.query.filter(and_(
                         SuggestsTr.idAp == idAp,
                         SuggestsTr.ciPaAp == ciPa)).all()]
-        return crud(request.method,SuggestsTr,suggestedTrs)
+        return crudv2(request.method,SuggestsTr,suggestedTrs)
 
 @router.route('/patientApData/suggestsTr', methods=['POST','PUT', 'PATCH','DELETE'])
 def requiredExams(): # input required exams when concluding the appointment
@@ -266,13 +266,13 @@ def requiredExams(): # input required exams when concluding the appointment
                                  for ref in apRequiresExData]
 
             if request.method == 'DELETE':
-                return crud(request.method, RequiresEx, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+                return crudv2(request.method, RequiresEx, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
 
             elif request.method == 'PUT' or request.method == 'PATCH':
                 delete(RequiresEx, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
             
             for apRef in apRefs:
-                result, opState = (crud('POST',RequiresEx,apRef, tupleReturn=True,
+                result, opState = (crudv2('POST',RequiresEx,apRef, tupleReturn=True,
                                   idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, 
                                   idEx=apRef.idEx))
                 if not opState:
@@ -289,7 +289,7 @@ def getRequiredExams(idAp:int,ciPa:int):
         requiredExs = [asdict(rqEx) for rqEx in RequiresEx.query.filter(and_(
                         RequiresEx.idAp == idAp,
                         RequiresEx.ciPaAp == ciPa)).all()]
-        return crud(request.method,RequiresEx,requiredExs)
+        return crudv2(request.method,RequiresEx,requiredExs)
 
 # @router.route('/patientApData', methods=['POST','PUT','PATCH','DELETE'])
 # def patientApData():

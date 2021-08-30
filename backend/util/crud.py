@@ -82,12 +82,16 @@ def getPrimaryKeys(model): # gets the primary key(s) of a class
     mapper = inspect(model)
     yield from (column for column in mapper.columns if column.primary_key) 
 
-def crudv2(key:str, model:BaseModel, request:Request, operator='AND',
-           jsonReturn=False, messageReturn=False,tupleReturn=False, autoReturn=True):
+def crudv2(key:str=None, model:BaseModel=None, request:Request=None, operator='AND',
+           jsonReturn=False, messageReturn=False,tupleReturn=False, autoReturn=True, preparedResult=None):
     
     result = None
     opState = None
     message = None
+
+    if preparedResult is not None:
+        if jsonReturn:
+            return jsonify(preparedResult), 200
 
     try:
         data = json.loads(request.data)

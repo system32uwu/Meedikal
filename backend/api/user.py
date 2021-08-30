@@ -74,7 +74,7 @@ def userToReturn(user: User, userType=None, relationType=None):
 @router.get('/all/<userType>')
 def allUsers(userType=None):
     users = filterByType(userType).all()
-    return crud(request.method, User, [userToReturn(u) for u in users])
+    return crudv2(preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
 
 @router.route('/<int:ci>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}
 @router.route('/<int:ci>/<userType>', methods=['GET','DELETE']) # GET | DELETE /api/user/{ci}/{userType}
@@ -86,14 +86,14 @@ def userByCi(ci:int, userType:str=None, logicalCD:int=None): # logicalCD (logica
             user.update(active=bool(logicalCD))
     else:
         if user is not None:
-            return crud(request.method,User,userToReturn(user), ci=user.ci)
+            return crudv2(request.method,User,userToReturn(user), ci=user.ci)
         else:
             return recordDoesntExist(User.__tablename__)
 
 @router.get('/<surname1>/<userType>') # GET /api/user/{surname1}/{userType}
 def userBySurname1(surname1, userType=None):
     users = filterByType(userType).filter(User.surname1 == surname1).all()
-    return crud(request.method, User, [userToReturn(u) for u in users])
+    return crudv2(request.method, User, [userToReturn(u) for u in users])
 
 @router.get('/<name1>/<surname1>/<userType>') # GET /api/user/{name1}/{surname1}/{userType}
 def userByName1nSurname1(name1,surname1, userType=None):
@@ -101,7 +101,7 @@ def userByName1nSurname1(name1,surname1, userType=None):
                                             User.surname1 == surname1,
                                             User.name1 == name1)).all()
 
-    return crud(request.method, User, [userToReturn(u) for u in users])
+    return crudv2(request.method, User, [userToReturn(u) for u in users])
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
 def create_or_update():
@@ -117,31 +117,31 @@ def create_or_update():
         if userData.get('password', None) is not None:
             u.password=generate_password_hash(userData['password']) # if password is not provided it raises an exception
 
-        return crud(request.method, User, u, ci=userData['ci'])
+        return crudv2(request.method, User, u, ci=userData['ci'])
     except:
         return provideData()
 
 @router.route('/patient/<int:ci>', methods=['POST', 'DELETE']) # create or delete patient table
 def patient(ci:int):
-    return crud(request.method, Patient, Patient(ci=ci),ci=ci)
+    return crudv2(request.method, Patient, Patient(ci=ci),ci=ci)
 
 @router.route('/mp/<int:ci>', methods=['POST', 'DELETE']) # create or delete patient table
 @router.route('/mp/<int:ci>/<subType>', methods=['POST', 'DELETE']) # create or delete patient table
 def medicalPersonnel(ci:int, subType=None):
     if subType is None:
-        return crud(request.method, MedicalPersonnel, MedicalPersonnel(ci=ci), ci=ci)
+        return crudv2(request.method, MedicalPersonnel, MedicalPersonnel(ci=ci), ci=ci)
     else:
-        mp, created = (crud(request.method, MedicalPersonnel, 
+        mp, created = (crudv2(request.method, MedicalPersonnel, 
                             MedicalPersonnel(ci=ci), tupleReturn=True, ci=ci))
     
         if not created:
             return recordAlreadyExists(MedicalPersonnel.__tablename__)
         else:
             if subType == 'doctor':
-                return crud(request.method, Doctor, 
+                return crudv2(request.method, Doctor, 
                             Doctor(ci=mp.ci), messageReturn=True, ci=mp.ci)
             elif subType == 'medicalAssistant':
-                return crud(request.method, MedicalAssitant, 
+                return crudv2(request.method, MedicalAssitant, 
                             MedicalAssitant(ci=ci), messageReturn=True, ci=mp.ci)
             else:
                 return provideData()
@@ -156,7 +156,7 @@ def phoneNumbers():
             delete(UserPhone,ci=phones[0].ci)
         
         for phone in phones:
-            result, opState = (crud('POST',UserPhone, phone, tupleReturn=True,
+            result, opState = (crudv2('POST',UserPhone, phone, tupleReturn=True,
                               ci=phone.ci, phone=phone.phone))
             if not opState:
                 if request.method == 'POST':
@@ -170,7 +170,7 @@ def phoneNumbers():
 @router.get('/phoneNumbers/<int:ci>')
 def getPhoneNumbers(ci:int):
     phones = [asdict(p) for p in UserPhone.query.filter(UserPhone.ci == ci).all()]
-    return crud(request.method,UserPhone,phones)
+    return crudv2(request.method,UserPhone,phones)
 
 @router.route('/relatives', methods=['POST','PUT','PATCH', 'DELETE'])
 def relatives():
@@ -182,13 +182,13 @@ def relatives():
                                for relative in data['relatives']]
 
         if request.method == 'DELETE':
-            return crud(request.method,UIsRelatedTo,user1=_relatives[0].user1)
+            return crudv2(request.method,UIsRelatedTo,user1=_relatives[0].user1)
 
         if request.method == 'PUT' or request.method == 'PATCH':
             delete(UIsRelatedTo,user1=_relatives[0].user1)
         
         for r in _relatives:
-            result, opState = (crud('POST',UIsRelatedTo,r, tupleReturn=True,
+            result, opState = (crudv2('POST',UIsRelatedTo,r, tupleReturn=True,
                               user1=r.user1, user2=r.user2))
             if not opState:
                 if request.method == 'POST':
@@ -209,7 +209,7 @@ def getRelatives(ci:int):
                     [User.query.filter(User.ci==r.user2).first()
                      for r in _relatives]]
 
-    return crud(request.method, UIsRelatedTo, __relatives, ci=ci)
+    return crudv2(request.method, UIsRelatedTo, __relatives, ci=ci)
 
 @router.get('/mp/specialties/<int:ci>') # get specialties of mp user
 def getSpecialties(ci:int):
@@ -218,7 +218,7 @@ def getSpecialties(ci:int):
     __specialties = [Specialty.query.filter(Specialty.id == sp.idSpec).first()
                     for sp in _specialties]
 
-    return crud(request.method, Specialty, __specialties, ci=ci)
+    return crudv2(request.method, Specialty, __specialties, ci=ci)
 
 # -- MEDICAL PERSONNEL USERS
 @router.get('/mp/<specialty>/<type>') # GET /api/user/mp/{specialtyName}/{mpUserType}
@@ -235,4 +235,4 @@ def medicalPersonnelBySpecialty(specialty:str, type:str):
                                             MpHasSpec.ciMp == User.ci 
                                             )).all()
 
-    return crud(request.method,User, [userToReturn(u, userType=type) for u in users])
+    return crudv2(request.method,User, [userToReturn(u, userType=type) for u in users])

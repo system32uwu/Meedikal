@@ -93,7 +93,7 @@ def getApRefPrevAp(idAp:int,ciPa:int):
         return crud(request.method,ApRefPrevAp,appointments)
 
 @router.route('/patientApData/apRefExam', methods=['POST','PUT', 'PATCH','DELETE'])
-def apRefPrevAp():
+def apRefExam():
         try:
             data = json.loads(request.data)
 
@@ -133,11 +133,11 @@ def getApRefExam(idAp:int,ciPa:int):
         return crud(request.method,ApRefExam,apRefs)
 
 @router.route('/patientApData/apRefTr', methods=['POST','PUT', 'PATCH','DELETE'])
-def apRefPrevAp():
+def apRefTr():
         try:
             data = json.loads(request.data)
 
-            apRefTrData = data['ApRefTr']
+            apRefTrData = data['apRefTr']
 
             apRefs = [ApRefTr(idAp=ref['idAp'],
                               ciPaAp=ref['ciPaAp'],
@@ -155,7 +155,7 @@ def apRefPrevAp():
             for apRef in apRefs:
                 result, opState = (crud('POST',ApRefTr,apRef, tupleReturn=True,
                                   idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, idFollows=apRef.idFollows,
-                                  idEx=apRef.idTreatment,ciPaEx=apRef.ciPaTr))
+                                  idTreatment=apRef.idTreatment,ciPaTr=apRef.ciPaTr))
                 if not opState:
                     if request.method == 'POST':
                         return recordAlreadyExists(ApRefTr.__tablename__, asdict(apRef))
@@ -165,7 +165,7 @@ def apRefPrevAp():
         except:
             return provideData()
 
-@router.get('/patientApData/apRefTr/<int:idAp>/<int:ciPa>') # GET references to exams of an appointment
+@router.get('/patientApData/apRefTr/<int:idAp>/<int:ciPa>') # GET references to treatments of an appointment
 def getApRefTr(idAp:int,ciPa:int):
         apRefs = [asdict(apRef) for apRef in ApRefTr.query.filter(and_(
                         ApRefTr.idAp == idAp,
@@ -211,26 +211,91 @@ def getFills(idAp:int,ciPa:int):
                         Fills.ciPa == ciPa)).all()]
         return crud(request.method,Fills,fills)
 
+@router.route('/patientApData/suggestsTr', methods=['POST','PUT', 'PATCH','DELETE'])
+def suggestedTrs():
+        try:
+            data = json.loads(request.data)
+
+            apSuggestedTrData = data['suggestsTr']
+
+            apRefs = [SuggestsTr(idAp=ref['idAp'],
+                                 ciPaAp=ref['ciPaAp'],
+                                 idTreatment=ref['idTreatment'])
+                                 for ref in apSuggestedTrData]
+
+            if request.method == 'DELETE':
+                return crud(request.method, SuggestsTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+
+            elif request.method == 'PUT' or request.method == 'PATCH':
+                delete(SuggestsTr, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+            
+            for apRef in apRefs:
+                result, opState = (crud('POST',SuggestsTr,apRef, tupleReturn=True,
+                                  idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, 
+                                  idTreatment=apRef.idTreatment))
+                if not opState:
+                    if request.method == 'POST':
+                        return recordAlreadyExists(SuggestsTr.__tablename__, asdict(apRef))
+            
+            return recordCUDSuccessfully(SuggestsTr.__tablename__, request.method)
+
+        except:
+            return provideData()
+
+@router.get('/patientApData/suggestsTr/<int:idAp>/<int:ciPa>') # GET references to suggested treatments of an appointment
+def getSuggestedTrs(idAp:int,ciPa:int):
+        suggestedTrs = [asdict(sgtr) for sgtr in SuggestsTr.query.filter(and_(
+                        SuggestsTr.idAp == idAp,
+                        SuggestsTr.ciPaAp == ciPa)).all()]
+        return crud(request.method,SuggestsTr,suggestedTrs)
+
+@router.route('/patientApData/suggestsTr', methods=['POST','PUT', 'PATCH','DELETE'])
+def suggestedTrs():
+        try:
+            data = json.loads(request.data)
+
+            apRequiresExData = data['requiresEx']
+
+            apRefs = [RequiresEx(idAp=ref['idAp'],
+                                 ciPaAp=ref['ciPaAp'],
+                                 idEx=ref['idEx'])
+                                 for ref in apRequiresExData]
+
+            if request.method == 'DELETE':
+                return crud(request.method, RequiresEx, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+
+            elif request.method == 'PUT' or request.method == 'PATCH':
+                delete(RequiresEx, idAp=apRefs[0].idAp,ciPaAp=apRefs[0].ciPaAp)
+            
+            for apRef in apRefs:
+                result, opState = (crud('POST',RequiresEx,apRef, tupleReturn=True,
+                                  idAp=apRef.idAp,ciPaAp=apRef.ciPaAp, 
+                                  idEx=apRef.idEx))
+                if not opState:
+                    if request.method == 'POST':
+                        return recordAlreadyExists(RequiresEx.__tablename__, asdict(apRef))
+            
+            return recordCUDSuccessfully(RequiresEx.__tablename__, request.method)
+
+        except:
+            return provideData()
+
+@router.get('/patientApData/requiresEx/<int:idAp>/<int:ciPa>') # GET references to required exams of an appointment
+def getRequiredExams(idAp:int,ciPa:int):
+        requiredExs = [asdict(rqEx) for rqEx in RequiresEx.query.filter(and_(
+                        RequiresEx.idAp == idAp,
+                        RequiresEx.ciPaAp == ciPa)).all()]
+        return crud(request.method,RequiresEx,requiredExs)
+
 # @router.route('/patientApData', methods=['POST','PUT','PATCH','DELETE'])
 # def patientApData():
 #     try:
 #         data = json.loads(request.data)
         
-#         suggestsTrData = data.get('suggestsTr') # suggested treatments
-#         requiresExData = data.get('requiresEx') # requiredExams
-        
 #         diagnosesData = data.get('diagnoses') # diagnosed illness
 #         registersSyData = data.get('registersSy') # registered symptoms
 #         registersScData = data.get('registersSc') # registered clinical signs
         
-#         suggestsTr = SuggestsTr(idAp=suggestsTrData['idAp'],
-#                                 ciPaAp=suggestsTrData['ciPaAp'],
-#                                 idTreatment=suggestsTrData['idTreatment'])
-
-#         requiresEx = RequiresEx(idAp=requiresExData['idAp'],
-#                                 ciPaAp=requiresExData['ciPaAp'],
-#                                 idEx=requiresExData['idExam'])
-
 #         return recordCUDSuccessfully(tablename='patientApData',create=True)
 
 #     except Exception: # any other exception ocurred

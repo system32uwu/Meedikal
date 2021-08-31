@@ -98,10 +98,10 @@ def registersSy(): # input registered clinical signs
         clinicalSigns = [getOrCreate(ClinicalSign, ClinicalSign(name=clinicalSign['name']), f"name = '{clinicalSign['name']}'") 
                                 for clinicalSign in registersCs]
             
-        for symptom in clinicalSigns:
-            for _d in registersCs:
-                if _d['name'] == symptom[0][0].name:
-                    _d['idCs'] = symptom[0][0].id
+        for clinicalSign in clinicalSigns:
+            for _d in clinicalSign:
+                if _d['name'] == clinicalSign[0][0].name:
+                    _d['idCs'] = clinicalSign[0][0].id
                 _d.pop('name', None)
 
     return crudv2(RegistersCs,request)

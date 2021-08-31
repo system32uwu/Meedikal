@@ -34,7 +34,7 @@ def getTypes(ci):
 
 def filterByType(userType=None, request=None) -> Query:
     if request is not None:
-        userType = json.loads(request.data).get('userType', None)
+        userType = json.loads(request.data)['user'].get('userType', None)
     if userType == None:
         return User.query
     elif userType == 'patient':
@@ -82,7 +82,7 @@ def userByCi():
     
 @router.delete('') # DELETE /api/user
 def deleteUser(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
-    data = json.loads(request.data)
+    data = json.loads(request.data)['user']
     user = filterByType(request=request).filter(User.ci == data['ci']).one_or_none()
     if data.get('logicalCD', None) is not None:
         if user is not None:
@@ -94,13 +94,13 @@ def deleteUser(): # logicalCD (logical Create / Delete) = set active to False or
 
 @router.get('/surname1') # GET /api/user/surname1
 def userBySurname1():
-    data = json.loads(request.data)
+    data = json.loads(request.data)['user']
     users = filterByType(request=request).filter(User.surname1 == data['surname1']).all()
     return crudv2(User, preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
 
 @router.get('/name1surname1') # GET /api/user/name1surname1
 def userByName1nSurname1():
-    data = json.loads(request.data)
+    data = json.loads(request.data)['user']
     users = filterByType(request=request).filter(and_(
                                             User.surname1 == data['surname1'],
                                             User.name1 == data['name1'])).all()
@@ -137,7 +137,7 @@ def relatives():
 
 @router.get('/relatives')
 def getRelatives():
-    _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == json.loads(request.data)['ci']).all()
+    _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == json.loads(request.data)['user']['ci']).all()
     #               user1 is <relationType> of user2
     __relatives = [userToReturn(user, 
                     relationType = next(r.relationType for r in _relatives
@@ -171,7 +171,7 @@ def specialties(): #1 create / get specialties first, then add to MpHasSpec
 
 @router.get('/medicalPersonnel/specialties') # get specialties of mp user
 def getSpecialtiesOfMp():
-    _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == json.loads(request.data)['ci']).all()
+    _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == json.loads(request.data)['user']['ci']).all()
 
     __specialties = [asdict(Specialty.query.filter(Specialty.id == sp.idSpec).first())
                     for sp in _specialties]
@@ -189,9 +189,9 @@ def getMedicalPersonnelBySpecialty():
     else:
         specialtyId = specialty.id
 
-    users = filterByType(data['userType']).filter(and_(
+    users = filterByType(data['user']['userType']).filter(and_(
                                             MpHasSpec.idSpec == specialtyId,
                                             MpHasSpec.ciMp == User.ci 
                                             )).all()
 
-    return crudv2(request=request, preparedResult=[userToReturn(u, userType=data['userType']) for u in users])
+    return crudv2(request=request, preparedResult=[userToReturn(u, userType=data['user']['userType']) for u in users])

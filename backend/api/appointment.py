@@ -22,7 +22,7 @@ def createOrUpdate():
 def assistsAp():
     return crudv2(request,AssistsAp)
 
-@router.route('/pattientAttendsToAp', methods=['POST', 'PATCH', 'PUT', 'DELETE'])
+@router.route('/attendsTo', methods=['POST', 'PATCH', 'PUT', 'DELETE'])
 def patientAttendsToAp():
     return crudv2(AttendsTo,request)
 

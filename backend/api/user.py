@@ -1,5 +1,4 @@
 from dataclasses import asdict
-import re
 
 from flask import json, Blueprint, request
 from sqlalchemy import and_
@@ -7,6 +6,7 @@ from sqlalchemy.orm.query import Query
 
 from models.Specialty import *
 from models.User import *
+from models.Alert import * 
 from util.crud import *
 from util.returnMessages import *
 

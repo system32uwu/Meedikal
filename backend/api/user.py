@@ -161,7 +161,6 @@ def getSpecialties():
 
     return crudv2(request=request,preparedResult=__specialties)
 
-# -- MEDICAL PERSONNEL USERS
 @router.get('/medicalPersonnel/specialty') # GET /api/user/medicalPersonnel/specialty get medicalpersonnel users by specialty
 def medicalPersonnelBySpecialty():
     data = json.loads(request.data)

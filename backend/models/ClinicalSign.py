@@ -15,7 +15,7 @@ class ClinicalSign(BaseModel):
     description = db.Column(db.VARCHAR(512)) 
 
 @dataclass
-class registersCs(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersCs > ClinicalSign
+class RegistersCs(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersCs > ClinicalSign
     __tablename__ = 'registersCs'
 
     idAp: int

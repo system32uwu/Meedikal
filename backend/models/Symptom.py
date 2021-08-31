@@ -14,7 +14,7 @@ class Symptom(BaseModel):
     description = db.Column(db.VARCHAR(512)) 
 
 @dataclass
-class registerSy(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersSy > Symptom
+class RegistersSy(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersSy > Symptom
     __tablename__ = 'registersSy'
 
     idAp: int

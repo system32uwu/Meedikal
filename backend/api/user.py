@@ -78,9 +78,8 @@ def allUsers():
 
 @router.get('') # GET /api/user
 def userByCi():
-    user = filterByType(request=request).filter(User.ci == json.loads(request.data)['ci']).one_or_none()
-    return crudv2(request=request,preparedResult=userToReturn(user))
-
+    return(User,request)
+    
 @router.delete('') # DELETE /api/user
 def deleteUser(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
     data = json.loads(request.data)
@@ -128,14 +127,9 @@ def doctor():
 def medicalAssistant():
     return crudv2(MedicalAssitant,request)
 
-@router.route('/phoneNumbers', methods=['POST', 'DELETE'])
+@router.route('/phoneNumbers', methods=['POST', 'DELETE', 'GET'])
 def phoneNumbers():
     return crudv2(UserPhone,request)
-
-@router.get('/phoneNumbers')
-def getPhoneNumbers():
-    phones = [asdict(p) for p in UserPhone.query.filter(UserPhone.ci == json.loads(request.data)['ci']).all()]
-    return crudv2(request=request,preparedResult=phones)
 
 @router.route('/relatives', methods=['POST', 'PATCH', 'DELETE'])
 def relatives():

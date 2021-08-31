@@ -1,6 +1,7 @@
 from dataclasses import asdict
 from flask.wrappers import Request
 from sqlalchemy.inspection import inspect
+from sqlalchemy.sql.elements import TextClause
 from sqlalchemy.sql.expression import text
 from werkzeug.security import generate_password_hash
 from .returnMessages import *
@@ -9,27 +10,14 @@ from models import db
 from flask import json, jsonify
 
 def get(model:BaseModel,filterStr:str):
+    if not isinstance(filterStr,TextClause):
+        filterStr = text(filterStr)
     instances = db.session.query(model).filter(filterStr).all()
     return instances, False if len(instances) < 1 else True
 
 def getOrCreate(model: BaseModel, toInsert, filterStr:str):
-    # if filterStr is not None:
-    #     instances, status = (get(model,filterStr))
-
-    #     if status: # already exists, won't create
-    #         return instances, False
-    #     else:
-    #         try:
-    #             db.session.add(toInsert)
-    #             db.session.commit()
-    #             return toInsert, True
-    #         except Exception:
-    #             db.session.rollback()
-    #             return instances, False
-    # else:
-    #     db.session.add(toInsert)
-    #     db.session.commit()
-    #     return toInsert, True
+    if not isinstance(filterStr,TextClause):
+        filterStr = text(filterStr)
     instances, status = (get(model,filterStr))
 
     if status: # already exists, won't create
@@ -44,6 +32,8 @@ def getOrCreate(model: BaseModel, toInsert, filterStr:str):
             return instances, False
 
 def put(model:BaseModel, toPut, filterStr:str): # PUT replaces the entire record
+    if not isinstance(filterStr,TextClause):
+        filterStr = text(filterStr)
     instances, status = (get(model,filterStr))
     
     if not status: # can't update if record doesn't exist
@@ -62,6 +52,8 @@ def put(model:BaseModel, toPut, filterStr:str): # PUT replaces the entire record
             return instances, False
 
 def patch(model:BaseModel, toPatch, filterStr:str): # PATCH updates the provided values
+    if not isinstance(filterStr,TextClause):
+        filterStr = text(filterStr)
     instances, status = (get(model,filterStr))
     
     if not status: # can't update if record doesn't exist
@@ -80,6 +72,8 @@ def patch(model:BaseModel, toPatch, filterStr:str): # PATCH updates the provided
             return instances, False
 
 def delete(model:BaseModel,filterStr:str): # DELETE by the given filters
+    if not isinstance(filterStr,TextClause):
+        filterStr = text(filterStr)
     instances, status = (get(model,filterStr))
     
     if not status: # can't delete if record doesn't exist

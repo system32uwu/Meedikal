@@ -19,7 +19,7 @@ def createOrUpdate():
     return crudv2(Appointment,request, createWithoutFiltering=True if request.method == 'POST' else False)
 
 @router.route('/assignedTo', methods=['POST','PATCH', 'PUT', 'DELETE', 'GET'])
-def assistsAp():
+def assignedTo():
     return crudv2(request,AssignedTo)
 
 @router.route('/assistsAp', methods=['POST','PATCH', 'PUT', 'DELETE', 'GET'])

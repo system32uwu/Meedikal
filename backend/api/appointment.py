@@ -68,6 +68,8 @@ def diagnosedDisease(): # input diagnosed disease
                     _d['idDis'] = disease[0][0].id
                 _d.pop('name', None)
 
+        request.data = json.dumps({Diagnoses.__tablename__: diagnoses})
+
     return crudv2(Diagnoses,request)
 
 @router.route('/patientApData/registersSy', methods=['POST', 'GET'])
@@ -86,10 +88,12 @@ def registersSy(): # input registered symptoms
                     _d['idSy'] = symptom[0][0].id
                 _d.pop('name', None)
 
+        request.data = json.dumps({RegistersSy.__tablename__: registersSy})
+
     return crudv2(RegistersSy,request)
 
 @router.route('/patientApData/registersCs', methods=['POST', 'GET'])
-def registersSy(): # input registered clinical signs
+def registersSc(): # input registered clinical signs
     if request.method == 'POST':
         data = json.loads(request.data)
 
@@ -99,10 +103,12 @@ def registersSy(): # input registered clinical signs
                                 for clinicalSign in registersCs]
             
         for clinicalSign in clinicalSigns:
-            for _d in clinicalSign:
+            for _d in registersCs:
                 if _d['name'] == clinicalSign[0][0].name:
                     _d['idCs'] = clinicalSign[0][0].id
                 _d.pop('name', None)
+
+        request.data = json.dumps({RegistersCs.__tablename__: registersCs})
 
     return crudv2(RegistersCs,request)
 

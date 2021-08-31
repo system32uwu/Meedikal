@@ -78,7 +78,7 @@ def allUsers():
 
 @router.get('') # GET /api/user
 def userByCi():
-    return(User,request)
+    return crudv2(User,request)
     
 @router.delete('') # DELETE /api/user
 def deleteUser(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
@@ -148,19 +148,25 @@ def getRelatives():
 
     return crudv2(request=request, preparedResult=__relatives)
 
-@router.post('/medicalPersonnel/specialties')
+@router.route('/medicalPersonnel/mpHasSpec', methods=['POST','GET', 'DELETE'])
 def specialties(): #1 create / get specialties first, then add to MpHasSpec
-    data = json.loads(request.data)
-    _specialties, _created = ([getOrCreate(Specialty, Specialty(title=sp.title),
-                    f'title = {sp["title"]}') for sp in data['specialties']])
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        mpHasSpec = data['mpHasSpec']
 
-    _mpHasSpecs, __created = ([getOrCreate(MpHasSpec, MpHasSpec(), f'ciMp = {data["ciMp"]} AND idSpec = {sp.id}')
-                    for sp in _specialties])
+        _specialties = [getOrCreate(Specialty, Specialty(title=sp['title']),
+                        f"title = '{sp['title']}'") for sp in mpHasSpec]
+
+        for sp in _specialties:
+                for _mpSpec in mpHasSpec:
+                    if _mpSpec['title'] == sp[0][0].title:
+                        _mpSpec['idSpec'] = sp[0][0].id
+                    _mpSpec.pop('title', None)
+
+        request.data = json.dumps({MpHasSpec.__tablename__: mpHasSpec})
+
+        # reemplazar request.data['mpHasSpec'] con mpHasSpec ? 
     
-    return crudv2(request=request, preparedResult=[asdict(mphs) for mphs in _mpHasSpecs])
-
-@router.delete('/medicalPersonnel/specialties')
-def delSpecialtyOfMp():
     return crudv2(MpHasSpec,request)
 
 @router.get('/medicalPersonnel/specialties') # get specialties of mp user

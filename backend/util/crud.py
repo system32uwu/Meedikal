@@ -105,11 +105,11 @@ def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
         return jsonify(preparedResult), 200
     try:
         data = json.loads(request.data)
-
         dictData = data[model.__tablename__]
 
-        if dictData.get('password', None) is not None:
-            dictData['password'] = generate_password_hash(dictData['password'])
+        if model.__tablename__ == 'user':
+            if dictData.get('password', None) is not None:
+                dictData['password'] = generate_password_hash(dictData['password'])
 
         if not isinstance(dictData, list): # convert to list in order to make things easier
             dictData = [dictData]
@@ -117,7 +117,6 @@ def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
         objs = [model(**data) for data in dictData] # instantiate the objects to operate with
 
         primaryKeys = [pk for pk in getPrimaryKeys(model)] # get the primary key(s) of the model
-             
         for obj in objs:
 
             filters = {f"{pk.key}": asdict(obj)[pk.key] for pk in primaryKeys
@@ -128,7 +127,7 @@ def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
                 for key,value in filters.items():
                     if len(filterStr) > 0:
                         filterStr += operator
-                    filterStr += f" {key} = {value} "
+                    filterStr += f' "{key}" = {value} '
 
                 filterStr = text(filterStr)
 

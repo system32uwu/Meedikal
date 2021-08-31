@@ -9,27 +9,22 @@ from models.Appointment import *
 
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
-@router.route('/<int:id>', methods=['GET','DELETE']) # GET | DELETE /api/appointment/{id}
-def apById(id):
-    ap = asdict(Appointment.query.filter(Appointment.id==id).one_or_none())
-    return crudv2(request.method, Appointment, ap, id=ap.id)
+@router.get('') # GET /api/appointment
+def apById():
+    ap = asdict(Appointment.query.filter(Appointment.id==json.loads(request.data)['id']).one_or_none())
+    return crudv2(request=request,preparedResult=ap)
+
+@router.delete('') # DELETE /api/appointment
+def apById():
+    return crudv2(Appointment,request)
 
 @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/appointment
 def createOrUpdate():
-    return crudv2('appointment',Appointment,request,messageReturn=True, 
-                   createWithoutFiltering=True)
+    return crudv2(Appointment,request, createWithoutFiltering=True)
 
-@router.route('/medicalAssistantAssistsAp', methods=['POST','PATCH', 'PUT', 'DELETE'])
-def medicalAssistantAssistsAp():
-    
-    try:
-        assistsData = json.loads(request.data)
-        aP = AssistsAp(idAp=assistsData['idAp'], ciMa=assistsData['ciMa'],
-                       time=assistsData['time'])
-        
-        return crudv2(request.method,AssistsAp,aP)
-    except:
-        return provideData()
+@router.route('/assistsAp', methods=['POST','PATCH', 'PUT', 'DELETE'])
+def assistsAp():
+    return crudv2(request,AssistsAp)
 
 @router.route('/pattientAttendsToAp', methods=['POST', 'PATCH', 'PUT', 'DELETE'])
 def patientAttendsToAp():

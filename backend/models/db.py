@@ -58,7 +58,6 @@ class BaseModel(db.Model):
     def after_bulk_create(cls, model_objs, *args, **kwargs):
         pass
 
-
     @classmethod
     def bulk_create(cls, iterable, *args, **kwargs):
         cls.before_bulk_create(iterable, *args, **kwargs)
@@ -73,7 +72,6 @@ class BaseModel(db.Model):
             db.session.commit()
         cls.after_bulk_create(model_objs, *args, **kwargs)
         return model_objs
-
 
     @classmethod
     def bulk_create_or_none(cls, iterable, *args, **kwargs):

@@ -98,26 +98,17 @@ def getPrimaryKeys(model): # gets the primary key(s) of a class
     yield from (column for column in mapper.columns if column.primary_key) 
 
 def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
-           jsonReturn=False, messageReturn=False,tupleReturn=False, autoReturn=True,
-           preparedResult=False, createWithoutFiltering=False):
+           tupleReturn=False, preparedResult=False, createWithoutFiltering=False):
     
     result = None
     opState = None
-    message = None
-    
-    if autoReturn:
-        if request.method == 'GET':
-            jsonReturn = True
-        else:
-            messageReturn = True
 
     if preparedResult is not False:
-        if jsonReturn:
-            if preparedResult is None:
-                return jsonify([]), 400
-            return jsonify(preparedResult), 200
-        if messageReturn is not None:
-            return messageReturn
+        if preparedResult is None:
+            return jsonify([]), 400
+        if not isinstance(preparedResult,list):
+            preparedResult = [preparedResult]
+        return jsonify(preparedResult), 200
     try:
         data = json.loads(request.data)
 
@@ -157,25 +148,17 @@ def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
                 opState = delete(model=model,filter=filterStr)
             elif request.method == 'GET':
                 result, opState = (get(model,filterStr))
-        
-        if not opState:
-            if request.method == 'POST':
-                message = recordAlreadyExists(model.__tablename__)
-            else:
-                message = recordDoesntExist(model.__tablename__)
+                
+        if request.method != 'DELETE' and not isinstance(result,list):
+            result = [result]
 
-        if jsonReturn:
-            return jsonify([asdict(res) for res in result]), 200
-        elif messageReturn:
-            if message is None:
-                message = recordCUDSuccessfully(model.__tablename__, request.method)
-            return message
-        elif tupleReturn:
+        if tupleReturn:
             return result,opState
         else:
             if result is None:
-                return opState
-        # return jsonify(result), 200
+                return recordCUDSuccessfully(opState)
+            else:
+                return jsonify([asdict(res) for res in result]), 200
 
     except Exception as exc:
         print(f'exc: {exc}')

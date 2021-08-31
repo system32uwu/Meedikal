@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import re
 
 from flask import json, Blueprint, request
 from sqlalchemy import and_
@@ -75,19 +76,20 @@ def allUsers():
     users = filterByType(request=request).all()
     return crudv2(request=request, preparedResult=[userToReturn(u) for u in users])
 
-@router.route('', methods=['GET']) # GET /api/user
+@router.get('') # GET /api/user
 def userByCi():
     user = filterByType(request=request).filter(User.ci == json.loads(request.data)['ci']).one_or_none()
     return crudv2(request=request,preparedResult=userToReturn(user))
 
-@router.route('', methods=['DELETE']) # DELETE /api/user
-def deleteUserBy(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
+@router.delete('') # DELETE /api/user
+def deleteUser(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
     data = json.loads(request.data)
     user = filterByType(request=request).filter(User.ci == data['ci']).one_or_none()
     if data.get('logicalCD', None) is not None:
         if user is not None:
-            user.update(active=bool(data['logicalCD']))
-            return recordCUDSuccessfully(User.__tablename__,request.method)
+            user.active = data['logicalCD']
+            user.update()
+            return crudv2(request=request,preparedResult=userToReturn(user))
     else:
         return crudv2(User,request)
 
@@ -152,8 +154,23 @@ def getRelatives():
 
     return crudv2(request=request, preparedResult=__relatives)
 
+@router.post('/medicalPersonnel/specialties')
+def specialties(): #1 create / get specialties first, then add to MpHasSpec
+    data = json.loads(request.data)
+    _specialties, _created = ([getOrCreate(Specialty, Specialty(title=sp.title),
+                    f'title = {sp["title"]}') for sp in data['specialties']])
+
+    _mpHasSpecs, __created = ([getOrCreate(MpHasSpec, MpHasSpec(), f'ciMp = {data["ciMp"]} AND idSpec = {sp.id}')
+                    for sp in _specialties])
+    
+    return crudv2(request=request, preparedResult=[asdict(mphs) for mphs in _mpHasSpecs])
+
+@router.delete('/medicalPersonnel/specialties')
+def delSpecialtyOfMp():
+    return crudv2(MpHasSpec,request)
+
 @router.get('/medicalPersonnel/specialties') # get specialties of mp user
-def getSpecialties():
+def getSpecialtiesOfMp():
     _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == json.loads(request.data)['ci']).all()
 
     __specialties = [asdict(Specialty.query.filter(Specialty.id == sp.idSpec).first())
@@ -162,7 +179,7 @@ def getSpecialties():
     return crudv2(request=request,preparedResult=__specialties)
 
 @router.get('/medicalPersonnel/specialty') # GET /api/user/medicalPersonnel/specialty get medicalpersonnel users by specialty
-def medicalPersonnelBySpecialty():
+def getMedicalPersonnelBySpecialty():
     data = json.loads(request.data)
 
     specialty = Specialty.query.filter(Specialty.title == data['specialty']).one_or_none()

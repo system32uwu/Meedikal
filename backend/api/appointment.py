@@ -18,11 +18,15 @@ def apById():
 def createOrUpdate():
     return crudv2(Appointment,request, createWithoutFiltering=True if request.method == 'POST' else False)
 
+@router.route('/assignedTo', methods=['POST','PATCH', 'PUT', 'DELETE', 'GET'])
+def assistsAp():
+    return crudv2(request,AssignedTo)
+
 @router.route('/assistsAp', methods=['POST','PATCH', 'PUT', 'DELETE', 'GET'])
 def assistsAp():
     return crudv2(request,AssistsAp)
 
-@router.route('/attendsTo', methods=['POST', 'PATCH', 'PUT', 'DELETE'])
+@router.route('/attendsTo', methods=['POST', 'PATCH', 'PUT', 'DELETE', 'GET'])
 def patientAttendsToAp():
     return crudv2(AttendsTo,request)
 
@@ -111,5 +115,3 @@ def registersSc(): # input registered clinical signs
         request.data = json.dumps({RegistersCs.__tablename__: registersCs})
 
     return crudv2(RegistersCs,request)
-
-# TODO: Get appointments of a given patient (Appointment + Doctor).

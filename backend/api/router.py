@@ -4,6 +4,7 @@ from .appointment import router as appointmentRouter # handles /api/appointment
 from .alert import router as alertRouter # handles /api/alert
 from .vaccine import router as vaccineRouter # handles /api/vaccine
 from .branch import router as branchRouter # handles /api/branch
+from .notification import router as notificationRouter # handles /api/notification
 # modular routing, instead of having all the routes in this file, I'm making multiple routers that handle each table of the database. 
 
 apiRouter = Blueprint('api', __name__, url_prefix='/api') # handles /api
@@ -13,3 +14,4 @@ apiRouter.register_blueprint(appointmentRouter)
 apiRouter.register_blueprint(alertRouter) 
 apiRouter.register_blueprint(vaccineRouter) 
 apiRouter.register_blueprint(branchRouter) 
+apiRouter.register_blueprint(notificationRouter) 

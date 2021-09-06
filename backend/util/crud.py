@@ -3,7 +3,6 @@ from flask.wrappers import Request
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.elements import TextClause
 from sqlalchemy.sql.expression import text
-from werkzeug.security import generate_password_hash
 from .returnMessages import *
 from models.db import BaseModel
 from models import db
@@ -107,10 +106,6 @@ def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
         data = json.loads(request.data)
         dictData = data[model.__tablename__]
 
-        if model.__tablename__ == 'user':
-            if dictData.get('password', None) is not None:
-                dictData['password'] = generate_password_hash(dictData['password'])
-
         if not isinstance(dictData, list): # convert to list in order to make things easier
             dictData = [dictData]
         
@@ -148,11 +143,10 @@ def crudv2(model:BaseModel=None, request:Request=None, operator='AND',
         if tupleReturn:
             return result,opState
         else:
-            if result is None:
+            if result is None: # DELETE
                 return recordCUDSuccessfully(opState)
             else:
                 return jsonify([asdict(res) for res in result]), 200
-
     except Exception as exc:
         print(f'exc: {exc}')
         return provideData()

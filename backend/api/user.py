@@ -77,7 +77,13 @@ def allUsers():
     return crudv2(request=request, preparedResult=[userToReturn(u) for u in users])
 
 @router.get('') # GET /api/user
-def userByCi():
+def user():
+    data = json.loads(request.data)
+    
+    if data.get('password', None) is not None: # encrypt the password
+        data['password'] = generate_password_hash(data['password'])
+
+    request.data = json.dumps({User.__tablename__: data})
     return crudv2(User,request)
     
 @router.delete('') # DELETE /api/user
@@ -164,8 +170,6 @@ def specialties(): #1 create / get specialties first, then add to MpHasSpec
                     _mpSpec.pop('title', None)
 
         request.data = json.dumps({MpHasSpec.__tablename__: mpHasSpec})
-
-        # reemplazar request.data['mpHasSpec'] con mpHasSpec ? 
     
     return crudv2(MpHasSpec,request)
 

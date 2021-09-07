@@ -17,7 +17,7 @@ def create_app() -> Flask:
     app.config.from_object(DevelopmentConfig)
 
     # --- CUSTOM
-    app.json_encoder = JsonExtendEncoder
+    # app.json_encoder = JsonExtendEncoder
 
     # --- ROUTERS
     app.register_blueprint(apiRouter) # api

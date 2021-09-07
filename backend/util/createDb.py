@@ -5,7 +5,7 @@ p = os.path.join(os.path.dirname(__file__))
     
 dbPath = f'{p}/../meedikal.db'
 
-getDb = lambda: sqlite3.connect(dbPath)
+getDb = lambda: sqlite3.connect(dbPath, check_same_thread=False)
 
 if __name__ == '__main__':
     

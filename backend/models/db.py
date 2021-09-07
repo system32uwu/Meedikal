@@ -9,15 +9,22 @@ class BaseModel:
 
     @classmethod
     def query(cls):
-        return f"SELECT * FROM {cls.__tablename__}"
+        return [cls(*row) for row in 
+        db.execute(f"SELECT * FROM {cls.__tablename__}")]
 
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def filter(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        conditionList = [f"{key} {value.get('operator', '=')} ?"
+    def filter(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='all'):
+        try:
+            conditionList = [f"{key} {value.get('operator', '=')} ?"
                         for key, value in conditions.items()]
 
-        values = [v.get('value', v) for v in conditions.values() 
-                  if v is not None]
+            values = [v.get('value', None) for v in conditions.values() 
+                    if v is not None]
+        except:
+            conditionList = [f"{key} = ?"
+                        for key in conditions.keys()]
+
+            values = [v for v in conditions.values()]
 
         statement = f"""
         SELECT * FROM {cls.__tablename__} 
@@ -25,7 +32,10 @@ class BaseModel:
         {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
 
-        return db.execute(statement, values).fetchall()
+        if returns == 'all':
+            return db.execute(statement, values).fetchall()
+        else:
+            return db.execute(statement, values).fetchone()
 
     def save(self, fetchBeforeReturn=False):
         attrs = asdict(self).keys()

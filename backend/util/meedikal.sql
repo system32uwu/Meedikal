@@ -17,27 +17,27 @@ CREATE TABLE user (
 
 CREATE TABLE medicalPersonnel (
     ci integer PRIMARY KEY,
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE doctor (
     ci integer PRIMARY KEY,
-    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE
+    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE medicalAssistant (
     ci integer PRIMARY KEY,
-    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE
+    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE administrative (
     ci integer PRIMARY KEY,
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE patient (
     ci integer PRIMARY KEY,
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE userPhone (
@@ -45,7 +45,7 @@ CREATE TABLE userPhone (
     phone VARCHAR(32),
 
     PRIMARY KEY(ci,phone),
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Nurses and Doctors might be specialized.
@@ -59,8 +59,8 @@ CREATE TABLE mpHasSpec (
     ciMp integer,
 
     PRIMARY KEY (idSpec,ciMp),
-    FOREIGN KEY (ciMp) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE,
-    FOREIGN KEY (idSpec) REFERENCES specialty(id) ON DELETE CASCADE
+    FOREIGN KEY (ciMp) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (idSpec) REFERENCES specialty(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE appointment (
@@ -87,6 +87,8 @@ CREATE TABLE apTakesPlace (
     idBranch integer,
 
     PRIMARY KEY(idAp,idBranch)
+    FOREIGN KEY(idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(idBranch) REFERENCES Branch(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE assignedTo (
@@ -94,8 +96,8 @@ CREATE TABLE assignedTo (
     ciDoc integer,
 
     PRIMARY KEY(idAp, ciDoc),
-    FOREIGN KEY (ciDoc) REFERENCES doctor(ci) ON DELETE CASCADE,
-    FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE
+    FOREIGN KEY (ciDoc) REFERENCES doctor(ci) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE assistsAp (
@@ -104,6 +106,8 @@ CREATE TABLE assistsAp (
     time time,
 
     PRIMARY KEY(idAp,ciMa,time)
+    FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE attendsTo (
@@ -143,8 +147,8 @@ CREATE TABLE registersCs (
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idCs),
-    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE,
-    FOREIGN KEY (idCs) REFERENCES clinicalSign(id) ON DELETE CASCADE
+    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (idCs) REFERENCES clinicalSign(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE registersSy (
@@ -154,8 +158,8 @@ CREATE TABLE registersSy (
     detail VARCHAR(256),
     
     PRIMARY KEY(idAp,ciPa,idSy),
-    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE,
-    FOREIGN KEY (idSy) REFERENCES symptom(id) ON DELETE CASCADE
+    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (idSy) REFERENCES symptom(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE diagnoses (
@@ -165,6 +169,6 @@ CREATE TABLE diagnoses (
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idDis),
-    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE,
-    FOREIGN KEY (idDis) REFERENCES disease(id) ON DELETE CASCADE
+    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (idDis) REFERENCES disease(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

@@ -1,15 +1,19 @@
 from dataclasses import asdict, dataclass
 from datetime import datetime
-import os
 import sqlite3
+# from util.createDb import getDb
 
-# from util.createDb import db
+# db = getDb()
+
+import os
 
 p = os.path.join(os.path.dirname(__file__))
     
 dbPath = f'{p}/../meedikal.db'
 
-db = sqlite3.connect(dbPath)
+getDb = lambda: sqlite3.connect(dbPath)
+
+db = getDb()
 
 @dataclass
 class User():
@@ -17,42 +21,68 @@ class User():
     
     ci: int
     name1: str
+    name2: str
     surname1: str
+    surname2: str
     sex: str
+    genre: str
     birthdate: datetime
     location: str
     email: str
     active: bool
     password: str
 
-    name2: str = None
-    surname2: str = None
-    genre: str = None
+    @classmethod
+    def getByCi(cls, ci:int):
+        return User(*db.execute(f"SELECT * FROM {cls.__tablename__} WHERE ci=?", [ci]).fetchone())
 
 def save(obj):
     attrs = asdict(obj).keys()
-    values = asdict(obj).values()
+    values = [v for v in asdict(obj).values()]
     
     statement = f"""
     INSERT INTO {obj.__tablename__} ({','.join(attrs)})
-    VALUES ({",".join(["'" + str(v) + "'" for v in values])})
+    VALUES ({",".join("?"*len(values))})
     """
-    print(statement)
-    db.execute(statement)
-    db.commit()
+
+    try:
+        db.execute(statement, values)
+        db.commit()
+        return obj, True
+    except Exception as exc:
+        print(f'exc: {exc}')
+        return obj, False
 
 def read(obj):
-    conditionList = [f"{key} = '{value}'"
+    conditionList = [f"{key} = ?"
                     for key, value in asdict(obj).items() if value is not None]
+
+    values = [v for v in asdict(obj).values()]
 
     statement = f"""
     SELECT * FROM {obj.__tablename__} WHERE {' AND '.join(conditionList)}
     """
-    return db.execute(statement).fetchall()
+    return db.execute(statement, values).fetchall()
 
-if __name__ == '__main__':
-    a = User(ci=53806188,name1='mateo', surname1='carriqui',sex='M',
-             birthdate='2002-10-24', location='Street 123', email='mail@gmail.com',
-             active=True, password='123')
-    save(obj=a)
-    print(read(a))
+def update(oldObj, newObj):
+    conditionList = [f"{key} = ?"
+                    for key in asdict(oldObj).keys()]
+
+    values = [
+             newV for newV in asdict(newObj).values()] + [
+             oldV for oldV in asdict(oldObj).values()
+             ]
+
+    statement = f"""
+    UPDATE {newObj.__tablename__}
+    SET {', '.join(conditionList)}
+    WHERE {' AND '.join(conditionList)}
+    """
+
+    try:
+        db.execute(statement,values)
+        db.commit()
+        return newObj, True
+    except Exception as exc:
+        print(f"exc: {exc}")
+        return newObj, False

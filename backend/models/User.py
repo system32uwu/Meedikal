@@ -1,37 +1,26 @@
 from dataclasses import dataclass
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash
-from .db import BaseModel, db
+from .db import db
 from datetime import datetime
 
-@dataclass # base user class
-class User(BaseModel):
-
+@dataclass
+class User():
+    __tablename__ = 'user'
+    
     ci: int
     name1: str
-    name2: str
     surname1: str
-    surname2: str
     sex: str
-    genre: str
     birthdate: datetime
     location: str
     email: str
     active: bool
     password: str
 
-    ci = db.Column(db.Integer, primary_key=True)
-    name1 = db.Column(db.VARCHAR(32), nullable=False)
-    name2 = db.Column(db.VARCHAR(32))
-    surname1 = db.Column(db.VARCHAR(32), nullable=False)
-    surname2 = db.Column(db.VARCHAR(32))
-    sex = db.Column(db.CHAR(1), default='M', nullable=False)
-    genre = db.Column(db.VARCHAR(32), default='Male')
-    birthdate = db.Column(db.DateTime, nullable=False)
-    location = db.Column(db.VARCHAR(256))
-    email = db.Column(db.VARCHAR(256))
-    active = db.Column(db.BOOLEAN, nullable=False)
-    password = db.Column(db.VARCHAR(128), nullable=False)
+    name2: str = None
+    surname2: str = None
+    genre: str = None
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)

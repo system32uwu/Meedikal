@@ -5,7 +5,7 @@ p = os.path.join(os.path.dirname(__file__))
     
 dbPath = f'{p}/../meedikal.db'
 
-db = lambda: sqlite3.connect(dbPath)
+getDb = lambda: sqlite3.connect(dbPath)
 
 if __name__ == '__main__':
     
@@ -16,4 +16,4 @@ if __name__ == '__main__':
 
     schema = open(schemaPath, 'r').read()
 
-    db().cursor().executescript(schema)
+    getDb().cursor().executescript(schema)

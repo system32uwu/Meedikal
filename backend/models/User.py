@@ -10,17 +10,20 @@ class User():
     
     ci: int
     name1: str
+    name2: str
     surname1: str
+    surname2: str
     sex: str
+    genre: str
     birthdate: datetime
     location: str
     email: str
     active: bool
     password: str
 
-    name2: str = None
-    surname2: str = None
-    genre: str = None
+    @classmethod
+    def getByCi(cls, ci:int):
+        return User(*db.execute(f"SELECT * FROM {cls.__tablename__} WHERE ci=?", [ci]).fetchone())
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)

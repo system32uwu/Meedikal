@@ -1,40 +1,7 @@
-from dataclasses import asdict, dataclass
-from datetime import datetime
-import sqlite3
-# from util.createDb import getDb
-
-# db = getDb()
-
-import os
-
-p = os.path.join(os.path.dirname(__file__))
-    
-dbPath = f'{p}/../meedikal.db'
-
-getDb = lambda: sqlite3.connect(dbPath)
+from dataclasses import asdict
+from util.createDb import getDb
 
 db = getDb()
-
-@dataclass
-class User():
-    __tablename__ = 'user'
-    
-    ci: int
-    name1: str
-    name2: str
-    surname1: str
-    surname2: str
-    sex: str
-    genre: str
-    birthdate: datetime
-    location: str
-    email: str
-    active: bool
-    password: str
-
-    @classmethod
-    def getByCi(cls, ci:int):
-        return User(*db.execute(f"SELECT * FROM {cls.__tablename__} WHERE ci=?", [ci]).fetchone())
 
 def save(obj):
     attrs = asdict(obj).keys()

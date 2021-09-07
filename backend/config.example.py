@@ -5,9 +5,7 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = 'secretkey'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:password@localhost:5432/database'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    DATABASE = 'meedikal.db'
 
 class ProductionConfig(Config):
     ENV= "production"

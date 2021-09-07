@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 @dataclass
 class ClinicalSign:
@@ -6,7 +7,7 @@ class ClinicalSign:
 
     id: int
     name: str
-    description: str
+    description: Optional[str]
 
 @dataclass
 class RegistersCs: # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersCs > ClinicalSign
@@ -15,4 +16,4 @@ class RegistersCs: # { Patient < attendsTo > [ Doctor < assignedTo > Appointment
     idAp: int
     ciPa: int
     idCs: int
-    detail: str
+    detail: Optional[str]

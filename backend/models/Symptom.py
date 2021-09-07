@@ -3,7 +3,8 @@ from typing import Optional
 
 @dataclass
 class Symptom:
-    
+    __tablename__ = 'symptom'
+
     id: int
     name: str
     description: Optional[str]

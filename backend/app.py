@@ -1,8 +1,6 @@
 from util.JSONEncoder import JsonExtendEncoder
 from flask import Flask, Blueprint, render_template
 
-from flask_migrate import Migrate
-
 from config import DevelopmentConfig
 
 from api.router import apiRouter
@@ -20,16 +18,6 @@ def create_app() -> Flask:
 
     # --- CUSTOM
     app.json_encoder = JsonExtendEncoder
-
-    # --- DB
-    from models import db
-
-    db.app = app
-
-    db.init_app(app)
-
-    Migrate(app,db)    
-    # --- DB
 
     # --- ROUTERS
     app.register_blueprint(apiRouter) # api

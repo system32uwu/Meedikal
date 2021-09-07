@@ -14,54 +14,48 @@ def getTypes(ci):
     if Administrative.getByCi(ci) is not None:
         types.append(Administrative.__tablename__)
     
-    if Patient.query.filter(Patient.ci==ci).one_or_none() is not None:
+    if Patient.getByCi(ci) is not None:
         types.append(Patient.__tablename__)
     
-    if MedicalPersonnel.query.filter(MedicalPersonnel.ci==ci).one_or_none() is not None:
+    if MedicalPersonnel.getByCi(ci) is not None:
         types.append(MedicalPersonnel.__tablename__)
     
-        if Doctor.query.filter(Doctor.ci==ci).one_or_none() is not None:
+        if Doctor.getByCi(ci) is not None:
             types.append(Doctor.__tablename__)
         
-        elif MedicalAssitant.query.filter(MedicalAssitant.ci==ci).one_or_none() is not None:
+        elif MedicalAssitant.getByCi(ci) is not None:
             types.append(MedicalAssitant.__tablename__)
     
     return types
 
-def filterByType(userType=None, request=None) -> Query:
+def filterByType(userType=None, request=None) -> str:
     if request is not None:
         userType = json.loads(request.data)['user'].get('userType', None)
     if userType == None:
-        return User.query
+        return User.query()
     elif userType == 'patient':
-        return User.query.filter(User.ci == Patient.ci)
+        return User.filter({'user.ci': 'patient.ci'})
     elif userType == 'medicalPersonnel':
-        return User.query.filter(User.ci == MedicalPersonnel.ci)
+        return User.query.filter({'user.ci': 'medicalPersonnel.ci'})
     elif userType == 'doctor':
-        return User.query.filter(User.ci == Doctor.ci)
+        return User.query.filter({'user.ci': 'doctor.ci'})
     elif userType == 'medicalAssistant':
-        return User.query.filter(User.ci == MedicalAssitant.ci)
+        return User.query.filter({'user.ci': 'medicalAssistant.ci'})
     elif userType == 'administrative':
-        return User.query.filter(User.ci == Administrative.ci)
+        return User.query.filter({'user.ci': 'administrative.ci'})
 
-def userToReturn(user: User, userType=None, relationType=None):
+def userToReturn(user: User, userType=None):
     if user is None:
         return None
 
     obj = {'user': asdict(user), 
-           'phoneNumbers': [asdict(p) for p in UserPhone.query.filter(
-                                    UserPhone.ci == user.ci).all()],
-           'relatives': [asdict(r) for r in UIsRelatedTo.query.filter(
-                                    UIsRelatedTo.user1==user.ci).all()],
-            'types': getTypes(user.ci)}
+           'phoneNumbers': [asdict(p) for p in UserPhone.query({'ci': user.ci})],
+           'types': getTypes(user.ci)}
 
     if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
-        obj['specialties'] = [asdict(sp) for sp in Specialty.query.filter(and_(
-                                        MpHasSpec.ciMp == user.ci,
-                                        MpHasSpec.idSpec == Specialty.id)).all()]
-
-    if relationType is not None:
-        obj['relationType'] = relationType
+        hasSpec = MpHasSpec.query({'ciMp': user.ci})
+        obj['specialties'] = [asdict(Specialty.filter({'id': id})) for id in 
+                             [sp for sp in hasSpec]]
 
     obj['user'].pop('password', None)
 
@@ -132,23 +126,6 @@ def medicalAssistant():
 @router.route('/phoneNumbers', methods=['POST', 'DELETE', 'GET'])
 def phoneNumbers():
     return crudv2(UserPhone,request)
-
-@router.route('/relatives', methods=['POST', 'PATCH', 'DELETE'])
-def relatives():
-    return crudv2(UIsRelatedTo,request)
-
-@router.get('/relatives')
-def getRelatives():
-    _relatives = UIsRelatedTo.query.filter(UIsRelatedTo.user1 == json.loads(request.data)['user']['ci']).all()
-    #               user1 is <relationType> of user2
-    __relatives = [userToReturn(user, 
-                    relationType = next(r.relationType for r in _relatives
-                                        if r.user2 == user.ci))
-                    for user in 
-                    [User.query.filter(User.ci==r.user2).first()
-                     for r in _relatives]]
-
-    return crudv2(request=request, preparedResult=__relatives)
 
 @router.route('/medicalPersonnel/mpHasSpec', methods=['POST','GET', 'DELETE'])
 def specialties(): #1 create / get specialties first, then add to MpHasSpec

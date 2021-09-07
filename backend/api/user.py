@@ -1,13 +1,9 @@
 from dataclasses import asdict
 
 from flask import json, Blueprint, request
-from sqlalchemy import and_
-from sqlalchemy.orm.query import Query
 
 from models.Specialty import *
 from models.User import *
-from models.Alert import * 
-from util.crud import *
 from util.returnMessages import *
 
 router = Blueprint('user', __name__, url_prefix='/user')
@@ -15,7 +11,7 @@ router = Blueprint('user', __name__, url_prefix='/user')
 def getTypes(ci):
     types = [User.__tablename__]
 
-    if Administrative.query.filter(Administrative.ci==ci).one_or_none() is not None:
+    if Administrative.getByCi(ci) is not None:
         types.append(Administrative.__tablename__)
     
     if Patient.query.filter(Patient.ci==ci).one_or_none() is not None:

@@ -36,33 +36,24 @@ class UserPhone:
     phone: str # since phone numbers aren't real numbers it's better to store them as strings. Some countries (like Uruguay), start their cellphone numbers with a 0, which on input would be ignored by the DBMS if the datatype was Integer. 
 
 @dataclass
-class Patient:
+class Patient(User):
     __tablename__ = 'patient'
-
-    ci: int
     
 @dataclass # users from the medical personnel, those without further categorization (either doctor or medical assitant), will be stored only in this table and have limited permissions and access
-class MedicalPersonnel:
+class MedicalPersonnel(User):
     __tablename__ = 'medicalPersonnel'
 
-    ci: int
-
 @dataclass # users from the medical personnel, who are doctors. 
-class Doctor:
+class Doctor(User):
     __tablename__ = 'doctor'
 
-    ci: int
-
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
-class MedicalAssitant:
+class MedicalAssitant(User):
     __tablename__ = 'medicalAssistant'
 
-    ci: int
-
 @dataclass
-class Administrative:
-
-    ci: int
+class Administrative(User):
+    __tablename__ = 'administrative'
 
 @dataclass
 class UIsRelatedTo: # User1 < uIsRelatedTo > User2

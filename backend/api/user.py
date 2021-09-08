@@ -7,7 +7,7 @@ from flask import Blueprint, json, request, Request
 from models.Specialty import *
 from models.User import *
 from util.returnMessages import *
-
+from util.createDb import getDb
 router = Blueprint('user', __name__, url_prefix='/user')
 
 def getTypes(ci):
@@ -58,10 +58,11 @@ def userToReturn(user: User, userType=None):
 
     return obj
 
-@router.errorhandler(Exception) # 500 internal server error (happens when some data is not provided)
+@router.errorhandler(Exception) 
 def handle_exception(e:Exception):
     _e = repr(e)
     print(_e)
+    getDb().rollback()
     if "object is not subscriptable" in _e:
         return provideData()
     elif "object has no attribute" in _e:
@@ -94,31 +95,21 @@ def getUserByCi():
 
 @router.delete('') # DELETE /api/user
 def deleteUserByCi():
-    u = User.getByCi(request.get_json()['ci'])
-    u.delete({'ci': u.ci})
-    return crudReturn(User, True, request=request)
+    result = User.delete(request.get_json()['ci'])
+    return crudReturn(User, result, request=request)
 
-# @router.get('') # GET /api/user
-# def user():
-#     data = json.loads(request.data)
+@router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
+def update():
+    data = json.loads(request.data)
     
-#     if data.get('password', None) is not None: # encrypt the password
-#         data['password'] = generate_password_hash(data['password'])
+    if data.get('password', None) is not None: # encrypt the password
+        if data['password'].get('value', None) is not None:
+            data['password']['value'] = generate_password_hash(data['password']['value'])
+        if data['password'].get('newValue', None) is not None:
+            data['password']['newValue'] = generate_password_hash(data['password']['newValue'])
 
-#     request.data = json.dumps({User.__tablename__: data})
-#     return crudv2(User,request)
-    
-# @router.delete('') # DELETE /api/user
-# def deleteUser(): # logicalCD (logical Create / Delete) = set active to False or True (0,1)
-#     data = json.loads(request.data)['user']
-#     user = filterByType(request=request).filter(User.ci == data['ci']).one_or_none()
-#     if data.get('logicalCD', None) is not None:
-#         if user is not None:
-#             user.active = data['logicalCD']
-#             user.update()
-#             return crudv2(request=request,preparedResult=userToReturn(user))
-#     else:
-#         return crudv2(User,request)
+    result = User.update(data)
+    return crudReturn([userToReturn(u) for u in result])
 
 # @router.get('/surname1') # GET /api/user/surname1
 # def userBySurname1():

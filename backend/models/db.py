@@ -11,6 +11,10 @@ class BaseModel:
     __tablename__ = 'baseModel'
 
     @classmethod
+    def instantiate(cls,*args):
+        return cls(*args)
+
+    @classmethod
     def query(cls):
         return [cls(*row) for row in 
         db.execute(f"SELECT * FROM {cls.__tablename__}")]
@@ -24,8 +28,7 @@ class BaseModel:
             values = [v.get('value', None) for v in conditions.values() 
                     if v is not None]
         except:
-            conditionList = [f"{key} = ?"
-                        for key in conditions.keys()]
+            conditionList = [f"{key} = ?" for key in conditions.keys()]
 
             values = [v for v in conditions.values()]
 
@@ -35,26 +38,29 @@ class BaseModel:
         {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
         if returns == 'all':
-            return [cls(**obj) for obj in db.execute(statement, values).fetchall()]
+            return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
         else:
             try:
                 return cls(*db.execute(statement, values).fetchone())
             except:
                 return None
 
-    def save(self, fetchBeforeReturn=False):
+    def save(self):
         attrs = asdict(self).keys()
         values = [v for v in asdict(self).values()]
         
         statement = f"""
         INSERT INTO {self.__tablename__} ({','.join(attrs)})
         VALUES ({",".join("?"*len(values))})
-        """
-
-        db.cursor().execute(statement, values)
+        RETURNING * 
+        """ # RETURNING * returns the inserted rows, only works for insert or for virtual tables
+        cursor = db.cursor()
+        cursor.execute(statement, values)
+        result = cursor.fetchone()
         db.commit()
+        cursor.close()
 
-        return self
+        return self.instantiate(*result)
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
@@ -82,30 +88,46 @@ class BaseModel:
         return True
 
     @classmethod
-    def update(cls, conditions: dict= {}, request:Request=None, logicalOperator: str = 'AND'):
-        conditionList = [f"{key} {value.get('operator', '=')} ?"
-                        for key, value in conditions.items()]
-
-        values = [v.get('value', None) for v in conditions.values() 
-                 if v is not None and request.method != 'PUT'] # PUT replaces, even if value is null.
-
-        newValues = [v.get('newValue', v.get('value', None)) for v in conditions.values() 
-                    if v is not None and request.method != 'PUT'] # PUT replaces, even if value is null.
+    def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
+        try:
+            conditionList = [f"{key} {value.get('operator', '=')} ?"
+                            for key, value in conditions.items()]
+        except:
+            conditionList = [f"{key} = ?"
+                            for key in conditions.keys()]
         
-        values = values + newValues
+        # USE CASE FOR USER
+        # can't compare hashes (even if it's the same password) since they will always be different.
+        oldConditionList = conditionList.copy()
+        oldConditionList.remove("password = ?")
+        # USE CASE FOR USER
+
+        values = [v.get('value', v)
+                 for k, v in conditions.items() 
+                 if k != 'password'] 
+
+        newValues = [v.get('newValue', v.get('value', v)) 
+                    for v in conditions.values()]
+        
+        values = newValues + values
 
         statement = f"""
         UPDATE {cls.__tablename__}
         {'SET' if len(conditionList) > 0 else ''}
         {', '.join(conditionList)}
-        {'WHERE' if len(conditionList) > 0 else ''}
-        {f'{logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
+        {'WHERE' if len(oldConditionList) > 0 else ''}
+        {f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
         """
 
-        db.execute(statement,values)
+        cursor = db.cursor()
+        cursor.execute(statement,values)
         db.commit()
+        cursor.close()
 
-        return cls.filter(conditions)
+        for key, value in conditions.items():
+            conditions[key] = value.get("newValue", value.get("value"))
+
+        return cls.filter(conditions) # return the affected rows
 
 # examples:
 

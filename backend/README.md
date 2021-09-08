@@ -27,3 +27,45 @@ On first run, or when making changes to database schema, run:
 ```sh
 python util/createDb.py
 ```
+
+## Incoming data shape notes
+
+### For PUT and PATCH
+
+```json
+{
+    "attr": {
+        "value": "some old value",
+        "newValue": "something new to replace the old value with",
+    }
+}
+```
+
+By default the update method will use the = operator, if LIKE were to be used the shape would be the following:
+
+```json
+{
+    "attr": {
+        "value": "some old value",
+        "newValue": "something new to replace the old value with",
+        "operator": "LIKE"
+    }
+}
+```
+
+In case the _operator_ field is provided to an attribute, it must be provided to the rest of the attributes explicitly:
+
+```json
+{
+    "attr": {
+        "value": "some old value",
+        "newValue": "something new to replace the old value with",
+        "operator": "LIKE"
+    },
+    "otherAttr": {
+        "value": "some other old value",
+        "newValue": "something else new to replace the old value with",
+        "operator": "="
+    }
+}
+```

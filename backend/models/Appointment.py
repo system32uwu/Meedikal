@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, date, time
+from typing import Optional
 
 appointmentStates = ('OK','CANCELLED', 'RESCHEDULING')
 
@@ -9,12 +10,13 @@ class Appointment:
 
     id: int
     name: str
-    date: date
     state: str
-    timeBegins: time
-    timeEnds: time
-    etpp: int # estimated time per patient, in seconds
-    maxTurns: int # max patients to be attended
+    date: date
+
+    timeBegins: Optional[time] = None
+    timeEnds: Optional[time] = None
+    etpp: Optional[int] = None # estimated time per patient, in seconds
+    maxTurns: Optional[int] = None # max patients to be attended
 
 @dataclass
 class AssignedTo: # Doctor < assignedTo > Appointment
@@ -37,6 +39,7 @@ class AttendsTo: # Patient < attendsTo > [ Doctor < assignedTo > Appointment]
 
     idAp: int
     ciPa: int
-    motive: str
-    number: int
-    time: time
+
+    motive: Optional[str] = None
+    number: Optional[int] = None
+    time: Optional[time] = None

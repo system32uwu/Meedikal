@@ -15,4 +15,5 @@ class MpHasSpec(BaseModel):
     
     ciMp: int
     idSpec: int
-    detail: Optional[str]
+
+    detail: Optional[str] = None

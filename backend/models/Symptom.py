@@ -7,7 +7,7 @@ class Symptom:
 
     id: int
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
 
 @dataclass
 class RegistersSy: # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersSy > Symptom
@@ -16,4 +16,4 @@ class RegistersSy: # { Patient < attendsTo > [ Doctor < assignedTo > Appointment
     idAp: int
     ciPa: int
     idSy: int
-    detail: Optional[str]
+    detail: Optional[str] = None

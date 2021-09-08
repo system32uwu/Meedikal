@@ -1,6 +1,8 @@
+from werkzeug.security import generate_password_hash
+from util.crud import crudReturn
 from dataclasses import asdict
 
-from flask import jsonify, Blueprint, request, Request
+from flask import Blueprint, json, request, Request
 
 from models.Specialty import *
 from models.User import *
@@ -43,13 +45,9 @@ def userToReturn(user: User, userType=None):
     if user is None:
         return None
 
-    phones = UserPhone.getByCi(user.ci)
-
     obj = {'user': asdict(user), 
-           'types': getTypes(user.ci)}
-
-    if phones is not None:
-        obj['phoneNumbers'] = [asdict(p) for p in phones]
+           'types': getTypes(user.ci),
+           'phoneNumbers': [asdict(p) for p in UserPhone.getByCi(user.ci)]}
 
     if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
         hasSpec = MpHasSpec.query({'ciMp': user.ci})
@@ -60,12 +58,45 @@ def userToReturn(user: User, userType=None):
 
     return obj
 
+@router.errorhandler(Exception) # 500 internal server error (happens when some data is not provided)
+def handle_exception(e:Exception):
+    _e = repr(e)
+    print(_e)
+    if "object is not subscriptable" in _e:
+        return provideData()
+    elif "object has no attribute" in _e:
+        return recordDoesntExist()
+    elif "UNIQUE" in _e:
+        return recordAlreadyExists()
+    else:
+        return {"error": repr(_e)}, 400
+
+
 @router.get('/all') # GET /api/user/all
 def allUsers():
     users = filterByType(request=request)
-    return jsonify({"result": [userToReturn(u) for u in users]}), 200
-    # return jsonify([userToReturn(u) for u in users]), 200
-    # return crudv2(request=request, preparedResult=[userToReturn(u) for u in users])
+    return crudReturn([userToReturn(u) for u in users])
+
+@router.post('') # POST /api/user
+def createUser():
+    data = json.loads(request.data)
+    
+    if data.get('password', None) is not None: # encrypt the password
+        data['password'] = generate_password_hash(data['password'])
+
+    result = User(**data).save()
+    return crudReturn(userToReturn(result))
+
+@router.get('') # GET /api/user
+def getUserByCi():
+    u = User.getByCi(request.get_json()['ci'])
+    return crudReturn(userToReturn(u))
+
+@router.delete('') # DELETE /api/user
+def deleteUserByCi():
+    u = User.getByCi(request.get_json()['ci'])
+    u.delete({'ci': u.ci})
+    return crudReturn(User, True, request=request)
 
 # @router.get('') # GET /api/user
 # def user():

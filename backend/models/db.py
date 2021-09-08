@@ -1,4 +1,7 @@
 from dataclasses import asdict, dataclass
+import sqlite3
+
+from flask.wrappers import Request
 from util.createDb import getDb
 
 db = getDb()
@@ -31,11 +34,13 @@ class BaseModel:
         {' WHERE ' if len(conditionList) > 0 else ''}
         {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-
         if returns == 'all':
-            return db.execute(statement, values).fetchall()
+            return [cls(**obj) for obj in db.execute(statement, values).fetchall()]
         else:
-            return db.execute(statement, values).fetchone()
+            try:
+                return cls(*db.execute(statement, values).fetchone())
+            except:
+                return None
 
     def save(self, fetchBeforeReturn=False):
         attrs = asdict(self).keys()
@@ -45,16 +50,62 @@ class BaseModel:
         INSERT INTO {self.__tablename__} ({','.join(attrs)})
         VALUES ({",".join("?"*len(values))})
         """
+
+        db.cursor().execute(statement, values)
+        db.commit()
+
+        return self
+
+    @classmethod
+    def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
         try:
-            db.cursor().execute(statement, values)
-            db.commit()
-            if fetchBeforeReturn:
-                print(f'lastrowid: {db.cursor().lastrowid}')
-            return self, True
-        except Exception as exc:
-            print(f'exc: {exc}')
-            db.rollback()
-            return self, False
+            conditionList = [f"{key} {value.get('operator', '=')} ?"
+                        for key, value in conditions.items()]
+
+            values = [v.get('value', None) for v in conditions.values() 
+                    if v is not None]
+        except:
+            conditionList = [f"{key} = ?"
+                        for key in conditions.keys()]
+
+            values = [v for v in conditions.values()]
+
+        statement = f"""
+        DELETE FROM {cls.__tablename__} 
+        {' WHERE ' if len(conditionList) > 0 else ''}
+        {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
+        """
+
+        db.execute(statement,values)
+        db.commit()
+
+        return True
+
+    @classmethod
+    def update(cls, conditions: dict= {}, request:Request=None, logicalOperator: str = 'AND'):
+        conditionList = [f"{key} {value.get('operator', '=')} ?"
+                        for key, value in conditions.items()]
+
+        values = [v.get('value', None) for v in conditions.values() 
+                 if v is not None and request.method != 'PUT'] # PUT replaces, even if value is null.
+
+        newValues = [v.get('newValue', v.get('value', None)) for v in conditions.values() 
+                    if v is not None and request.method != 'PUT'] # PUT replaces, even if value is null.
+        
+        values = values + newValues
+
+        statement = f"""
+        UPDATE {cls.__tablename__}
+        {'SET' if len(conditionList) > 0 else ''}
+        {', '.join(conditionList)}
+        {'WHERE' if len(conditionList) > 0 else ''}
+        {f'{logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
+        """
+
+        db.execute(statement,values)
+        db.commit()
+
+        return cls.filter(conditions)
 
 # examples:
 

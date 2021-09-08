@@ -3,16 +3,17 @@ PRAGMA foreign_keys=ON;
 CREATE TABLE user (
     ci integer PRIMARY KEY,
     name1 VARCHAR(32) NOT NULL,
-    name2 VARCHAR(32),
     surname1 VARCHAR(32) NOT NULL,
-    surname2 VARCHAR(32),
     sex VARCHAR(1) NOT NULL,
-    genre VARCHAR(32),
     birthdate DATETIME NOT NULL,
     location VARCHAR(256),
     email VARCHAR(256),
-    active BOOLEAN NOT NULL,
-    password VARCHAR(128) NOT NULL
+    password VARCHAR(128) NOT NULL,
+    -- OPTIONAL FIELDS
+    name2 VARCHAR(32),
+    surname2 VARCHAR(32),
+    genre VARCHAR(32),
+    active BOOLEAN NOT NULL DEFAULT 1
 );
 
 CREATE TABLE medicalPersonnel (
@@ -57,6 +58,8 @@ CREATE TABLE specialty (
 CREATE TABLE mpHasSpec (
     idSpec integer,
     ciMp integer,
+    -- OPTIONAL FIELD
+    detail VARCHAR(256),
 
     PRIMARY KEY (idSpec,ciMp),
     FOREIGN KEY (ciMp) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -66,8 +69,9 @@ CREATE TABLE mpHasSpec (
 CREATE TABLE appointment (
     id integer PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) NOT NULL,
+    state VARCHAR(36) NOT NULL DEFAULT 'OK',
     date date NOT NULL,
-    state VARCHAR(36) NOT NULL,
+    -- OPTIONAL FIELDS
     timeBegins time,
     timeEnds time,
     etpp integer,
@@ -86,7 +90,7 @@ CREATE TABLE apTakesPlace (
     idAp integer,
     idBranch integer,
 
-    PRIMARY KEY(idAp,idBranch)
+    PRIMARY KEY(idAp,idBranch),
     FOREIGN KEY(idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(idBranch) REFERENCES Branch(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -113,6 +117,7 @@ CREATE TABLE assistsAp (
 CREATE TABLE attendsTo (
     idAp integer,
     ciPa integer,
+    -- OPTIONAL FIELD
     motive VARCHAR(256),
     number integer,
     time time,
@@ -125,18 +130,21 @@ CREATE TABLE attendsTo (
 CREATE TABLE clinicalSign (
     id integer PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) UNIQUE NOT NULL,
+    -- OPTIONAL FIELD
     description VARCHAR(512)
 );
 
 CREATE TABLE disease (
     id integer PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) UNIQUE NOT NULL,
+    -- OPTIONAL FIELD
     description VARCHAR(512)
 );
 
 CREATE TABLE symptom (
     id integer PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) UNIQUE NOT NULL,
+    -- OPTIONAL FIELD
     description VARCHAR(512)
 );
 
@@ -144,6 +152,7 @@ CREATE TABLE registersCs (
     idAp integer,
     ciPa integer,
     idCs integer,
+    -- OPTIONAL FIELD
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idCs),
@@ -155,6 +164,7 @@ CREATE TABLE registersSy (
     idAp integer,
     ciPa integer,
     idSy integer,
+    -- OPTIONAL FIELD
     detail VARCHAR(256),
     
     PRIMARY KEY(idAp,ciPa,idSy),
@@ -166,6 +176,7 @@ CREATE TABLE diagnoses (
     idAp integer,
     ciPa integer,
     idDis integer,
+    -- OPTIONAL FIELD
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idDis),

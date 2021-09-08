@@ -1,4 +1,7 @@
 from dataclasses import asdict
+from typing import Any
+
+from flask.json import jsonify
 from .createDb import getDb
 
 db = getDb()
@@ -46,10 +49,9 @@ def update(oldObj, newObj):
     WHERE {' AND '.join(conditionList)}
     """
 
-    try:
-        db.execute(statement,values)
-        db.commit()
-        return newObj, True
-    except Exception as exc:
-        print(f"exc: {exc}")
-        return newObj, False
+    db.execute(statement,values)
+    db.commit()
+    return newObj
+
+def crudReturn(result:Any=None):
+    return jsonify({"result": result}), 200

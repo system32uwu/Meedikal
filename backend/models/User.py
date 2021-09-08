@@ -16,26 +16,30 @@ class User(SharedUserMethods):
     
     ci: int
     name1: str
-    name2: Optional[str]
     surname1: str
-    surname2: Optional[str]
     sex: str
-    genre: Optional[str]
     birthdate: datetime
     location: str
     email: str
     password: str
+    name2: Optional[str] = None
+    surname2: Optional[str] = None
+    genre: Optional[str] = None
     active: Optional[bool] = True
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
 
 @dataclass # since phone is a multivalued attribute, it has its own table.
-class UserPhone(SharedUserMethods):
+class UserPhone(BaseModel):
     __tablename__ = 'userPhone'
 
     ci: int
     phone: str # since phone numbers aren't real numbers it's better to store them as strings. Some countries (like Uruguay), start their cellphone numbers with a 0, which on input would be ignored by the DBMS if the datatype was Integer. 
+
+    @classmethod
+    def getByCi(cls, ci: int):
+        return cls.filter({'ci': ci}, returns='all')
 
 class CategorizedUser(SharedUserMethods):
     ci: int

@@ -6,8 +6,7 @@ from flask import Blueprint, json, request, Request
 
 from models.Specialty import *
 from models.User import *
-from util.returnMessages import *
-from util.createDb import getDb
+
 router = Blueprint('user', __name__, url_prefix='/user')
 
 def getTypes(ci):
@@ -57,21 +56,6 @@ def userToReturn(user: User, userType=None):
     obj['user'].pop('password', None)
 
     return obj
-
-@router.errorhandler(Exception) 
-def handle_exception(e:Exception):
-    _e = repr(e)
-    print(_e)
-    getDb().rollback()
-    if "object is not subscriptable" in _e:
-        return provideData()
-    elif "object has no attribute" in _e:
-        return recordDoesntExist()
-    elif "UNIQUE" in _e:
-        return recordAlreadyExists()
-    else:
-        return {"error": repr(_e)}, 400
-
 
 @router.get('/all') # GET /api/user/all
 def allUsers():

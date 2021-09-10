@@ -14,7 +14,7 @@ Go to the [sqlite downloads page](https://www.sqlite.org/download.html), and dow
 
 Unzip the file, and copy sqlite3.dll to the "DLLs" folder in your python installation location (ex: C:/Python/DLLs, C:/Users/user/AppData/Local/Programs/Python/DLLs), select "Replace file in destination" when prompted.
 
-### In Linux
+#### In Linux
 
 Install or update sqlite using your distro package manager.
 
@@ -28,9 +28,9 @@ On first run, or when making changes to database schema, run:
 python util/createDb.py
 ```
 
-## Incoming data shape notes
+### Incoming data shape notes
 
-### For PUT and PATCH
+#### For PUT and PATCH
 
 ```json
 {

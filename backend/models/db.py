@@ -1,7 +1,5 @@
 from dataclasses import asdict, dataclass
-import sqlite3
 
-from flask.wrappers import Request
 from util.createDb import getDb
 
 db = getDb()

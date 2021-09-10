@@ -95,16 +95,9 @@ class BaseModel:
         except:
             conditionList = [f"{key} = ?"
                             for key in conditions.keys()]
-        
-        # USE CASE FOR USER
-        # can't compare hashes (even if it's the same password) since they will always be different.
-        oldConditionList = conditionList.copy()
-        oldConditionList.remove("password = ?")
-        # USE CASE FOR USER
 
         values = [v.get('value', v)
-                 for k, v in conditions.items() 
-                 if k != 'password'] 
+                 for v in conditions.items()] 
 
         newValues = [v.get('newValue', v.get('value', v)) 
                     for v in conditions.values()]
@@ -115,8 +108,7 @@ class BaseModel:
         UPDATE {cls.__tablename__}
         {'SET' if len(conditionList) > 0 else ''}
         {', '.join(conditionList)}
-        {'WHERE' if len(oldConditionList) > 0 else ''}
-        {f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
+        {'WHERE' f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
 
         cursor = db.cursor()

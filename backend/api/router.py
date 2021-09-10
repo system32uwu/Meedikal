@@ -13,14 +13,14 @@ apiRouter.register_blueprint(userRouter)
 apiRouter.register_blueprint(appointmentRouter) 
 apiRouter.register_blueprint(branchRouter)
 
-@apiRouter.errorhandler(Exception) 
+@apiRouter.errorhandler(Exception) # TODO: Handle errors better
 def handle_exception(e:Exception):
     _e = repr(e)
     print(_e)
     getDb().rollback()
     if "object is not subscriptable" in _e:
         return provideData()
-    elif "object has no attribute" in _e:
+    elif "object has no attribute" in _e: # does that really mean it doesn't exist?
         return recordDoesntExist()
     elif "UNIQUE" in _e:
         return recordAlreadyExists()

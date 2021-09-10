@@ -27,6 +27,45 @@ class User(SharedUserMethods):
     genre: Optional[str] = None
     active: Optional[bool] = True
 
+    @classmethod
+    def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
+        try:
+            conditionList = [f"{key} {value.get('operator', '=')} ?"
+                            for key, value in conditions.items()]
+        except:
+            conditionList = [f"{key} = ?"
+                            for key in conditions.keys()]
+        
+        # can't compare hashes (even if it's the same password) since they will always be different.
+        oldConditionList = conditionList.copy()
+        oldConditionList.remove("password = ?")
+
+        values = [v.get('value', v)
+                 for k, v in conditions.items() 
+                 if k != 'password'] 
+
+        newValues = [v.get('newValue', v.get('value', v)) 
+                    for v in conditions.values()]
+        
+        values = newValues + values
+
+        statement = f"""
+        UPDATE {cls.__tablename__}
+        {'SET' if len(conditionList) > 0 else ''}
+        {', '.join(conditionList)}
+        {'WHERE' f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
+        """
+
+        cursor = db.cursor()
+        cursor.execute(statement,values)
+        db.commit()
+        cursor.close()
+
+        for key, value in conditions.items():
+            conditions[key] = value.get("newValue", value.get("value"))
+
+        return cls.filter(conditions) # return the affected rows
+
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
 

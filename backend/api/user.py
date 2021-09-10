@@ -80,7 +80,7 @@ def getUserByCi():
 @router.delete('') # DELETE /api/user
 def deleteUserByCi():
     result = User.delete(request.get_json()['ci'])
-    return crudReturn(User, result, request=request)
+    return crudReturn(result)
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 def update():

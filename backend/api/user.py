@@ -30,12 +30,13 @@ def getTypes(ci):
     return types
 
 def filterByType(userType=None, request:Request=None, dictReturn=False):
-    data = json.loads(request.data)
-    if request is not None:
-        try:
-            userType = data.get('userType', None)
-        except:
-            userType = None
+    try:
+        data = json.loads(request.data)
+    except:
+        data = {}
+
+    userType = data.get('userType', None)
+
     if userType == None and not dictReturn:
         return User.query()
     elif userType == None and dictReturn:
@@ -69,10 +70,19 @@ def userToReturn(user: User, userType=None):
 
     return obj
 
-@router.get('/all') # GET /api/user/all
+@router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
 def allUsers():
     users = filterByType(request=request)
     return crudReturn([userToReturn(u) for u in users])
+
+@router.post('') # POST /api/user
+@router.get('/<int:ci>') # GET /api/user/<ci>
+def getUserByCi(ci:int=None):
+    if ci is None: # if ci is None the method used was POST.
+        ci = request.get_json()['ci']
+
+    u = User.getByCi(ci)
+    return crudReturn(userToReturn(u))
 
 @router.post('') # POST /api/user
 def createUser():
@@ -83,11 +93,6 @@ def createUser():
 
     result = User(**data).save()
     return crudReturn(userToReturn(result))
-
-@router.get('') # GET /api/user
-def getUserByCi():
-    u = User.getByCi(request.get_json()['ci'])
-    return crudReturn(userToReturn(u))
 
 @router.delete('') # DELETE /api/user
 def deleteUserByCi():
@@ -107,20 +112,25 @@ def update():
     result = User.update(data)
     return crudReturn([userToReturn(u) for u in result])
 
-@router.get('/surname1') # GET /api/user/surname1
-def userBySurname1():
-    conditionList = filterByType(request=request,dictReturn=True)
+@router.post('/surname1') # POST /api/user/surname1 filter by surname1 and userType
+@router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
+def userBySurname1(surname1:str=None):
+    if surname1 is None:
+        conditionList = filterByType(request=request,dictReturn=True)
+    else:
+        conditionList = {'surname1' : surname1}
 
     return crudReturn([userToReturn(u) for u in User.filter(conditionList)])
 
-# @router.get('/name1surname1') # GET /api/user/name1surname1
-# def userByName1nSurname1():
-#     data = json.loads(request.data)['user']
-#     users = filterByType(request=request).filter(and_(
-#                                             User.surname1 == data['surname1'],
-#                                             User.name1 == data['name1'])).all()
+@router.post('/name1surname1') # GET /api/user/name1surname1
+@router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
+def userByName1nSurname1(name1:str=None,surname1:str=None):
+    if name1 is None and surname1 is None:
+        conditionList = filterByType(request=request,dictReturn=True)
+    else:
+        conditionList = {'name1': name1, 'surname1' : surname1}
 
-#     return crudv2(User, preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
+    return crudReturn([userToReturn(u) for u in User.filter(conditionList)])
 
 # @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
 # def create_or_update():

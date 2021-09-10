@@ -12,45 +12,6 @@ class SharedUserMethods(BaseModel):
     def getByCi(cls, ci: int):
         return cls.filter({'ci': ci}, returns='one')
 
-    @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def getByType(cls, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
-        
-        try:
-            conditions = json.loads(request.data)
-            userType = conditions.get('extraFilters', {}).get('userType', None)
-            conditions.pop('extraFilters')
-        except:
-            userType = None
-        
-        if userType is None:
-            return cls.filter(conditions,logicalOperator,returns)
-
-        try:
-            conditionList = [f"{key} {value.get('operator', '=')} ?"
-                        for key, value in conditions.items()]
-
-            values = [v.get('value', None) for v in conditions.values() 
-                    if v is not None]
-        except:
-            conditionList = [f"{key} = ?" for key in conditions.keys()]
-
-            values = [v for v in conditions.values()]
-
-        statement = f"""
-        SELECT {User.__tablename__}.* FROM {User.__tablename__}, {userType} 
-        {'WHERE ' + f'{User.__tablename__}.ci = {userType}.ci '}
-        {logicalOperator if len(conditionList) > 0 else ''}
-        {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
-        """
-        
-        if returns == 'all':
-            return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
-        else:
-            try:
-                return cls(*db.execute(statement, values).fetchone())
-            except:
-                return None
-
 @dataclass
 class User(SharedUserMethods):
     __tablename__ = 'user'
@@ -105,6 +66,45 @@ class User(SharedUserMethods):
             conditions[key] = value.get("newValue", value.get("value"))
 
         return cls.filter(conditions) # return the affected rows
+
+    @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
+    def getByType(cls, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
+        
+        try:
+            conditions = json.loads(request.data)
+            userType = conditions.get('extraFilters', {}).get('userType', None)
+            conditions.pop('extraFilters')
+        except:
+            userType = None
+        
+        if userType is None:
+            return cls.filter(conditions,logicalOperator,returns)
+
+        try:
+            conditionList = [f"{key} {value.get('operator', '=')} ?"
+                        for key, value in conditions.items()]
+
+            values = [v.get('value', None) for v in conditions.values() 
+                    if v is not None]
+        except:
+            conditionList = [f"{key} = ?" for key in conditions.keys()]
+
+            values = [v for v in conditions.values()]
+
+        statement = f"""
+        SELECT {User.__tablename__}.* FROM {User.__tablename__}, {userType} 
+        {'WHERE ' + f'{User.__tablename__}.ci = {userType}.ci '}
+        {logicalOperator if len(conditionList) > 0 else ''}
+        {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
+        """
+
+        if returns == 'all':
+            return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
+        else:
+            try:
+                return cls(*db.execute(statement, values).fetchone())
+            except:
+                return None
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)

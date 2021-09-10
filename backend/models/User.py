@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass
+from flask.wrappers import Request
 from werkzeug.security import check_password_hash
 from .db import BaseModel, db
 from datetime import datetime
@@ -9,6 +10,40 @@ class SharedUserMethods(BaseModel):
     @classmethod
     def getByCi(cls, ci: int):
         return cls.filter({'ci': ci}, returns='one')
+
+    @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
+    def getByType(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
+        
+        userType = request.get_json().get('extraFilters', {}).get('userType', None)
+        
+        if userType is None:
+            return cls.filter(conditions,logicalOperator,returns)
+
+        try:
+            conditionList = [f"{key} {value.get('operator', '=')} ?"
+                        for key, value in conditions.items()]
+
+            values = [v.get('value', None) for v in conditions.values() 
+                    if v is not None]
+        except:
+            conditionList = [f"{key} = ?" for key in conditions.keys()]
+
+            values = [v for v in conditions.values()]
+
+        statement = f"""
+        SELECT {User.__tablename__}.* FROM {User.__tablename__}, {userType} 
+        {'WHERE ' + f'{User.__tablename__}.ci = {userType}.ci '}
+        {logicalOperator if len(conditionList) > 0 else ''}
+        {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
+        """
+        
+        if returns == 'all':
+            return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
+        else:
+            try:
+                return cls(*db.execute(statement, values).fetchone())
+            except:
+                return None
 
 @dataclass
 class User(SharedUserMethods):
@@ -83,26 +118,46 @@ class CategorizedUser(SharedUserMethods):
     ci: int
     user: User = None
 
-    def __init__(self):
-        self.user = User(**db.execute("SELECT * FROM user WHERE ci=?", [self.ci]).fetchone())
+    def __init__(self, ci:int):
+        self.ci = ci
+        self.getByCi(ci)
         return self.user
 
 @dataclass
 class Patient(CategorizedUser):
     __tablename__ = 'patient'
+    ci: int
+
+    def __init__(self, ci: int):
+        super().__init__(ci)
     
 @dataclass # users from the medical personnel, those without further categorization (either doctor or medical assitant), will be stored only in this table and have limited permissions and access
 class MedicalPersonnel(CategorizedUser):
     __tablename__ = 'medicalPersonnel'
+    ci: int
+    
+    def __init__(self, ci: int):
+        super().__init__(ci)
 
 @dataclass # users from the medical personnel, who are doctors. 
 class Doctor(CategorizedUser):
     __tablename__ = 'doctor'
-
+    ci: int
+    
+    def __init__(self, ci: int):
+        super().__init__(ci)
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
 class MedicalAssitant(CategorizedUser):
     __tablename__ = 'medicalAssistant'
+    ci: int
+
+    def __init__(self, ci: int):
+        super().__init__(ci)
 
 @dataclass
 class Administrative(CategorizedUser):
     __tablename__ = 'administrative'
+    ci: int
+    
+    def __init__(self, ci: int):
+        super().__init__(ci)

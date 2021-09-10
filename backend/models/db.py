@@ -29,12 +29,11 @@ class BaseModel:
             conditionList = [f"{key} = ?" for key in conditions.keys()]
 
             values = [v for v in conditions.values()]
-
+        # {',' + ', '.join(extraTables) if extraTables is not None else ''}
         statement = f"""
         SELECT * FROM {cls.__tablename__} 
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-
         if returns == 'all':
             return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
         else:
@@ -57,7 +56,6 @@ class BaseModel:
         result = cursor.fetchone()
         db.commit()
         cursor.close()
-
         return self.instantiate(*result)
 
     @classmethod

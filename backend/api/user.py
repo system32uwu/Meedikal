@@ -1,3 +1,4 @@
+from os import name
 from werkzeug.security import generate_password_hash
 from util.crud import crudReturn
 from dataclasses import asdict
@@ -29,30 +30,6 @@ def getTypes(ci):
     
     return types
 
-def filterByType(userType=None, request:Request=None, dictReturn=False):
-    try:
-        data = json.loads(request.data)
-    except:
-        data = {}
-
-    userType = data.get('userType', None)
-
-    if userType == None and not dictReturn:
-        return User.query()
-    elif userType == None and dictReturn:
-        return data
-    else:
-        userTypeFilter = {'user.ci': f'{userType}.ci'}
-        if dictReturn:
-            if data is not None:
-                data.pop('userType')
-                conditionList = dict(list(data.items()) + list(userTypeFilter.items()))
-                return conditionList
-            else:
-                return userTypeFilter
-        else:
-            return User.filter(userTypeFilter)
-
 def userToReturn(user: User, userType=None):
     if user is None:
         return None
@@ -72,7 +49,7 @@ def userToReturn(user: User, userType=None):
 
 @router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
 def allUsers():
-    users = filterByType(request=request)
+    users = User.getByType(request=request)
     return crudReturn([userToReturn(u) for u in users])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
@@ -111,7 +88,7 @@ def deleteUserByCi():
     result = User.delete(request.get_json()['ci'])
     return crudReturn(result)
 
-@router.route('/patient') # POST | DELETE /api/patient
+@router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
 def patient():
     p = Patient(request.get_json()['ci'])
     if request.method == 'POST':
@@ -121,7 +98,7 @@ def patient():
 
     return crudReturn(result)
 
-@router.route('/medicalPersonnel') # POST | DELETE /api/medicalPersonnel
+@router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalPersonnel
 def medicalPersonnel():
     mp = MedicalPersonnel(request.get_json()['ci'])
     if request.method == 'POST':
@@ -131,7 +108,7 @@ def medicalPersonnel():
 
     return crudReturn(result)
 
-@router.route('/doctor') # POST | DELETE /api/doctor
+@router.route('/doctor', methods=['POST', 'DELETE']) # POST | DELETE /api/doctor
 def doctor():
     d = Doctor(request.get_json()['ci'])
     if request.method == 'POST':
@@ -141,7 +118,7 @@ def doctor():
 
     return crudReturn(result)
 
-@router.route('/medicalAssistant') # POST | DELETE /api/medicalAssistant
+@router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
 def medicalAssitant():
     ma = MedicalAssitant(request.get_json()['ci'])
     if request.method == 'POST':
@@ -151,7 +128,7 @@ def medicalAssitant():
 
     return crudReturn(result)
 
-@router.route('/administrative') # POST | DELETE /api/administrative
+@router.route('/administrative', methods=['POST', 'DELETE']) # POST | DELETE /api/administrative
 def administrative():
     a = Administrative(request.get_json()['ci'])
     if request.method == 'POST':
@@ -165,21 +142,21 @@ def administrative():
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
 def userBySurname1(surname1:str=None):
     if request.method == 'POST':
-        conditionList = filterByType(request=request,dictReturn=True)
+        result = User.getByType(request.get_json(),request=request)
     else:
-        conditionList = {'surname1' : surname1}
+        result = User.filter({'surname1' : surname1})
 
-    return crudReturn([userToReturn(u) for u in User.filter(conditionList)])
+    return crudReturn([userToReturn(u) for u in result])
 
 @router.post('/name1surname1') # GET /api/user/name1surname1
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
 def userByName1nSurname1(name1:str=None,surname1:str=None):
     if request.method == 'POST':
-        conditionList = filterByType(request=request,dictReturn=True)
+        result = User.getByType(request.get_json(),request=request)
     else:
-        conditionList = {'name1': name1, 'surname1' : surname1}
+        result = User.filter({'name1' : name1,'surname1' : surname1})
 
-    return crudReturn([userToReturn(u) for u in User.filter(conditionList)])
+    return crudReturn([userToReturn(u) for u in result])
 
 @router.route('/phoneNumbers', methods=['POST', 'DELETE'])
 @router.get('/phoneNumbers/<ci>')
@@ -196,6 +173,28 @@ def phoneNumbers(ci:int=None):
             elif request.method == 'DELETE':
                 UserPhone.delete(phone)
         result = data if request.method == 'POST' else True
+
+    return crudReturn(result)
+
+@router.route('/medicalPersoonel/mpHasSpec', methods=['POST', 'DELETE'])
+@router.get('/medicalPersoonel/mpHasSpec/<int:ciMp>')
+def mpHasSpec(ciMp:int=None):
+    if request.method == 'GET':
+        result = [asdict(sp) for sp in MpHasSpec.filter({'ciMp': ciMp})]
+    else:
+        data = request.get_json()['mpHasSpec']
+        result = []
+        for hsp in data:
+            if request.method == 'POST':
+                if hsp.get('idSpec', None) is None:
+                    _sp = Specialty({'title': hsp['title']}).save()
+                    hsp['idSpec'] = _sp.id
+                    hsp.pop('title')
+
+                result.append(asdict(MpHasSpec(**hsp).save()))
+            elif request.method == 'DELETE':
+                MpHasSpec().delete(hsp)
+                result = True
 
     return crudReturn(result)
 

@@ -30,6 +30,34 @@ python util/createDb.py
 
 ### Incoming data shape notes
 
+#### For GET
+
+The `/all`, `/surname1`, `/surname1name1`, `/medicalPersoonel/mpHasSpec` accept _extraFilters_, such as _userType_.
+
+The data shape should be the following:
+
+```json
+{
+    "extraFilters":{
+        "userType" : "medicalPersonnel"
+    }
+}
+```
+
+If providing any other filters:
+
+```json
+{
+    "name1": "juan",
+    "name2": "perez",
+    "extraFilters":{
+        "userType" : "medicalPersonnel"
+    }
+}
+```
+
+The filters that don't go inside of _extraFilters_, are table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
+
 #### For PUT and PATCH
 
 ```json

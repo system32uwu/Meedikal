@@ -142,7 +142,7 @@ def administrative():
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
 def userBySurname1(surname1:str=None):
     if request.method == 'POST':
-        result = User.getByType(request.get_json(),request=request)
+        result = User.getByType(request=request)
     else:
         result = User.filter({'surname1' : surname1})
 
@@ -152,7 +152,7 @@ def userBySurname1(surname1:str=None):
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
 def userByName1nSurname1(name1:str=None,surname1:str=None):
     if request.method == 'POST':
-        result = User.getByType(request.get_json(),request=request)
+        result = User.getByType(request=request)
     else:
         result = User.filter({'name1' : name1,'surname1' : surname1})
 

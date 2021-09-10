@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass
+from flask import json
 from flask.wrappers import Request
 from werkzeug.security import check_password_hash
 from .db import BaseModel, db
@@ -12,10 +13,12 @@ class SharedUserMethods(BaseModel):
         return cls.filter({'ci': ci}, returns='one')
 
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def getByType(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
+    def getByType(cls, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
         
         try:
-            userType = request.get_json().get('extraFilters', {}).get('userType', None)
+            conditions = json.loads(request.data)
+            userType = conditions.get('extraFilters', {}).get('userType', None)
+            conditions.pop('extraFilters')
         except:
             userType = None
         

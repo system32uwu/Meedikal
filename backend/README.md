@@ -56,7 +56,41 @@ If providing any other filters:
 }
 ```
 
-The filters that don't go inside of _extraFilters_, are table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
+The filters that don't go inside of _extraFilters_ are actual table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
+
+##### For multivalued attributes, or multiple records at once
+
+```json
+{
+    "userPhone": [{
+        "ci": 1234,
+        "phone": "32919319"
+    },
+    {
+        "ci": 1234,
+        "phone": "42343244"
+    }]
+}
+```
+
+```json
+{
+    "mpHasSpec": [{
+        "ciMp": 1234,
+        "title": "ophthalmology"
+    },
+    {
+        "ciMp": 1234,
+        "title": "surgery"
+    },
+    {
+        "ciMp": 1234,
+        "idSpec": 3
+    }]
+}
+```
+
+In case an ID is not provided for a relationship, provide the UNIQUE attribute of the other table, see the example below that uses the mpHasSpec table (medicalPersonnel(__ciMp__) < mpHasSpec > (__id__ | __title__) Specialty).
 
 #### For PUT and PATCH
 

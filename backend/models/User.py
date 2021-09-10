@@ -14,7 +14,10 @@ class SharedUserMethods(BaseModel):
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
     def getByType(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
         
-        userType = request.get_json().get('extraFilters', {}).get('userType', None)
+        try:
+            userType = request.get_json().get('extraFilters', {}).get('userType', None)
+        except:
+            userType = None
         
         if userType is None:
             return cls.filter(conditions,logicalOperator,returns)

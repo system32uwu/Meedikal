@@ -51,9 +51,8 @@ class User(SharedUserMethods):
 
         statement = f"""
         UPDATE {cls.__tablename__}
-        {'SET' if len(conditionList) > 0 else ''}
-        {', '.join(conditionList)}
-        {'WHERE' f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
+        {'SET ' + ', '.join(conditionList) if len(conditionList) > 0 else ''}
+        {'WHERE ' + f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
         """
 
         cursor = db.cursor()

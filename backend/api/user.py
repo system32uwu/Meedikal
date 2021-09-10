@@ -29,16 +29,28 @@ def getTypes(ci):
     
     return types
 
-def filterByType(userType=None, request:Request=None) -> list[User]:
+def filterByType(userType=None, request:Request=None, dictReturn=False):
+    data = json.loads(request.data)
     if request is not None:
         try:
-            userType = request.get_json()['user'].get('userType', None)
+            userType = data.get('userType', None)
         except:
             userType = None
-    if userType == None:
+    if userType == None and not dictReturn:
         return User.query()
+    elif userType == None and dictReturn:
+        return data
     else:
-        return User.filter({'user.ci': f'{userType}.ci'})
+        userTypeFilter = {'user.ci': f'{userType}.ci'}
+        if dictReturn:
+            if data is not None:
+                data.pop('userType')
+                conditionList = dict(list(data.items()) + list(userTypeFilter.items()))
+                return conditionList
+            else:
+                return userTypeFilter
+        else:
+            return User.filter(userTypeFilter)
 
 def userToReturn(user: User, userType=None):
     if user is None:
@@ -95,11 +107,11 @@ def update():
     result = User.update(data)
     return crudReturn([userToReturn(u) for u in result])
 
-# @router.get('/surname1') # GET /api/user/surname1
-# def userBySurname1():
-#     data = json.loads(request.data)['user']
-#     users = filterByType(request=request).filter(User.surname1 == data['surname1']).all()
-#     return crudv2(User, preparedResult=[userToReturn(u) for u in users], jsonReturn=True)
+@router.get('/surname1') # GET /api/user/surname1
+def userBySurname1():
+    conditionList = filterByType(request=request,dictReturn=True)
+
+    return crudReturn([userToReturn(u) for u in User.filter(conditionList)])
 
 # @router.get('/name1surname1') # GET /api/user/name1surname1
 # def userByName1nSurname1():

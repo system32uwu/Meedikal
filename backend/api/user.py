@@ -75,7 +75,6 @@ def allUsers():
     users = filterByType(request=request)
     return crudReturn([userToReturn(u) for u in users])
 
-@router.post('') # POST /api/user
 @router.get('/<int:ci>') # GET /api/user/<ci>
 def getUserByCi(ci:int=None):
     if ci is None: # if ci is None the method used was POST.
@@ -88,16 +87,11 @@ def getUserByCi(ci:int=None):
 def createUser():
     data = json.loads(request.data)
     
-    if data.get('password', None) is not None: # encrypt the password
-        data['password'] = generate_password_hash(data['password'])
+    data['password'] = generate_password_hash(data['password'])
 
     result = User(**data).save()
-    return crudReturn(userToReturn(result))
 
-@router.delete('') # DELETE /api/user
-def deleteUserByCi():
-    result = User.delete(request.get_json()['ci'])
-    return crudReturn(result)
+    return crudReturn(userToReturn(result))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 def update():
@@ -112,10 +106,65 @@ def update():
     result = User.update(data)
     return crudReturn([userToReturn(u) for u in result])
 
+@router.delete('') # DELETE /api/user
+def deleteUserByCi():
+    result = User.delete(request.get_json()['ci'])
+    return crudReturn(result)
+
+@router.route('/patient') # POST | DELETE /api/patient
+def patient():
+    p = Patient(request.get_json()['ci'])
+    if request.method == 'POST':
+        result = userToReturn(p.save())
+    else:
+        result = Patient.delete({'ci': p.ci})
+
+    return crudReturn(result)
+
+@router.route('/medicalPersonnel') # POST | DELETE /api/medicalPersonnel
+def medicalPersonnel():
+    mp = MedicalPersonnel(request.get_json()['ci'])
+    if request.method == 'POST':
+        result = userToReturn(mp.save())
+    else:
+        result = MedicalPersonnel.delete({'ci': mp.ci})
+
+    return crudReturn(result)
+
+@router.route('/doctor') # POST | DELETE /api/doctor
+def doctor():
+    d = Doctor(request.get_json()['ci'])
+    if request.method == 'POST':
+        result = userToReturn(d.save())
+    else:
+        result = Doctor.delete({'ci': d.ci})
+
+    return crudReturn(result)
+
+@router.route('/medicalAssistant') # POST | DELETE /api/medicalAssistant
+def medicalAssitant():
+    ma = MedicalAssitant(request.get_json()['ci'])
+    if request.method == 'POST':
+        result = userToReturn(ma.save())
+    else:
+        result = MedicalAssitant.delete({'ci': ma.ci})
+
+    return crudReturn(result)
+
+@router.route('/administrative') # POST | DELETE /api/administrative
+def administrative():
+    a = Administrative(request.get_json()['ci'])
+    if request.method == 'POST':
+        result = userToReturn(a.save())
+    else:
+        result = Administrative.delete({'ci': a.ci})
+
+    return crudReturn(result)
+
 @router.post('/surname1') # POST /api/user/surname1 filter by surname1 and userType
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
 def userBySurname1(surname1:str=None):
-    if surname1 is None:
+    if request.method == 'POST':
         conditionList = filterByType(request=request,dictReturn=True)
     else:
         conditionList = {'surname1' : surname1}
@@ -125,36 +174,30 @@ def userBySurname1(surname1:str=None):
 @router.post('/name1surname1') # GET /api/user/name1surname1
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
 def userByName1nSurname1(name1:str=None,surname1:str=None):
-    if name1 is None and surname1 is None:
+    if request.method == 'POST':
         conditionList = filterByType(request=request,dictReturn=True)
     else:
         conditionList = {'name1': name1, 'surname1' : surname1}
 
     return crudReturn([userToReturn(u) for u in User.filter(conditionList)])
 
-# @router.route('', methods=['POST', 'PUT', 'PATCH']) # POST | PUT | PATCH /api/user
-# def create_or_update():
-#     return crudv2(User, request)
+@router.route('/phoneNumbers', methods=['POST', 'DELETE'])
+@router.get('/phoneNumbers/<ci>')
+def phoneNumbers(ci:int=None):
+    result = None
 
-# @router.route('/patient', methods=['POST', 'DELETE']) # create or delete patient table
-# def patient():
-#     return crudv2(Patient, request)
+    if request.method == 'GET':
+        result = [asdict(p) for p in UserPhone.getByCi(ci)]
+    else:
+        data = request.get_json()['userPhone']
+        for phone in data:
+            if request.method == 'POST':
+                UserPhone(**phone).save()
+            elif request.method == 'DELETE':
+                UserPhone.delete(phone)
+        result = data if request.method == 'POST' else True
 
-# @router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # create or delete medicalPersonnel | doctor | medicalassistant user
-# def medicalPersonnel():
-#     return crudv2(MedicalPersonnel,request)
-
-# @router.route('/doctor', methods=['POST', 'DELETE']) # create or delete medicalPersonnel | doctor | medicalassistant user
-# def doctor():
-#     return crudv2(Doctor,request)
-
-# @router.route('/medicalAssistant', methods=['POST', 'DELETE']) # create or delete medicalPersonnel | doctor | medicalassistant user
-# def medicalAssistant():
-#     return crudv2(MedicalAssitant,request)
-
-# @router.route('/phoneNumbers', methods=['POST', 'DELETE', 'GET'])
-# def phoneNumbers():
-#     return crudv2(UserPhone,request)
+    return crudReturn(result)
 
 # @router.route('/medicalPersonnel/mpHasSpec', methods=['POST','GET', 'DELETE'])
 # def specialties(): #1 create / get specialties first, then add to MpHasSpec

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from werkzeug.security import check_password_hash
 from .db import BaseModel, db
 from datetime import datetime
@@ -84,7 +84,7 @@ class CategorizedUser(SharedUserMethods):
     user: User = None
 
     def __init__(self):
-        self.user = User(**db.execute("SELECT * FROM user WHERE ci=?", [self.ci]))
+        self.user = User(**db.execute("SELECT * FROM user WHERE ci=?", [self.ci]).fetchone())
         return self.user
 
 @dataclass

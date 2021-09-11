@@ -1,3 +1,4 @@
+from models.db import BaseModel, TableWithId
 from dataclasses import dataclass
 from datetime import datetime, date, time
 from typing import Optional
@@ -5,7 +6,7 @@ from typing import Optional
 appointmentStates = ('OK','CANCELLED', 'RESCHEDULING')
 
 @dataclass
-class Appointment:
+class Appointment(BaseModel, TableWithId):
     __tablename__ = 'appointment'
 
     id: int
@@ -19,14 +20,14 @@ class Appointment:
     maxTurns: Optional[int] = None # max patients to be attended
 
 @dataclass
-class AssignedTo: # Doctor < assignedTo > Appointment
+class AssignedTo(BaseModel): # Doctor < assignedTo > Appointment
     __tablename__ = 'assignedTo'
 
     idAp: int
     ciDoc: int
 
 @dataclass
-class AssistsAp: # MedicalAssistant < assistsAp > [ Doctor < assignedTo > Appointment ]
+class AssistsAp(BaseModel): # MedicalAssistant < assistsAp > [ Doctor < assignedTo > Appointment ]
     __tablename__ = 'assistsAp'
 
     idAp: int
@@ -34,7 +35,7 @@ class AssistsAp: # MedicalAssistant < assistsAp > [ Doctor < assignedTo > Appoin
     time: datetime
 
 @dataclass
-class AttendsTo: # Patient < attendsTo > [ Doctor < assignedTo > Appointment]
+class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appointment]
     __tablename__ = 'attendsTo'
 
     idAp: int

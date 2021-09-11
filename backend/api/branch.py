@@ -8,11 +8,11 @@ router = Blueprint('branch', __name__, url_prefix='/branch')
 
 @router.get('/<int:id>') # GET /api/branch/<id>
 def getBranchById(id:int):
-    b = Branch.filter({'id': id}, returns='one')
+    b = Branch.getById(id)
     return crudReturn(asdict(b))
 
-@router.get('/<name>') # GET /api/branch/name
-@router.post('/name') # POST /api/branch/name
+@router.get('/<name>') # GET /api/branch/<name>
+@router.post('/name') # POST /api/branch/name # could be just name or other params like location
 def getBranchByName(name:str=None):
     if request.method == 'POST':
         branches = Branch.filter(request.get_json())

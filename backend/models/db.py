@@ -138,20 +138,9 @@ class BaseModel:
 
         return cls.filter(conditions) # return the affected rows
 
-# examples:
+@dataclass
+class TableWithId: # tables that have "id" field will inherit from this one in order to use the methods like getById
 
-# from models.User import User
-
-# u = User(53806188,'mateo',None,'carriqui',None,'M',None,'2002-10-24',
-#         'Street 123', 'gmail@gmail.com', 'jaja123', True)
-
-# u.save()
-
-# conditions = {'ci': {
-#         'value': 53806188,
-#         'operator': '='
-#         }}
-
-# data = User.filter(conditions)
-
-# print(data)
+    @classmethod
+    def getById(cls, id: int):
+        return cls.filter({'id': id}, returns='one')

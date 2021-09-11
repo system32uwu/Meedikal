@@ -1,8 +1,8 @@
-from models.db import BaseModel
+from models.db import BaseModel, TableWithId
 from dataclasses import dataclass
 
 @dataclass
-class Branch(BaseModel):
+class Branch(BaseModel, TableWithId):
     __tablename__ = 'branch'
 
     id: int
@@ -14,7 +14,7 @@ class Branch(BaseModel):
        self.id = id
        self.name = name
        self.phoneNumber = phoneNumber
-       self.location = location 
+       self.location = location
 
 @dataclass
 class ApTakesPlace(BaseModel): # Appointment < apTakesPlace > Branch

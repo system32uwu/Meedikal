@@ -39,6 +39,14 @@ def deleteBranchById():
     b = Branch.delete(request.get_json())
     return crudReturn(b)
 
-# @router.route('/apTakesPlace', methods=['POST','PUT','PATCH','GET','DELETE'])
-# def branch():
-#     return crudv2(ApTakesPlace,request)
+@router.route('/apTakesPlace', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/branch/apTakesPlace
+def apTakesPlace():
+    data = request.get_json()
+    if request.method == 'POST':
+        return crudReturn(asdict(ApTakesPlace(**data).save()))
+    if request.method == 'PUT' or request.method == 'PATCH':
+        return crudReturn(asdict(ApTakesPlace.update(data)))
+    if request.method == 'DELETE':
+        return crudReturn(ApTakesPlace.delete(data))
+    elif request.method == 'GET':
+        return crudReturn([asdict(aptp) for aptp in ApTakesPlace.filter(data)])

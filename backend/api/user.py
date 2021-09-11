@@ -181,8 +181,8 @@ def phoneNumbers(ci:int=None):
 
     return crudReturn(result)
 
-@router.route('/medicalPersoonel/mpHasSpec', methods=['POST', 'DELETE'])
-@router.get('/medicalPersoonel/mpHasSpec/<int:ciMp>')
+@router.route('/medicalPersonnel/mpHasSpec', methods=['POST', 'DELETE'])
+@router.get('/medicalPersonnel/mpHasSpec/<int:ciMp>')
 def mpHasSpec(ciMp:int=None):
     if request.method == 'GET':
         result = [asdict(sp) for sp in MpHasSpec.filter({'ciMp': ciMp})]

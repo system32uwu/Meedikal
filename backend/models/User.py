@@ -126,7 +126,7 @@ class CategorizedUser(SharedUserMethods):
 
     def __init__(self, ci:int):
         self.ci = ci
-        self.getByCi(ci)
+        self.user = self.getByCi(ci)
         return self.user
 
 @dataclass

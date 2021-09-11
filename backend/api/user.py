@@ -39,7 +39,7 @@ def userToReturn(user: User, userType=None):
            'phoneNumbers': [asdict(p) for p in UserPhone.getByCi(user.ci)]}
 
     if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
-        hasSpec = MpHasSpec.query({'ciMp': user.ci})
+        hasSpec = MpHasSpec.filter({'ciMp': user.ci})
         obj['specialties'] = [asdict(Specialty.filter({'id': id})) for id in 
                              [sp for sp in hasSpec]]
 
@@ -53,12 +53,18 @@ def allUsers():
     return crudReturn([userToReturn(u) for u in users])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
-def getUserByCi(ci:int=None):
-    if ci is None: # if ci is None the method used was POST.
+@router.get('/<int:ci>/<userType>') # GET /api/user/<ci>/<userType>
+@router.post('/ci') # POST /api/user/ci
+def getUserByCi(ci:int=None, userType:str=None):
+    if request.method == 'POST':
         ci = request.get_json()['ci']
-
+        
+        try:
+            userType = request.get_json().get('extraFilters').get('userType')
+        except:
+            userType = None
     u = User.getByCi(ci)
-    return crudReturn(userToReturn(u))
+    return crudReturn(userToReturn(u, userType))
 
 @router.post('') # POST /api/user
 def createUser():
@@ -187,44 +193,18 @@ def mpHasSpec(ciMp:int=None):
         for hsp in data:
             if request.method == 'POST':
                 if hsp.get('idSpec', None) is None:
-                    _sp = Specialty({'title': hsp['title']}).save()
+                    _sp = Specialty(title=hsp.get('title', None)).saveOrGet(['title'])
                     hsp['idSpec'] = _sp.id
                     hsp.pop('title')
+                
+                hspInstance = MpHasSpec(**hsp)
+                result.append(asdict(hspInstance.save()))
 
-                result.append(asdict(MpHasSpec(**hsp).save()))
             elif request.method == 'DELETE':
-                MpHasSpec().delete(hsp)
+                MpHasSpec.delete(hsp)
                 result = True
 
     return crudReturn(result)
-
-# @router.route('/medicalPersonnel/mpHasSpec', methods=['POST','GET', 'DELETE'])
-# def specialties(): #1 create / get specialties first, then add to MpHasSpec
-#     if request.method == 'POST':
-#         data = json.loads(request.data)
-#         mpHasSpec = data['mpHasSpec']
-
-#         _specialties = [getOrCreate(Specialty, Specialty(title=sp['title']),
-#                         f"title = '{sp['title']}'") for sp in mpHasSpec]
-
-#         for sp in _specialties:
-#                 for _mpSpec in mpHasSpec:
-#                     if _mpSpec['title'] == sp[0][0].title:
-#                         _mpSpec['idSpec'] = sp[0][0].id
-#                     _mpSpec.pop('title', None)
-
-#         request.data = json.dumps({MpHasSpec.__tablename__: mpHasSpec})
-    
-#     return crudv2(MpHasSpec,request)
-
-# @router.get('/medicalPersonnel/specialties') # get specialties of mp user
-# def getSpecialtiesOfMp():
-#     _specialties = MpHasSpec.query.filter(MpHasSpec.ciMp == json.loads(request.data)['user']['ci']).all()
-
-#     __specialties = [asdict(Specialty.query.filter(Specialty.id == sp.idSpec).first())
-#                     for sp in _specialties]
-
-#     return crudv2(request=request,preparedResult=__specialties)
 
 # @router.get('/medicalPersonnel/specialty') # GET /api/user/medicalPersonnel/specialty get medicalpersonnel users by specialty
 # def getMedicalPersonnelBySpecialty():

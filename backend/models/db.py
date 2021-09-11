@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass
+import sqlite3
 
 from util.createDb import getDb
 
@@ -29,11 +30,12 @@ class BaseModel:
             conditionList = [f"{key} = ?" for key in conditions.keys()]
 
             values = [v for v in conditions.values()]
-        # {',' + ', '.join(extraTables) if extraTables is not None else ''}
+
         statement = f"""
         SELECT * FROM {cls.__tablename__} 
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
+
         if returns == 'all':
             return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
         else:
@@ -57,6 +59,27 @@ class BaseModel:
         db.commit()
         cursor.close()
         return self.instantiate(*result)
+
+    def saveOrGet(self, pks:list=None): # list of primary keys to filter with
+
+        conditionList = [f"{key} = ?"
+                        for key in pks]
+
+        statement = f"""SELECT * FROM {self.__tablename__} 
+                    WHERE 
+                    {' AND '.join(conditionList)}"""
+
+        values = [v for k, v in asdict(self).items() if k in pks]
+
+        try:
+            return self.save()
+        except sqlite3.IntegrityError: # record already exists
+            cursor = db.cursor()
+            cursor.execute(statement, values)
+            result = cursor.fetchone()
+            db.commit()
+            cursor.close()
+            return self.instantiate(*result)
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND'):

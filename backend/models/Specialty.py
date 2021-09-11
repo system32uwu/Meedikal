@@ -17,23 +17,8 @@ class Specialty(BaseModel):
     def getById(cls, id:int):
         return cls.filter({'id': id}, returns='one')
 
-class _MpHasSpec(BaseModel):
-    ciMp: int
-    idSpec: int
-
-    detail: Optional[str] = None
-
-    specialtyTitle:str
-
-    def __init__(self, ciMp:int,idSpec:int, detail:Optional[str]=None):
-        self.ciMp = ciMp
-        self.idSpec = idSpec
-        self.detail = detail
-        sp = Specialty.getById(self.idSpec)
-        self.specialtyTitle = sp.title
-
 @dataclass
-class MpHasSpec(_MpHasSpec): 
+class MpHasSpec(BaseModel): 
     __tablename__ = 'mpHasSpec'
     
     ciMp: int

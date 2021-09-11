@@ -1,3 +1,4 @@
+from typing import Any
 from werkzeug.security import generate_password_hash
 from util.crud import crudReturn
 from dataclasses import asdict
@@ -204,3 +205,8 @@ def mpHasSpec(ciMp:int=None):
                 result = True
 
     return crudReturn(result)
+
+@router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'userType': 'doctor'}}
+def getMpUsersBySpecialty():
+    users = MedicalPersonnel.getBySpecialty(request=request)
+    return crudReturn(userToReturn(u, 'medicalPersonnel') for u in users)

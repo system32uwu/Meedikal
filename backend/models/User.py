@@ -145,6 +145,33 @@ class MedicalPersonnel(CategorizedUser):
     def __init__(self, ci: int):
         super().__init__(ci)
 
+    @classmethod
+    def getBySpecialty(cls, returns:str='all', request:Request=None):
+        conditions = json.loads(request.data)
+        title = conditions['title']
+
+        try:
+            userType = conditions.get('extraFilters', {}).get('userType', None)
+        except:
+            userType = 'medicalPersonnel'
+
+        statement = f"""
+                SELECT user.* 
+                FROM {userType}, user, mpHasSpec, specialty
+                WHERE {userType}.ci = mpHasSpec.ciMp
+                AND {userType}.ci == {User.__tablename__}.ci'
+                AND specialty.title = ?
+                AND mpHasSpec.idSpec = specialty.id
+                """
+
+        if returns == 'all':
+            return [User(*obj) for obj in db.execute(statement, [title]).fetchall()]
+        else:
+            try:
+                return User(*db.execute(statement, [title]).fetchone())
+            except:
+                return None
+
 @dataclass # users from the medical personnel, who are doctors. 
 class Doctor(CategorizedUser):
     __tablename__ = 'doctor'

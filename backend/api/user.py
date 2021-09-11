@@ -1,9 +1,8 @@
-from os import name
 from werkzeug.security import generate_password_hash
 from util.crud import crudReturn
 from dataclasses import asdict
 
-from flask import Blueprint, json, request, Request
+from flask import Blueprint, json, request
 
 from models.Specialty import *
 from models.User import *

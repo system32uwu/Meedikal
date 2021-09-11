@@ -89,8 +89,8 @@ def update():
     return crudReturn([userToReturn(u) for u in result])
 
 @router.delete('') # DELETE /api/user
-def deleteUserByCi():
-    result = User.delete(request.get_json()['ci'])
+def deleteUser():
+    result = User.delete(request.get_json())
     return crudReturn(result)
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient

@@ -205,21 +205,3 @@ def mpHasSpec(ciMp:int=None):
                 result = True
 
     return crudReturn(result)
-
-# @router.get('/medicalPersonnel/specialty') # GET /api/user/medicalPersonnel/specialty get medicalpersonnel users by specialty
-# def getMedicalPersonnelBySpecialty():
-#     data = json.loads(request.data)
-
-#     specialty = Specialty.query.filter(Specialty.title == data['specialty']).one_or_none()
-
-#     if specialty is None:
-#         return recordDoesntExist(Specialty.__tablename__)
-#     else:
-#         specialtyId = specialty.id
-
-#     users = filterByType(data['user']['userType']).filter(and_(
-#                                             MpHasSpec.idSpec == specialtyId,
-#                                             MpHasSpec.ciMp == User.ci 
-#                                             )).all()
-
-#     return crudv2(request=request, preparedResult=[userToReturn(u, userType=data['user']['userType']) for u in users])

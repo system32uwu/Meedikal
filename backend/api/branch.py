@@ -35,7 +35,7 @@ def updateBranch():
     return crudReturn([asdict(b) for b in branches])
 
 @router.delete('') # DELETE /api/branch
-def deleteBranchById():
+def deleteBranch():
     b = Branch.delete(request.get_json())
     return crudReturn(b)
 
@@ -45,7 +45,7 @@ def apTakesPlace():
     if request.method == 'POST':
         return crudReturn(asdict(ApTakesPlace(**data).save()))
     if request.method == 'PUT' or request.method == 'PATCH':
-        return crudReturn(asdict(ApTakesPlace.update(data)))
+        return crudReturn([asdict(aptp) for aptp in ApTakesPlace.update(data)])
     if request.method == 'DELETE':
         return crudReturn(ApTakesPlace.delete(data))
     elif request.method == 'GET':

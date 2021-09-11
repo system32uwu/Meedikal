@@ -30,7 +30,6 @@ class _MpHasSpec(BaseModel):
         self.idSpec = idSpec
         self.detail = detail
         sp = Specialty.getById(self.idSpec)
-        print(f"spppppp: {sp}")
         self.specialtyTitle = sp.title
 
 @dataclass

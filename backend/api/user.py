@@ -192,7 +192,7 @@ def mpHasSpec(ciMp:int=None):
         for hsp in data:
             if request.method == 'POST':
                 if hsp.get('idSpec', None) is None:
-                    _sp = Specialty(title=hsp.get('title', None)).saveOrGet(['title'])
+                    _sp = Specialty(title=hsp['title']).saveOrGet(['title'])
                     hsp['idSpec'] = _sp.id
                     hsp.pop('title')
                 

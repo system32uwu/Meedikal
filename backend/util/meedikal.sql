@@ -81,7 +81,7 @@ CREATE TABLE appointment (
 -- Branch significa sucursal, una cita medica tomara lugar en alguna de las sucursales.
 CREATE TABLE branch (
     id integer PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(64) NOT NULL,
+    name VARCHAR(64) UNIQUE NOT NULL,
     phoneNumber VARCHAR(64) NOT NULL,
     location VARCHAR(64) NOT NULL
 );

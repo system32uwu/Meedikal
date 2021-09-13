@@ -1,5 +1,3 @@
-PRAGMA foreign_keys=ON;
-
 CREATE TABLE user (
     ci integer PRIMARY KEY,
     name1 VARCHAR(32) NOT NULL,
@@ -99,19 +97,9 @@ CREATE TABLE assignedTo (
     idAp integer,
     ciDoc integer,
 
-    PRIMARY KEY(idAp, ciDoc),
+    PRIMARY KEY(idAp),
     FOREIGN KEY (ciDoc) REFERENCES doctor(ci) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE assistsAp (
-    idAp integer,
-    ciMa integer,
-    time time,
-
-    PRIMARY KEY(idAp,ciMa,time)
-    FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE attendsTo (
@@ -125,6 +113,16 @@ CREATE TABLE attendsTo (
     PRIMARY KEY (idAp,ciPa),
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE,
     FOREIGN KEY (ciPa) REFERENCES patient(ci) ON DELETE CASCADE
+);
+
+CREATE TABLE assistsAp (
+    idAp integer,
+    ciMa integer,
+    time time,
+
+    FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY(idAp,ciMa,time)
 );
 
 CREATE TABLE clinicalSign (

@@ -1,6 +1,9 @@
 def recordDoesntExist(tablename:str="record"):
     return {"error": f"{tablename} doesn't exist"}, 400
 
+def foreignKeyError():
+    return {"error": f"Foreign key error: one of the values you are referring to was deleted or never existed"}, 400
+
 def recordAlreadyExists(tablename:str="record", extraMessage=None):
     return {"error": f"{tablename} already exists",
             "extraMessage": extraMessage}, 400

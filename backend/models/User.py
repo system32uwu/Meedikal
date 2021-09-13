@@ -75,6 +75,7 @@ class User(SharedUserMethods):
             userType = conditions.get('extraFilters', {}).get('userType', None)
             conditions.pop('extraFilters')
         except:
+            conditions = None
             userType = None
         
         if userType is None:
@@ -179,6 +180,7 @@ class Doctor(CategorizedUser):
     
     def __init__(self, ci: int):
         super().__init__(ci)
+        
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
 class MedicalAssitant(CategorizedUser):
     __tablename__ = 'medicalAssistant'

@@ -20,16 +20,20 @@ class BaseModel:
 
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
     def filter(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='all'):
-        try:
-            conditionList = [f"{key} {value.get('operator', '=')} ?"
-                        for key, value in conditions.items()]
+        conditionList = []
+        values = []
+        
+        if conditions is not None:
+            try:
+                conditionList = [f"{key} {value.get('operator', '=')} ?"
+                            for key, value in conditions.items()]
 
-            values = [v.get('value', None) for v in conditions.values() 
-                    if v is not None]
-        except:
-            conditionList = [f"{key} = ?" for key in conditions.keys()]
+                values = [v.get('value', None) for v in conditions.values() 
+                        if v is not None]
+            except:
+                conditionList = [f"{key} = ?" for key in conditions.keys()]
 
-            values = [v for v in conditions.values()]
+                values = [v for v in conditions.values()]
 
         statement = f"""
         SELECT * FROM {cls.__tablename__} 
@@ -99,7 +103,7 @@ class BaseModel:
         DELETE FROM {cls.__tablename__} 
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-
+        
         db.execute(statement,values)
         db.commit()
 

@@ -24,5 +24,7 @@ def handle_exception(e:Exception):
         return recordDoesntExist()
     elif "UNIQUE" in _e:
         return recordAlreadyExists()
+    elif "FOREIGN KEY" in _e:
+        return foreignKeyError()
     else:
         return {"error": repr(_e)}, 400

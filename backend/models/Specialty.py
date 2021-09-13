@@ -20,8 +20,15 @@ class Specialty(BaseModel):
 @dataclass
 class MpHasSpec(BaseModel): 
     __tablename__ = 'mpHasSpec'
-    
-    ciMp: int
+
     idSpec: int
+    ciMp: int
 
     detail: Optional[str] = None
+    title: str = None
+
+    def __init__(self,idSpec,ciMp,detail):
+        self.idSpec = idSpec
+        self.ciMp = ciMp
+        self.detail = detail
+        self.title = Specialty.getById(idSpec).title # field that makes sense adding when returning to client, for the user knowing the id is meaningless.

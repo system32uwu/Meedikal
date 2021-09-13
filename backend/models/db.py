@@ -103,7 +103,7 @@ class BaseModel:
         DELETE FROM {cls.__tablename__} 
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-        
+
         db.execute(statement,values)
         db.commit()
 

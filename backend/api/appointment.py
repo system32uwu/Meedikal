@@ -1,4 +1,5 @@
 from dataclasses import asdict
+
 from models.ClinicalSign import ClinicalSign, RegistersCs
 from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy

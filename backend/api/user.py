@@ -77,7 +77,7 @@ def createUser():
     return crudReturn(userToReturn(result))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
-def update():
+def updateUser():
     data = json.loads(request.data)
     
     if data.get('password', None) is not None: # encrypt the password

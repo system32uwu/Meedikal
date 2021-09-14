@@ -1,5 +1,4 @@
 from util.authGuard import requiresAuth, requiresRole
-from werkzeug.exceptions import abort
 from util.crud import crudReturn
 from .user import userToReturn
 from flask import Blueprint, request, make_response, session

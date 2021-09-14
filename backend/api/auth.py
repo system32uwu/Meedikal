@@ -1,7 +1,7 @@
 from util.authGuard import requiresAuth, requiresRole
 from util.crud import crudReturn
 from .user import userToReturn
-from flask import Blueprint, request, make_response, session
+from flask import Blueprint, request, make_response
 from models.User import AuthUser
 import jwt
 

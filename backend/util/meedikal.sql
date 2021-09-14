@@ -70,8 +70,8 @@ CREATE TABLE appointment (
     state VARCHAR(36) NOT NULL DEFAULT 'OK',
     date date NOT NULL,
     -- OPTIONAL FIELDS
-    timeBegins time,
-    timeEnds time,
+    timeBegins datetime,
+    timeEnds datetime,
     etpp integer,
     maxTurns integer
 ); --etpp: estimated time per patient (tiempo estimado por turno de paciente en la consulta)
@@ -108,7 +108,7 @@ CREATE TABLE attendsTo (
     -- OPTIONAL FIELD
     motive VARCHAR(256),
     number integer,
-    time time,
+    time datetime,
 
     PRIMARY KEY (idAp,ciPa),
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE,
@@ -118,7 +118,7 @@ CREATE TABLE attendsTo (
 CREATE TABLE assistsAp (
     idAp integer,
     ciMa integer,
-    time time,
+    time datetime,
 
     FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE

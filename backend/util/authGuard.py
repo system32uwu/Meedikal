@@ -1,6 +1,5 @@
 from api.user import getTypes
 from flask import request
-from werkzeug.exceptions import abort
 from models.User import AuthUser
 
 def requiresAuth(f):

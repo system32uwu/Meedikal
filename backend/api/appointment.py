@@ -3,7 +3,7 @@ from dataclasses import asdict
 from models.ClinicalSign import ClinicalSign, RegistersCs
 from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy
-from flask import Blueprint, json, request
+from flask import Blueprint, request
 
 from util.crud import *
 from util.returnMessages import *
@@ -137,7 +137,7 @@ def registersCs(idAp:int): # input registered clinical signs
         for cs in data:
             if request.method == 'POST':
                 if cs.get('idCs', None) is None:
-                    _cs = Symptom(name=cs['name']).saveOrGet(['name'])
+                    _cs = ClinicalSign(name=cs['name']).saveOrGet(['name'])
                     cs['idCs'] = _cs.id
                     cs.pop('name')
 

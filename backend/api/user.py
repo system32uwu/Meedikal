@@ -30,9 +30,15 @@ def getTypes(ci):
     
     return types
 
-def userToReturn(user: User, userType=None):
+def userToReturn(user: User, userType=None, request:Request=None):
     if user is None:
         return None
+
+    if request is not None:
+        try:
+            userType = request.get_json()['extraFilters']['userType']
+        except:
+            userType = None
 
     obj = {'user': asdict(user), 
            'types': getTypes(user.ci),
@@ -40,8 +46,8 @@ def userToReturn(user: User, userType=None):
 
     if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
         hasSpec = MpHasSpec.filter({'ciMp': user.ci})
-        obj['specialties'] = [asdict(Specialty.filter({'id': id})) for id in 
-                             [sp for sp in hasSpec]]
+        print(hasSpec)
+        obj['specialties'] = [asdict(hsp) for hsp in hasSpec]
 
     obj['user'].pop('password', None)
 
@@ -50,7 +56,7 @@ def userToReturn(user: User, userType=None):
 @router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
 def allUsers():
     users = User.getByType(request=request)
-    return crudReturn([userToReturn(u) for u in users])
+    return crudReturn([userToReturn(u, request=request) for u in users])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
 @router.get('/<int:ci>/<userType>') # GET /api/user/<ci>/<userType>
@@ -58,13 +64,9 @@ def allUsers():
 def getUserByCi(ci:int=None, userType:str=None):
     if request.method == 'POST':
         ci = request.get_json()['ci']
-        
-        try:
-            userType = request.get_json().get('extraFilters').get('userType')
-        except:
-            userType = None
+
     u = User.getByCi(ci)
-    return crudReturn(userToReturn(u, userType))
+    return crudReturn(userToReturn(u, request=request))
 
 @router.post('') # POST /api/user
 def createUser():
@@ -74,7 +76,7 @@ def createUser():
 
     result = User(**data).save()
 
-    return crudReturn(userToReturn(result))
+    return crudReturn(userToReturn(result, request=request))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 def updateUser():
@@ -152,7 +154,7 @@ def userBySurname1(surname1:str=None):
     else:
         result = User.filter({'surname1' : surname1})
 
-    return crudReturn([userToReturn(u) for u in result])
+    return crudReturn([userToReturn(u, request=request) for u in result])
 
 @router.post('/name1surname1') # GET /api/user/name1surname1
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
@@ -162,7 +164,7 @@ def userByName1nSurname1(name1:str=None,surname1:str=None):
     else:
         result = User.filter({'name1' : name1,'surname1' : surname1})
 
-    return crudReturn([userToReturn(u) for u in result])
+    return crudReturn([userToReturn(u, request=request) for u in result])
 
 @router.route('/phoneNumbers', methods=['POST', 'DELETE'])
 @router.get('/phoneNumbers/<ci>')
@@ -207,6 +209,10 @@ def mpHasSpec(ciMp:int=None):
     return crudReturn(result)
 
 @router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'userType': 'doctor'}}
-def getMpUsersBySpecialty():
-    users = MedicalPersonnel.getBySpecialty(request=request)
-    return crudReturn(userToReturn(u, 'medicalPersonnel') for u in users)
+@router.get('/medicalPersonnel/<title>') # specialty title
+def getMpUsersBySpecialty(title:str):
+    if request.method == 'POST':
+        users = MedicalPersonnel.getBySpecialty(request=request)
+    else:
+        users = MedicalPersonnel.getBySpecialty(title=title)
+    return crudReturn([userToReturn(u, 'medicalPersonnel') for u in users])

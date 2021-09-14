@@ -18,7 +18,6 @@ def create_app() -> Flask:
 
     # --- CUSTOM
     app.json_encoder = JsonExtendEncoder
-    app.config['JSON_SORT_KEYS'] = False
 
     # --- ROUTERS
     app.register_blueprint(apiRouter) # api

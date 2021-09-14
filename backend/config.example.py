@@ -4,7 +4,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = 'secretkey'
+    SECRET_KEY = 'secretkey' # used to sign and verify jwt tokens
     DATABASE = 'meedikal.db'
 
 class ProductionConfig(Config):

@@ -2,6 +2,7 @@ from flask import Blueprint
 from .user import router as userRouter # handles /api/user
 from .appointment import router as appointmentRouter # handles /api/appointment
 from .branch import router as branchRouter # handles /api/branch
+from .auth import router as authRouter # handles /api/auth
 # modular routing, instead of having all the routes in this file, I'm making multiple routers that handle each table of the database. 
 
 from util.returnMessages import *
@@ -9,6 +10,7 @@ from util.createDb import getDb
 
 apiRouter = Blueprint('api', __name__, url_prefix='/api') # handles /api
 
+apiRouter.register_blueprint(authRouter)
 apiRouter.register_blueprint(userRouter)
 apiRouter.register_blueprint(appointmentRouter) 
 apiRouter.register_blueprint(branchRouter)

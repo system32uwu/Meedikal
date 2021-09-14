@@ -1,10 +1,12 @@
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from flask import json
 from flask.wrappers import Request
 from werkzeug.security import check_password_hash
 from .db import BaseModel, db
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
+from config import Config
+import jwt
 
 class SharedUserMethods(BaseModel):
 
@@ -121,8 +123,39 @@ class User(SharedUserMethods):
             except:
                 return None
 
-    def check_password(self, password) -> bool:
-        return check_password_hash(self.password, password)
+class AuthUser:
+    ci:int = None
+    password:str = None
+    user:User = None
+    token:str = None
+
+    def __init__(self, ci:int,password:str, token:str=None):
+        self.ci = ci
+        self.password = password
+        self.token = token
+
+    def login(self):
+        self.user = User.getByCi(self.ci)
+        try:
+            return check_password_hash(self.user.password, self.password)
+        except: # self.user is None
+            return False
+
+    def issueAuthToken(self):
+        now = datetime.utcnow() 
+        payload = { # expires in 365 days.
+            'exp': now + timedelta(days=365),
+            'iat': now,
+            'sub': self.ci
+        }
+        _jwt = jwt.encode(payload,Config.SECRET_KEY, algorithm="HS256")
+        self.token = _jwt
+        return self.token
+
+    @staticmethod
+    def verifyToken(token): # exceptions handled by auth error handler.
+        payload = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
+        return payload['sub']
 
 @dataclass # since phone is a multivalued attribute, it has its own table.
 class UserPhone(BaseModel):

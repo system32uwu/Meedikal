@@ -117,10 +117,10 @@ class BaseModel:
         except:
             conditionList = [f"{key} = ?"
                             for key in conditions.keys()]
-
+        
         values = [v.get('value', v)
-                 for v in conditions.items()] 
-
+                 for v in conditions.values()] 
+        
         newValues = [v.get('newValue', v.get('value', v)) 
                     for v in conditions.values()]
         

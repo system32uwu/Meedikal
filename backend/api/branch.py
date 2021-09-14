@@ -12,7 +12,7 @@ def getBranchById(id:int):
     return crudReturn(asdict(b))
 
 @router.get('/<name>') # GET /api/branch/<name>
-@router.post('/name') # POST /api/branch/name # could be just name or other params like location
+@router.post('/name') # POST /api/branch/name # could be just name or other params like location as well
 def getBranchByName(name:str=None):
     if request.method == 'POST':
         branches = Branch.filter(request.get_json())

@@ -38,9 +38,12 @@ class User(SharedUserMethods):
             conditionList = [f"{key} = ?"
                             for key in conditions.keys()]
         
-        # can't compare hashes (even if it's the same password) since they will always be different.
-        oldConditionList = conditionList.copy()
-        oldConditionList.remove("password = ?")
+        try:
+            # can't compare hashes (even if it's the same password) since they will always be different.
+            oldConditionList = conditionList.copy()
+            oldConditionList.remove("password = ?")
+        except ValueError:
+            pass
 
         values = [v.get('value', v)
                  for k, v in conditions.items() 

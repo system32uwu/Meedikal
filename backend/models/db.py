@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass
+from datetime import date, datetime, timedelta
 import sqlite3
 
 from util.createDb import getDb
@@ -31,6 +32,8 @@ class BaseModel:
                 else:
                     operator = '='
                     value = v
+                    if value is None:
+                        operator = 'IS'
 
                 conditionList.append(f"{k} {operator} ?")
 
@@ -50,20 +53,29 @@ class BaseModel:
                 return None
 
     def save(self):
-        attrs = asdict(self).keys()
-        values = [v for v in asdict(self).values()]
+        data = asdict(self)
+        attrs = data.keys()
+        values = [v for v in data.values()]
         
         statement = f"""
         INSERT INTO {self.__tablename__} ({','.join(attrs)})
-        VALUES ({",".join("?"*len(values))})
-        RETURNING * 
-        """ # RETURNING * returns the inserted rows, only works for insert or for virtual tables
+        VALUES ({",".join("?"*len(values))}) 
+        """ 
+        
         cursor = db.cursor()
         cursor.execute(statement, values)
-        result = cursor.fetchone()
         db.commit()
+        lastrowid = cursor.lastrowid
         cursor.close()
-        return self.instantiate(*result)
+        
+        conditions = {}
+
+        for key, value in data.items():
+            if key == 'id':
+                value = lastrowid
+            conditions[key] = value
+        
+        return self.filter(conditions, returns='one')
 
     def saveOrGet(self, pks:list=None): # list of primary keys to filter with
 

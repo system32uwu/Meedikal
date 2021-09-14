@@ -18,7 +18,7 @@ def requiresRole(role:str): # the required role to execute the action
         def wrapper(ci:int, *args, **kwargs): # ci comes from the previous deco: requiresAuth
             userRoles = getTypes(ci)
             if role not in userRoles:
-                return {'error': f'Insufficient permissions to perfom action. It could be done by: a {role} user'}, 401
+                return {'error': f'Insufficient permissions to perfom action. It should be done by: a {role} user'}, 401
             return f(*args, **kwargs)
         return wrapper
 

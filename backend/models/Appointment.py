@@ -25,8 +25,8 @@ class Appointment(BaseModel, TableWithId):
         self.name = name
         self.state = state
         self.date = d.fromisoformat(date) if date is not None else None
-        self.timeBegins = time.fromisoformat(timeBegins) if timeBegins is not None else None
-        self.timeEnds = time.fromisoformat(timeEnds) if timeEnds is not None else None
+        self.timeBegins = datetime.fromisoformat(timeBegins) if timeBegins is not None else None
+        self.timeEnds = datetime.fromisoformat(timeEnds) if timeEnds is not None else None
         self.etpp = etpp
         self.maxTurns = maxTurns
 

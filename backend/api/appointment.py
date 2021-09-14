@@ -26,6 +26,7 @@ def filterAppointments():
 @router.post('') # POST /api/appointment
 def createAppointment():
     a = Appointment(**request.get_json()).save()
+    print(a)
     return crudReturn(asdict(a))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/appointment

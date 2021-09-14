@@ -24,16 +24,17 @@ class BaseModel:
         values = []
         
         if conditions is not None:
-            try:
-                conditionList = [f"{key} {value.get('operator', '=')} ?"
-                            for key, value in conditions.items()]
+            for k,v in conditions.items():
+                if isinstance(v,dict):
+                    operator = v.get('operator', '=')
+                    value = v.get('value')
+                else:
+                    operator = '='
+                    value = v
 
-                values = [v.get('value', None) for v in conditions.values() 
-                        if v is not None]
-            except:
-                conditionList = [f"{key} = ?" for key in conditions.keys()]
+                conditionList.append(f"{k} {operator} ?")
 
-                values = [v for v in conditions.values()]
+                values.append(value)
 
         statement = f"""
         SELECT * FROM {cls.__tablename__} 
@@ -87,17 +88,20 @@ class BaseModel:
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        try:
-            conditionList = [f"{key} {value.get('operator', '=')} ?"
-                        for key, value in conditions.items()]
+        conditionList = []
+        values = []
+        
+        for k,v in conditions.items():
+            if isinstance(v,dict):
+                operator = v.get('operator', '=')
+                value = v.get('value')
+            else:
+                operator = '='
+                value = v
+                    
+            conditionList.append(f"{k} {operator} ?")
 
-            values = [v.get('value', None) for v in conditions.values() 
-                    if v is not None]
-        except:
-            conditionList = [f"{key} = ?"
-                        for key in conditions.keys()]
-
-            values = [v for v in conditions.values()]
+            values.append(value)
 
         statement = f"""
         DELETE FROM {cls.__tablename__} 
@@ -111,18 +115,24 @@ class BaseModel:
 
     @classmethod
     def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        try:
-            conditionList = [f"{key} {value.get('operator', '=')} ?"
-                            for key, value in conditions.items()]
-        except:
-            conditionList = [f"{key} = ?"
-                            for key in conditions.keys()]
+        conditionList = []
+        values = []
+        newValues = []
         
-        values = [v.get('value', v)
-                 for v in conditions.values()] 
-        
-        newValues = [v.get('newValue', v.get('value', v)) 
-                    for v in conditions.values()]
+        for k,v in conditions.items():
+            if isinstance(v,dict):
+                operator = v.get('operator', '=')
+                value = v.get('value')
+                newValue = v.get('newValue', value)
+            else:
+                operator = '='
+                value = v
+                newValue = v
+                    
+            conditionList.append(f"{k} {operator} ?")
+
+            values.append(value)
+            newValues.append(newValue)
         
         values = newValues + values
 

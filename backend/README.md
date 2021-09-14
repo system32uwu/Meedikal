@@ -56,6 +56,18 @@ If providing any other filters:
 }
 ```
 
+If providing any of the values is null, provide the _operator_ "IS":
+
+```json
+{
+    "name1": {"value": "juan"},
+    "name2": {"value": null, "operator"="IS"},
+    "extraFilters":{
+        "userType" : "medicalPersonnel"
+    }
+}
+```
+
 The filters that don't go inside of _extraFilters_ are actual table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
 
 ##### For multivalued attributes, or multiple records at once

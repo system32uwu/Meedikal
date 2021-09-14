@@ -31,12 +31,26 @@ class User(SharedUserMethods):
 
     @classmethod
     def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        try:
-            conditionList = [f"{key} {value.get('operator', '=')} ?"
-                            for key, value in conditions.items()]
-        except:
-            conditionList = [f"{key} = ?"
-                            for key in conditions.keys()]
+        conditionList = []
+        values = []
+        newValues = []
+        
+        for k,v in conditions.items():
+            if isinstance(v,dict):
+                operator = v.get('operator', '=')
+                value = v.get('value')
+                newValue = v.get('newValue', value)
+            else:
+                operator = '='
+                value = v
+                newValue = v
+                    
+            conditionList.append(f"{k} {operator} ?")
+
+            if k != 'password':
+                values.append(value)
+
+            newValues.append(newValue)
         
         try:
             # can't compare hashes (even if it's the same password) since they will always be different.
@@ -44,13 +58,6 @@ class User(SharedUserMethods):
             oldConditionList.remove("password = ?")
         except ValueError:
             pass
-
-        values = [v.get('value', v)
-                 for k, v in conditions.items() 
-                 if k != 'password'] 
-
-        newValues = [v.get('newValue', v.get('value', v)) 
-                    for v in conditions.values()]
         
         values = newValues + values
 
@@ -84,16 +91,20 @@ class User(SharedUserMethods):
         if userType is None:
             return cls.filter(conditions,logicalOperator,returns)
 
-        try:
-            conditionList = [f"{key} {value.get('operator', '=')} ?"
-                        for key, value in conditions.items()]
+        conditionList = []
+        values = []
 
-            values = [v.get('value', None) for v in conditions.values() 
-                    if v is not None]
-        except:
-            conditionList = [f"{key} = ?" for key in conditions.keys()]
+        for k,v in conditions.items():
+            if isinstance(v,dict):
+                operator = v.get('operator', '=')
+                value = v.get('value')
+            else:
+                operator = '='
+                value = v
+                    
+            conditionList.append(f"{k} {operator} ?")
 
-            values = [v for v in conditions.values()]
+            values.append(value)
 
         statement = f"""
         SELECT {User.__tablename__}.* FROM {User.__tablename__}, {userType} 

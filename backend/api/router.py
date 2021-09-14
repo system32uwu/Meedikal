@@ -18,6 +18,8 @@ def handle_exception(e:Exception):
     _e = repr(e)
     print(_e)
     getDb().rollback()
+    if "missing" in _e:
+        return provideData(extraMessage=_e.strip("TypeError(\"__init__() "))
     if "object is not subscriptable" in _e or "JSONDecodeError" in _e:
         return provideData()
     elif "object has no attribute" in _e: # does that really mean it doesn't exist?

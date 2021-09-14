@@ -46,7 +46,6 @@ def userToReturn(user: User, userType=None, request:Request=None):
 
     if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
         hasSpec = MpHasSpec.filter({'ciMp': user.ci})
-        print(hasSpec)
         obj['specialties'] = [asdict(hsp) for hsp in hasSpec]
 
     obj['user'].pop('password', None)

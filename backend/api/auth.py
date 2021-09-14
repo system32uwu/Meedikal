@@ -16,10 +16,10 @@ def expiredToken():
 def invalidToken():
     return {'error': 'Invalid token. Please log in again.'}, 401
 
-@router.post('/rutaProtegida')
+@router.post('/protectedRoute')
 @requiresAuth
 @requiresRole('medicalPersonnel')
-def rutaProtegida():
+def protectedRouteWithMedicalPersonnelRoleRequired():
     return {"result": "allowed"}, 200
 
 @router.post('/login') # POST /auth/login

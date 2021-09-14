@@ -134,7 +134,7 @@ class AuthUser:
         self.password = password
         self.token = token
 
-    def login(self):
+    def login(self) -> bool: # returns True if the password is correct, if it's not, or the user doesn't exist, False
         self.user = User.getByCi(self.ci)
         try:
             return check_password_hash(self.user.password, self.password)

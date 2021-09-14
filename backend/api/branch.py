@@ -41,7 +41,7 @@ def deleteBranch():
 
 @router.route('/apTakesPlace', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH DELETE /api/branch/apTakesPlace
 @router.get('/apTakesPlace/<int:idAp>') # GET /api/branch/apTakesPlace/<idAp>
-def apTakesPlace(idAp:int):
+def apTakesPlace(idAp:int=None):
     data = request.get_json()
     if request.method == 'POST':
         return crudReturn(asdict(ApTakesPlace(**data).save()))

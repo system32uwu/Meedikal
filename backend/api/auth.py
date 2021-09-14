@@ -9,13 +9,11 @@ import jwt
 router = Blueprint('auth', __name__, url_prefix='/auth')
 
 @router.errorhandler(jwt.ExpiredSignatureError)
-def expiredToken(*args):
+def expiredToken():
     return {'error': 'Signature expired. Please log in again.'}, 401
 
 @router.errorhandler(jwt.InvalidTokenError)
-def invalidToken(*args):
-    for a in args:
-        print(a)
+def invalidToken():
     return {'error': 'Invalid token. Please log in again.'}, 401
 
 @router.post('/rutaProtegida')

@@ -15,6 +15,7 @@ router = Blueprint('appointment', __name__, url_prefix='/appointment')
 @router.get('/<int:id>') # GET /api/appointment/<id>
 def getAppointmentById(id:int):
     a = Appointment.getById(id)
+    print(a)
     return crudReturn(asdict(a))
 
 @router.post('/filter') # POST /api/appointment/filter { 'name': 'oftalmology', 'state': 'OK', date: '2021-09-11', ... }

@@ -131,7 +131,7 @@ class BaseModel:
         {'SET ' + ', '.join(conditionList) if len(conditionList) > 0 else ''}
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-
+        
         cursor = db.cursor()
         cursor.execute(statement,values)
         db.commit()

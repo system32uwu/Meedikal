@@ -21,6 +21,12 @@ def invalidToken():
 def protectedRouteWithMedicalPersonnelRoleRequired():
     return {"result": "allowed"}, 200
 
+# example of protected route
+@router.post('/protectedRoute') 
+@requiresAuth
+def protectedRoute():
+    return {"result": "you're authenticated :)!"}, 200
+
 @router.post('/login') # POST /auth/login
 def login():
     data = request.get_json()

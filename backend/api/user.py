@@ -58,9 +58,8 @@ def allUsers():
     return crudReturn([userToReturn(u, request=request) for u in users])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
-@router.get('/<int:ci>/<userType>') # GET /api/user/<ci>/<userType>
 @router.post('/ci') # POST /api/user/ci
-def getUserByCi(ci:int=None, userType:str=None):
+def getUserByCi(ci:int=None):
     if request.method == 'POST':
         ci = request.get_json()['ci']
 

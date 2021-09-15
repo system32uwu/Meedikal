@@ -25,7 +25,7 @@ def handle_exception(e:Exception):
     if "NOT NULL constraint failed" in _e:
         missing = _e.split('.')[1].split("')")[0]
         return provideData(extraMessage=f'missing: {missing}')
-    if "object is not subscriptable" in _e or "JSONDecodeError" in _e or "must be a mapping, not NoneType" in _e:
+    if "object is not subscriptable" in _e or "JSONDecodeError" in _e or "must be a mapping, not NoneType" in _e or "KeyError" in _e:
         return provideData()
     elif "object has no attribute" in _e or "asdict() should be called on dataclass instances" in _e:
         return recordDoesntExist()

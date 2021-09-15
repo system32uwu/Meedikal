@@ -10,6 +10,11 @@ class Symptom(BaseModel, TableWithId):
     name: str
     description: Optional[str] = None
 
+    def __init__(self, id:int=None, name:str=None, description:str=None):
+        self.id = id
+        self.name = name
+        self.description = description
+
 @dataclass
 class RegistersSy(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersSy > Symptom
     __tablename__ = 'registersSy'

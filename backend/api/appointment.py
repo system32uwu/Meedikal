@@ -102,12 +102,12 @@ def attendsTo(idAp:int=None,ciPa:int=None): # a [patient] <attends to> an [appoi
 # # -- DATA INPUTTED WHEN A PATIENT IS BEING INTERVIEWED IN AN APPOINTMENT
 
 @router.route('/diagnoses', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/diagnoses
-@router.get('/diagnoses/<int:idAp>') # GET /api/appointment/diagnoses/<idAp>
-def diagnosedDisease(idAp:int=None): # input diagnosed diseases
+@router.get('/diagnoses/<int:idAp>/<int:ciPa>') # GET /api/appointment/diagnoses/<idAp>
+def diagnosedDisease(idAp:int=None, ciPa:int=None): # input diagnosed diseases
     if request.method == 'GET':
-        result = [asdict(d) for d in Diagnoses.filter({'idAp': idAp})]
+        result = [asdict(d) for d in Diagnoses.filter({'idAp': idAp, 'ciPa': ciPa})]
         for d in result:
-            d['name'] = Disease.getById(d['idSy']).name
+            d['name'] = Disease.getById(d['idDis']).name
     else:
         data = request.get_json()['diagnoses']
         result = []
@@ -121,7 +121,7 @@ def diagnosedDisease(idAp:int=None): # input diagnosed diseases
 
                 diagnosesInstance = Diagnoses(**d).save()
                 diagnosesReturn = asdict(diagnosesInstance)
-                diagnosesReturn['name'] = Disease.getById(d['isDis']).name
+                diagnosesReturn['name'] = Disease.getById(d['idDis']).name
                 result.append(diagnosesReturn)
 
             elif request.method == 'DELETE':
@@ -131,10 +131,10 @@ def diagnosedDisease(idAp:int=None): # input diagnosed diseases
     return crudReturn(result)
 
 @router.route('/registersSy', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersSy
-@router.get('/registersSy/<int:idAp>') # GET /api/appointment/registersSy/<idAp>
-def registersSy(idAp:int=None): # input registered symptoms
+@router.get('/registersSy/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersSy/<idAp>
+def registersSy(idAp:int=None,ciPa:int=None): # input registered symptoms
     if request.method == 'GET':
-        result = [asdict(sy) for sy in RegistersSy.filter({'idAp': idAp})]
+        result = [asdict(sy) for sy in RegistersSy.filter({'idAp': idAp,'ciPa': ciPa})]
         for sy in result:
             sy['name'] = Symptom.getById(sy['idSy']).name
     else:
@@ -160,10 +160,10 @@ def registersSy(idAp:int=None): # input registered symptoms
     return crudReturn(result)
 
 @router.route('/registersCs', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersCs
-@router.get('/registersCs/<int:idAp>') # GET /api/appointment/registersCs/<idAp>
-def registersCs(idAp:int=None): # input registered clinical signs
+@router.get('/registersCs/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersCs/<idAp>
+def registersCs(idAp:int=None, ciPa:int=None): # input registered clinical signs
     if request.method == 'GET':
-        result = [asdict(cs) for cs in RegistersCs.filter({'idAp': idAp})]
+        result = [asdict(cs) for cs in RegistersCs.filter({'idAp': idAp, 'ciPa': ciPa})]
         for cs in result:
             cs['name'] = ClinicalSign.getById(cs['idCs']).name
     else:

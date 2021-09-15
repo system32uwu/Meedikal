@@ -8,7 +8,12 @@ class ClinicalSign(BaseModel, TableWithId):
 
     id: int
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
+    
+    def __init__(self, id:int=None, name:str=None, description:str=None):
+        self.id = id
+        self.name = name
+        self.description = description
 
 @dataclass
 class RegistersCs(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersCs > ClinicalSign
@@ -17,4 +22,4 @@ class RegistersCs(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > 
     idAp: int
     ciPa: int
     idCs: int
-    detail: Optional[str]
+    detail: Optional[str] = None

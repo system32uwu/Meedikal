@@ -22,4 +22,4 @@ class Diagnoses(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Ap
     idAp: int
     ciPa: int
     idDis: int
-    detail: Optional[str]
+    detail: Optional[str] = None

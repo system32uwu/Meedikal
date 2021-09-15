@@ -32,7 +32,7 @@ python util/createDb.py
 
 #### For GET
 
-The `/all`, `/surname1`, `/surname1name1`, `/medicalPersoonel/mpHasSpec` accept _extraFilters_, such as _userType_.
+The `/all`, `/surname1`, `/surname1name1`, `/medicalPersoonel/mpHasSpec` user endpoints accept _extraFilters_, such as _userType_.
 
 The data shape should be the following:
 
@@ -56,21 +56,11 @@ If providing any other filters:
 }
 ```
 
-If providing any of the values is null, provide the _operator_ "IS":
-
-```json
-{
-    "name1": {"value": "juan"},
-    "name2": {"value": null, "operator"="IS"},
-    "extraFilters":{
-        "userType" : "medicalPersonnel"
-    }
-}
-```
-
 The filters that don't go inside of _extraFilters_ are actual table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
 
 ##### For multivalued attributes, or multiple records at once
+
+Provide the name of the table as the key, an inside of it a list containing all objects that are to be operated with.
 
 ```json
 {
@@ -102,7 +92,7 @@ The filters that don't go inside of _extraFilters_ are actual table attributes, 
 }
 ```
 
-In case an ID is not provided for a relationship, provide the UNIQUE attribute of the other table, see the example below that uses the mpHasSpec table (medicalPersonnel(__ciMp__) < mpHasSpec > (__id__ | __title__) Specialty).
+In case an ID is not provided for a relationship, provide the UNIQUE attribute of the other table, see the example above that uses the mpHasSpec table (medicalPersonnel(__ciMp__) < mpHasSpec > (__id__ | __title__) Specialty).
 
 #### For PUT and PATCH
 
@@ -123,23 +113,6 @@ By default the update method will use the = operator, if LIKE were to be used th
         "value": "some old value",
         "newValue": "something new to replace the old value with",
         "operator": "LIKE"
-    }
-}
-```
-
-In case the _operator_ field is provided to an attribute, it must be provided to the rest of the attributes explicitly:
-
-```json
-{
-    "attr": {
-        "value": "some old value",
-        "newValue": "something new to replace the old value with",
-        "operator": "LIKE"
-    },
-    "otherAttr": {
-        "value": "some other old value",
-        "newValue": "something else new to replace the old value with",
-        "operator": "="
     }
 }
 ```

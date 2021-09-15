@@ -1,9 +1,9 @@
-from models.db import BaseModel
+from models.db import BaseModel, TableWithId
 from dataclasses import dataclass
 from typing import Optional
 
 @dataclass
-class Specialty(BaseModel):
+class Specialty(BaseModel, TableWithId):
     __tablename__ = 'specialty'
 
     id: int
@@ -13,10 +13,6 @@ class Specialty(BaseModel):
         self.id = id
         self.title = title
 
-    @classmethod 
-    def getById(cls, id:int):
-        return cls.filter({'id': id}, returns='one')
-
 @dataclass
 class MpHasSpec(BaseModel): 
     __tablename__ = 'mpHasSpec'
@@ -25,10 +21,8 @@ class MpHasSpec(BaseModel):
     ciMp: int
 
     detail: Optional[str] = None
-    title: str = None
 
     def __init__(self,idSpec,ciMp,detail:str=None):
         self.idSpec = idSpec
         self.ciMp = ciMp
         self.detail = detail
-        self.title = Specialty.getById(idSpec).title # field that makes sense adding when returning to client, for the user knowing the id is meaningless.

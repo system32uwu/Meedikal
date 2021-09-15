@@ -81,7 +81,9 @@ def attendsTo(): # a [patient] <attends to> an [appointment]
 @router.get('/diagnoses/<int:idAp>') # GET /api/appointment/diagnoses/<idAp>
 def diagnosedDisease(idAp:int): # input diagnosed diseases
     if request.method == 'GET':
-        result = Diagnoses.filter({'idAp': idAp})
+        result = [asdict(d) for d in Diagnoses.filter({'idAp': idAp})]
+        for d in result:
+            d['name'] = Disease.getById(d['idSy']).name
     else:
         data = request.get_json()['diagnoses']
         result = []
@@ -93,8 +95,10 @@ def diagnosedDisease(idAp:int): # input diagnosed diseases
                     d['idDis'] = _d.id
                     d.pop('name')
 
-                diagnosesInstance = Diagnoses(**d)
-                result.append(asdict(diagnosesInstance.save()))
+                diagnosesInstance = Diagnoses(**d).save()
+                diagnosesReturn = asdict(diagnosesInstance)
+                diagnosesReturn['name'] = Disease.getById(d['isDis']).name
+                result.append(diagnosesReturn)
 
             elif request.method == 'DELETE':
                 Diagnoses.delete(d)
@@ -106,7 +110,9 @@ def diagnosedDisease(idAp:int): # input diagnosed diseases
 @router.get('/registersSy/<int:idAp>') # GET /api/appointment/registersSy/<idAp>
 def registersSy(idAp:int): # input registered symptoms
     if request.method == 'GET':
-        result = RegistersSy.filter({'idAp': idAp})
+        result = [asdict(sy) for sy in RegistersSy.filter({'idAp': idAp})]
+        for sy in result:
+            sy['name'] = Symptom.getById(sy['idSy']).name
     else:
         data = request.get_json()['registersSy']
         result = []
@@ -118,8 +124,10 @@ def registersSy(idAp:int): # input registered symptoms
                     s['idSy'] = _s.id
                     s.pop('name')
 
-                registersSyInstance = RegistersSy(**s)
-                result.append(asdict(registersSyInstance.save()))
+                registersSyInstance = RegistersSy(**s).save()
+                registersSyReturn = asdict(registersSyInstance)
+                registersSyReturn['name'] = Symptom.getById(s['idSy']).name
+                result.append(registersSyReturn)
 
             elif request.method == 'DELETE':
                 RegistersSy.delete(s)
@@ -131,7 +139,9 @@ def registersSy(idAp:int): # input registered symptoms
 @router.get('/registersCs/<int:idAp>') # GET /api/appointment/registersCs/<idAp>
 def registersCs(idAp:int): # input registered clinical signs
     if request.method == 'GET':
-        result = RegistersCs.filter({'idAp': idAp})
+        result = [asdict(cs) for cs in RegistersCs.filter({'idAp': idAp})]
+        for cs in result:
+            cs['name'] = ClinicalSign.getById(cs['idCs']).name
     else:
         data = request.get_json()['registersCs']
         result = []
@@ -142,9 +152,11 @@ def registersCs(idAp:int): # input registered clinical signs
                     _cs = ClinicalSign(name=cs['name']).saveOrGet(['name'])
                     cs['idCs'] = _cs.id
                     cs.pop('name')
-
-                registersCsInstance = RegistersCs(**cs)
-                result.append(asdict(registersCsInstance.save()))
+                
+                registersCsInstance = RegistersCs(**cs).save()
+                registersCsReturn = asdict(registersCsInstance)
+                registersCsReturn['name'] = ClinicalSign.getById(cs['idCs']).name
+                result.append(registersCsReturn)
 
             elif request.method == 'DELETE':
                 RegistersCs.delete(cs)

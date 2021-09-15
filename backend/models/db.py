@@ -1,5 +1,4 @@
 from dataclasses import asdict, dataclass
-from datetime import date, datetime, timedelta
 import sqlite3
 
 from util.createDb import getDb
@@ -61,7 +60,7 @@ class BaseModel:
         INSERT INTO {self.__tablename__} ({','.join(attrs)})
         VALUES ({",".join("?"*len(values))}) 
         """ 
-        
+
         cursor = db.cursor()
         cursor.execute(statement, values)
         db.commit()

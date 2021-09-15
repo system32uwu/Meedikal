@@ -188,6 +188,8 @@ def phoneNumbers(ci:int=None):
 def mpHasSpec(ciMp:int=None):
     if request.method == 'GET':
         result = [asdict(sp) for sp in MpHasSpec.filter({'ciMp': ciMp})]
+        for sp in result:
+            sp['title'] = Specialty.getById(sp['idSpec']).title
     else:
         data = request.get_json()['mpHasSpec']
         result = []
@@ -198,8 +200,10 @@ def mpHasSpec(ciMp:int=None):
                     hsp['idSpec'] = _sp.id
                     hsp.pop('title')
                 
-                hspInstance = MpHasSpec(**hsp)
-                result.append(asdict(hspInstance.save()))
+                hspInstance = MpHasSpec(**hsp).save()
+                hspReturn = asdict(hspInstance)
+                hspReturn['title'] = Specialty.getById(hsp['idSpec']).title
+                result.append(hspReturn)
 
             elif request.method == 'DELETE':
                 MpHasSpec.delete(hsp)

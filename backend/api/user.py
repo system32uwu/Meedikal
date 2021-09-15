@@ -1,4 +1,3 @@
-from typing import Any
 from werkzeug.security import generate_password_hash
 from util.crud import crudReturn
 from dataclasses import asdict

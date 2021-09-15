@@ -1,8 +1,9 @@
 from api.user import getTypes
 from flask import request
 from models.User import AuthUser
-
+from functools import wraps
 def requiresAuth(f):
+    @wraps(f)
     def decorator(*args,**kwargs):
         try:
             token = request.cookies['authToken']
@@ -15,6 +16,7 @@ def requiresAuth(f):
 
 def requiresRole(role:str): # the required role to execute the action
     def decorator(f):
+        @wraps(f)
         def wrapper(ci:int, *args, **kwargs): # ci comes from the previous deco: requiresAuth
             userRoles = getTypes(ci)
             if role not in userRoles:

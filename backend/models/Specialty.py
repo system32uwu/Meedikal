@@ -27,7 +27,7 @@ class MpHasSpec(BaseModel):
     detail: Optional[str] = None
     title: str = None
 
-    def __init__(self,idSpec,ciMp,detail):
+    def __init__(self,idSpec,ciMp,detail:str=None):
         self.idSpec = idSpec
         self.ciMp = ciMp
         self.detail = detail

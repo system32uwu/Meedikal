@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{   \r\n    \"ci\": 123,\r\n    \"name1\": \"juan\",\r\n    \"surname1\": \"perez\",\r\n    \"sex\": \"M\",\r\n    \"birthdate\": \"1988-04-02\",\r\n    \"location\": \"Avenida Millan 2456\",\r\n    \"email\": \"juanperez@mail.ru\",\r\n    \"active\": true,\r\n    \"password\": \"contrasenaa\"\r\n}",
+							"raw": "{   \r\n    \"ci\": 12345,\r\n    \"name1\": \"jose\",\r\n    \"surname1\": \"lopez\",\r\n    \"sex\": \"M\",\r\n    \"birthdate\": \"1988-04-02\",\r\n    \"location\": \"Avenida Millan 2456\",\r\n    \"email\": \"joselopez@gmail.com\",\r\n    \"active\": true,\r\n    \"password\": \"contrasenaa\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -105,7 +105,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"extraFilters\":{\r\n        \"userType\": \"medicalPersonnel\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"extraFilters\":{\r\n        \"userType\": \"patient\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -242,7 +242,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"ci\": 1234\r\n}",
+							"raw": "{\r\n    \"ci\": 12345\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -372,7 +372,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"ci\": 123\r\n}",
+							"raw": "{\r\n    \"ci\": 1234\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -432,7 +432,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"mpHasSpec\":[{\r\n        \"ciMp\": 123,\r\n        \"title\": \"oftalomologia\"\r\n    },{\r\n        \"ciMp\": 123,\r\n        \"title\": \"pediatria\"\r\n    }]\r\n}",
+							"raw": "{\r\n    \"mpHasSpec\":[{\r\n        \"ciMp\": 123,\r\n        \"title\": \"oftalmologia\",\r\n        \"detail\": null\r\n    },{\r\n        \"ciMp\": 123,\r\n        \"title\": \"pediatria\",\r\n        \"detail\": null\r\n    }]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -633,7 +633,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"ci\": 1\r\n}",
+							"raw": "{\r\n    \"ci\": 1234\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

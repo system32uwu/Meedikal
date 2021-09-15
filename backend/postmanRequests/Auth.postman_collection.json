@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"ci\": 123,\r\n    \"password\": \"contrasenaa\"\r\n}",
+					"raw": "{\r\n    \"ci\": 1234,\r\n    \"password\": \"contrasenaa\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -41,7 +41,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/auth/rutaProtegida",
+					"raw": "http://localhost:5000/api/auth/protectedRoute",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -50,7 +50,28 @@
 					"path": [
 						"api",
 						"auth",
-						"rutaProtegida"
+						"protectedRoute"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ruta Protegida con rol",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/auth/protectedRouteWithRole",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"protectedRouteWithRole"
 					]
 				}
 			},

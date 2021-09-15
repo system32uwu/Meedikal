@@ -15,7 +15,7 @@ def expiredToken():
 def invalidToken():
     return {'error': 'Invalid token. Please log in again.'}, 401
 # example of protected route, which requires the user to have the medicalPersonnel role
-@router.post('/protectedRoute') 
+@router.post('/protectedRouteWithRole') 
 @requiresAuth
 @requiresRole('medicalPersonnel')
 def protectedRouteWithMedicalPersonnelRoleRequired():

@@ -1,10 +1,36 @@
-# Technologies used
+# NOTES
 
-- Flask (web server)
+## Setting things up
 
-## NOTES
+Create a virtual environment by your preferred means.
 
-### Creating the database
+Using [venv](https://docs.python.org/3/tutorial/venv.html):
+
+```sh
+python -m venv venv
+```
+
+Activate the virtual environment:
+
+### On Windows
+
+```sh
+./venv/Scripts/activate
+```
+
+### On Linux
+
+```sh
+source venv/bin/activate
+```
+
+Then install the dependencies:
+
+```sh
+pip install -r requirements.txt
+```
+
+## Creating the database
 
 On first run, or when making changes to database schema, run:
 
@@ -12,9 +38,9 @@ On first run, or when making changes to database schema, run:
 python util/createDb.py
 ```
 
-### Incoming data shape notes
+## Incoming data shape notes
 
-#### For GET
+### For GET
 
 The `/all`, `/surname1`, `/surname1name1`, `/medicalPersoonel/mpHasSpec` user endpoints accept _extraFilters_, such as _userType_.
 
@@ -42,7 +68,7 @@ If providing any other filters:
 
 The filters that don't go inside of _extraFilters_ are actual table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
 
-##### For multivalued attributes, or multiple records at once
+### For multivalued attributes, or multiple records at once
 
 Provide the name of the table as the key, an inside of it a list containing all objects that are to be operated with.
 
@@ -78,7 +104,7 @@ Provide the name of the table as the key, an inside of it a list containing all 
 
 In case an ID is not provided for a relationship, provide the UNIQUE attribute of the other table, see the example above that uses the mpHasSpec table (medicalPersonnel(__ciMp__) < mpHasSpec > (__id__ | __title__) Specialty).
 
-#### For PUT and PATCH
+## For PUT and PATCH
 
 ```json
 {

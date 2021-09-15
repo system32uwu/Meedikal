@@ -70,8 +70,8 @@ CREATE TABLE appointment (
     state VARCHAR(36) NOT NULL DEFAULT 'OK',
     date date NOT NULL,
     -- OPTIONAL FIELDS
-    timeBegins datetime,
-    timeEnds datetime,
+    startsAt datetime,
+    endsAt datetime,
     etpp integer,
     maxTurns integer
 ); --etpp: estimated time per patient (tiempo estimado por turno de paciente en la consulta)

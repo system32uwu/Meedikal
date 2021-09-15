@@ -39,47 +39,71 @@ def deleteAppointment():
     a = Appointment.delete(request.get_json())
     return crudReturn(a)
 
-@router.route('/assignedTo', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/assignedTo
-def assignedTo(): # a [doctor] is <assigned to> an [appointment]
-    data = request.get_json()
-    if request.method == 'POST':
-        return crudReturn(asdict(AssignedTo(**data).save()))
-    if request.method == 'PUT' or request.method == 'PATCH':
-        return crudReturn([asdict(ast) for ast in AssignedTo.update(data)])
-    if request.method == 'DELETE':
-        return crudReturn(AssignedTo.delete(data))
-    elif request.method == 'GET':
-        return crudReturn([asdict(ast) for ast in AssignedTo.filter(data)])
-
-@router.route('/assistsAp', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/assistsAp
-def assistsAp(): # a [medicalAssistant] <assists an> an [appointment]
-    data = request.get_json()
-    if request.method == 'POST':
-        return crudReturn(asdict(AssistsAp(**data).save()))
-    if request.method == 'PUT' or request.method == 'PATCH':
-        return crudReturn([asdict(asa) for asa in AssistsAp.update(data)])
-    if request.method == 'DELETE':
-        return crudReturn(AssistsAp.delete(data))
-    elif request.method == 'GET':
-        return crudReturn([asdict(asa) for asa in AssistsAp.filter(data)])
-
+@router.route('/assignedTo', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assignedTo
+@router.get('/assignedTo/<int:idAp>')
+@router.get('/assignedTo/ciDoc/<int:ciDoc>')
+def assignedTo(idAp:int=None, ciDoc:int=None): # a [doctor] is <assigned to> an [appointment]
+    if request.method == 'GET':
+        conditions = {}
+        if idAp is not None:
+            conditions['idAp'] = idAp
+        if ciDoc is not None:
+            conditions['ciDoc'] = ciDoc
+        return crudReturn([asdict(ast) for ast in AssignedTo.filter(conditions)])
+    else:
+        data = request.get_json()
+        if request.method == 'POST':
+            return crudReturn(asdict(AssignedTo(**data).save()))
+        if request.method == 'PUT' or request.method == 'PATCH':
+            return crudReturn([asdict(ast) for ast in AssignedTo.update(data)])
+        if request.method == 'DELETE':
+            return crudReturn(AssignedTo.delete(data))
+    
+@router.route('/assistsAp', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assistsAp
+@router.get('/assistsAp/<int:idAp>')
+@router.get('/assistsAp/ciMa/<int:ciMa>')
+def assistsAp(idAp:int=None,ciMa:int=None): # a [medicalAssistant] <assists an> an [appointment]
+    if request.method == 'GET':
+        conditions = {}
+        if idAp is not None:
+            conditions['idAp'] = idAp
+        if ciMa is not None:
+            conditions['ciMa'] = ciMa
+        return crudReturn([asdict(ast) for ast in AssistsAp.filter(conditions)])
+    else:
+        data = request.get_json()
+        if request.method == 'POST':
+            return crudReturn(asdict(AssistsAp(**data).save()))
+        if request.method == 'PUT' or request.method == 'PATCH':
+            return crudReturn([asdict(asa) for asa in AssistsAp.update(data)])
+        if request.method == 'DELETE':
+            return crudReturn(AssistsAp.delete(data))
+        
 @router.route('/attendsTo', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/attendsTo
-def attendsTo(): # a [patient] <attends to> an [appointment] 
-    data = request.get_json()
-    if request.method == 'POST':
-        return crudReturn(asdict(AttendsTo(**data).save()))
-    if request.method == 'PUT' or request.method == 'PATCH':
-        return crudReturn([asdict(att) for att in AttendsTo.update(data)])
-    if request.method == 'DELETE':
-        return crudReturn(AttendsTo.delete(data))
-    elif request.method == 'GET':
-        return crudReturn([asdict(att) for att in AttendsTo.filter(data)])
-
+@router.get('/attendsTo/<int:idAp>')
+@router.get('/attendsTo/ciPa/<int:ciPa>')
+def attendsTo(idAp:int=None,ciPa:int=None): # a [patient] <attends to> an [appointment] 
+    if request.method == 'GET':
+        conditions = {}
+        if idAp is not None:
+            conditions['idAp'] = idAp
+        if ciPa is not None:
+            conditions['ciPa'] = ciPa
+        return crudReturn([asdict(ast) for ast in AttendsTo.filter(conditions)])
+    else:
+        data = request.get_json()
+        if request.method == 'POST':
+            return crudReturn(asdict(AttendsTo(**data).save()))
+        if request.method == 'PUT' or request.method == 'PATCH':
+            return crudReturn([asdict(att) for att in AttendsTo.update(data)])
+        if request.method == 'DELETE':
+            return crudReturn(AttendsTo.delete(data))
+        
 # # -- DATA INPUTTED WHEN A PATIENT IS BEING INTERVIEWED IN AN APPOINTMENT
 
 @router.route('/diagnoses', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/diagnoses
 @router.get('/diagnoses/<int:idAp>') # GET /api/appointment/diagnoses/<idAp>
-def diagnosedDisease(idAp:int): # input diagnosed diseases
+def diagnosedDisease(idAp:int=None): # input diagnosed diseases
     if request.method == 'GET':
         result = [asdict(d) for d in Diagnoses.filter({'idAp': idAp})]
         for d in result:
@@ -108,7 +132,7 @@ def diagnosedDisease(idAp:int): # input diagnosed diseases
 
 @router.route('/registersSy', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersSy
 @router.get('/registersSy/<int:idAp>') # GET /api/appointment/registersSy/<idAp>
-def registersSy(idAp:int): # input registered symptoms
+def registersSy(idAp:int=None): # input registered symptoms
     if request.method == 'GET':
         result = [asdict(sy) for sy in RegistersSy.filter({'idAp': idAp})]
         for sy in result:
@@ -137,7 +161,7 @@ def registersSy(idAp:int): # input registered symptoms
 
 @router.route('/registersCs', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersCs
 @router.get('/registersCs/<int:idAp>') # GET /api/appointment/registersCs/<idAp>
-def registersCs(idAp:int): # input registered clinical signs
+def registersCs(idAp:int=None): # input registered clinical signs
     if request.method == 'GET':
         result = [asdict(cs) for cs in RegistersCs.filter({'idAp': idAp})]
         for cs in result:

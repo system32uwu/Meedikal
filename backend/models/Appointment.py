@@ -61,4 +61,4 @@ class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appo
         self.ciPa = ciPa
         self.motive = motive
         self.number = number
-        self.time = datetime.fromisoformat(time)
+        self.time = datetime.fromisoformat(time) if time is not None else None

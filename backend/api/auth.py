@@ -24,7 +24,7 @@ def protectedRouteWithMedicalPersonnelRoleRequired():
 @router.post('/login') # POST /auth/login
 def login():
     data = request.get_json()
-    u = AuthUser(data['ci'], data['password'])
+    u = AuthUser(data['ci'], data['password']) # { 'ci' : 12345, 'password': contrasenaa }
     success = u.login()
 
     if not success:

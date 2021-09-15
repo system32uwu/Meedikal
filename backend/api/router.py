@@ -27,7 +27,7 @@ def handle_exception(e:Exception):
         return provideData(extraMessage=f'missing: {missing}')
     if "object is not subscriptable" in _e or "JSONDecodeError" in _e or "must be a mapping, not NoneType" in _e:
         return provideData()
-    elif "object has no attribute" in _e: # does that really mean it doesn't exist?
+    elif "object has no attribute" in _e or "asdict() should be called on dataclass instances" in _e:
         return recordDoesntExist()
     elif "UNIQUE" in _e:
         return recordAlreadyExists()

@@ -31,8 +31,8 @@ class BaseModel:
                 else:
                     operator = '='
                     value = v
-                    if value is None:
-                        operator = 'IS'
+                if value is None:
+                    operator = 'IS'
 
                 conditionList.append(f"{k} {operator} ?")
 
@@ -42,7 +42,7 @@ class BaseModel:
         SELECT * FROM {cls.__tablename__} 
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-
+                
         if returns == 'all':
             return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
         else:
@@ -109,6 +109,8 @@ class BaseModel:
             else:
                 operator = '='
                 value = v
+            if value is None:
+                    operator = 'IS'
                     
             conditionList.append(f"{k} {operator} ?")
 
@@ -139,6 +141,9 @@ class BaseModel:
                 operator = '='
                 value = v
                 newValue = v
+
+            if value is None:
+                operator = 'IS'
                     
             conditionList.append(f"{k} {operator} ?")
 
@@ -149,10 +154,10 @@ class BaseModel:
 
         statement = f"""
         UPDATE {cls.__tablename__}
-        {'SET ' + ', '.join(conditionList) if len(conditionList) > 0 else ''}
+        {'SET ' + ', '.join(conditionList).replace("IS","=") if len(conditionList) > 0 else ''}
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-        
+        print(statement,values)
         cursor = db.cursor()
         cursor.execute(statement,values)
         db.commit()

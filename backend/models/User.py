@@ -11,7 +11,7 @@ import jwt
 class SharedUserMethods(BaseModel):
 
     @classmethod
-    def getByCi(cls, ci: int):
+    def getByCi(cls, ci: int) -> 'User':
         return cls.filter({'ci': ci}, returns='one')
 
 @dataclass
@@ -46,6 +46,8 @@ class User(SharedUserMethods):
                 operator = '='
                 value = v
                 newValue = v
+            if value is None:
+                operator = 'IS'
                     
             conditionList.append(f"{k} {operator} ?")
 
@@ -65,7 +67,7 @@ class User(SharedUserMethods):
 
         statement = f"""
         UPDATE {cls.__tablename__}
-        {'SET ' + ', '.join(conditionList) if len(conditionList) > 0 else ''}
+        {'SET ' + ', '.join(conditionList).replace("IS","=") if len(conditionList) > 0 else ''}
         {'WHERE ' + f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
         """
 
@@ -103,6 +105,8 @@ class User(SharedUserMethods):
             else:
                 operator = '='
                 value = v
+            if value is None:
+                operator = 'IS'
                     
             conditionList.append(f"{k} {operator} ?")
 

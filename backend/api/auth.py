@@ -8,24 +8,23 @@ import jwt
 router = Blueprint('auth', __name__, url_prefix='/auth')
 
 @router.errorhandler(jwt.ExpiredSignatureError)
-def expiredToken():
+def expiredToken(*args):
     return {'error': 'Signature expired. Please log in again.'}, 401
 
 @router.errorhandler(jwt.InvalidTokenError)
-def invalidToken():
+def invalidToken(*args):
     return {'error': 'Invalid token. Please log in again.'}, 401
-# example of protected route, which requires the user to have the medicalPersonnel role
 
+# example of protected route, which requires the user to have the medicalPersonnel role
 @router.post('/protectedRouteWithRole') 
 @requiresAuth
 @requiresRole('medicalPersonnel')
 def protectedRouteWithMedicalPersonnelRoleRequired():
-    return {"result": "allowed"}, 200
+    return {"result": "you're authenticated and have the medicalPersonnel Role!"}, 200
 
 # example of protected route
 @router.post('/protectedRoute')
 @requiresAuth
-@requiresRole('user')
 def protectedRoute():
     return {"result": "you're authenticated :)!"}, 200
 

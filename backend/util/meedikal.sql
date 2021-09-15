@@ -107,8 +107,8 @@ CREATE TABLE attendsTo (
     ciPa integer,
     -- OPTIONAL FIELD
     motive VARCHAR(256),
-    number integer,
-    time datetime,
+    number integer UNIQUE, --NULLABLE, but in case it's provided should be UNIQUE.
+    time datetime UNIQUE, --NULLABLE, but in case it's provided should be UNIQUE.
 
     PRIMARY KEY (idAp,ciPa),
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE,

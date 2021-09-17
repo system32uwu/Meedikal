@@ -1,10 +1,12 @@
 import sqlite3
-import os
+import os, sys
 from sqlite3.dbapi2 import Connection
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from config import Config
 
 p = os.path.join(os.path.dirname(__file__))
-    
+
 dbPath = f'{p}/../{Config.DATABASE}'
 
 def getDb() -> Connection: # ensure that this connection will always check foreign keys

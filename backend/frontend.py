@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 
-frontendRouter = Blueprint('app', __name__, url_prefix='/') # handles /app
+frontendRouter = Blueprint('frontend', __name__, url_prefix='/') # handles /
 
-@frontendRouter.route("/")
+@frontendRouter.get('') # @reach/router will take care of the rest of routing.
 def frontend():
     return render_template('index.html')

@@ -11,15 +11,15 @@ app = Flask(__name__, static_folder='build/static', template_folder='build')
 
 app.config.from_object(DevelopmentConfig)
 
-    # --- CUSTOM
+# --- CUSTOM
 app.json_encoder = JsonExtendEncoder
 
-    # --- ROUTERS
+# --- ROUTERS
 app.register_blueprint(apiRouter) # api
 app.register_blueprint(frontendRouter) # frontend
-    # --- ROUTERS
+# --- ROUTERS
 
-@app.errorhandler(404)
+@app.errorhandler(404) # whatever produces a 404, redirect to index 
 def handler(*args):
     return render_template('index.html')
 

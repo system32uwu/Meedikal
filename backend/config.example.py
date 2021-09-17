@@ -3,7 +3,8 @@
 class Config(object):
     DEBUG = False
     TESTING = False
-    CSRF_ENABLED = True
+    SESSION_COOKIE_SAMESITE = 'Strict'
+    JSON_SORT_KEYS = False
     SECRET_KEY = 'secretkey' # used to sign and verify jwt tokens
     DATABASE = 'meedikal.db'
 

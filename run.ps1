@@ -1,7 +1,12 @@
-.\backend\venv\Scripts\activate && pip install -r backend\requirements.txt
+rm -r -Force .\backend\build
+.\backend\venv\Scripts\activate
+
+pip install -r backend\requirements.txt
 
 Set-Location .\frontend
-yarn build 
+yarn build
+Move-Item build ../backend/build
 
 Set-Location ..\backend
-python app.py # Flask will serve the compiled react app, and the api
+python server.py # Flask will serve the compiled react app, and the api
+Set-Location ..\

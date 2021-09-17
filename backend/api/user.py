@@ -211,7 +211,7 @@ def mpHasSpec(ciMp:int=None):
 
 @router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'userType': 'doctor'}}
 @router.get('/medicalPersonnel/<title>') # specialty title
-def getMpUsersBySpecialty(title:str):
+def getMpUsersBySpecialty(title:str=None):
     if request.method == 'POST':
         users = MedicalPersonnel.getBySpecialty(request=request)
     else:

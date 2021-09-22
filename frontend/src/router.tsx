@@ -1,5 +1,5 @@
 import React from "react";
-import { Router } from "@reach/router";
+import { Redirect, Router } from "@reach/router";
 import { LandingRouter } from "./landing";
 import { AppRouter } from "./app";
 
@@ -10,6 +10,8 @@ const App: React.FC<IProps> = () => {
     <Router>
       <LandingRouter path="/" />
       <AppRouter path="/app" />
+      <Redirect noThrow from="/app/*" to="/app" />
+      <Redirect noThrow from="*" to="/" />
     </Router>
   );
 };

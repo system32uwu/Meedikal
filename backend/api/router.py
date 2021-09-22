@@ -6,7 +6,9 @@ from .auth import router as authRouter # handles /api/auth
 # modular routing, instead of having all the routes in this file, I'm making multiple routers that handle each table of the database. 
 
 from util.returnMessages import *
+from util.errors import MissingCookieError, MissingRoleError
 from util.createDb import getDb
+import jwt
 
 apiRouter = Blueprint('api', __name__, url_prefix='/api') # handles /api
 
@@ -14,6 +16,22 @@ apiRouter.register_blueprint(authRouter)
 apiRouter.register_blueprint(userRouter)
 apiRouter.register_blueprint(appointmentRouter) 
 apiRouter.register_blueprint(branchRouter)
+
+@apiRouter.errorhandler(jwt.ExpiredSignatureError)
+def expiredToken(*args):
+    return {'error': 'Signature expired. Please log in again.'}, 401
+
+@apiRouter.errorhandler(jwt.InvalidTokenError)
+def invalidToken(*args):
+    return {'error': 'Invalid token. Please log in again.'}, 401
+
+@apiRouter.errorhandler(MissingCookieError)
+def missingCookieError(*args):
+    return {'error': 'Not authenticated (missing cookie)'}, 401
+
+@apiRouter.errorhandler(MissingRoleError)
+def missingRoleError(e: MissingRoleError):
+    return {'error': f'Insufficient permissions to perfom action. It should be done by: a {e.role} user'}, 401
 
 @apiRouter.errorhandler(Exception) # TODO: Handle errors better
 def handle_exception(e:Exception):

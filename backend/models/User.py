@@ -128,36 +128,27 @@ class User(SharedUserMethods):
                 return None
 
 class AuthUser:
-    ci:int = None
-    password:str = None
-    user:User = None
-    token:str = None
 
-    def __init__(self, ci:int,password:str, token:str=None):
-        self.ci = ci
-        self.password = password
-        self.token = token
-
-    def login(self) -> bool: # returns True if the password is correct, if it's not, or the user doesn't exist, False
-        self.user = User.getByCi(self.ci)
+    @classmethod
+    def login(cls, ci:int, password:str): # returns True if the password is correct, if it's not, or the user doesn't exist, False
+        user = User.getByCi(ci)
         try:
-            return check_password_hash(self.user.password, self.password)
+            if check_password_hash(user.password, password):
+                now = datetime.utcnow() 
+                payload = { # expires in 365 days.
+                    'exp': now + timedelta(days=365),
+                    'iat': now,
+                    'sub': ci
+                }
+                token = jwt.encode(payload,Config.SECRET_KEY, algorithm="HS256")
+                return token, user
+            else:
+                return None, None
         except: # self.user is None
-            return False
-
-    def issueAuthToken(self):
-        now = datetime.utcnow() 
-        payload = { # expires in 365 days.
-            'exp': now + timedelta(days=365),
-            'iat': now,
-            'sub': self.ci
-        }
-        _jwt = jwt.encode(payload,Config.SECRET_KEY, algorithm="HS256")
-        self.token = _jwt
-        return self.token
+            return None, None
 
     @staticmethod
-    def verifyToken(token): # exceptions handled by auth error handler.
+    def verifyToken(token) -> int: # exceptions handled by auth error handler.
         payload = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
         return payload['sub']
 

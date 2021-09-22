@@ -1,52 +1,38 @@
-from util.authGuard import requiresAuth, requiresRole
-from util.crud import crudReturn
-from .user import userToReturn
+from middleware.authGuard import requiresAuth, requiresRole
 from flask import Blueprint, request, make_response
-from models.User import AuthUser
-import jwt
+from models.User import User, AuthUser
+from .user import userToReturn
+from util.crud import crudReturn
 
 router = Blueprint('auth', __name__, url_prefix='/auth')
 
-@router.errorhandler(jwt.ExpiredSignatureError)
-def expiredToken(*args):
-    return {'error': 'Signature expired. Please log in again.'}, 401
-
-@router.errorhandler(jwt.InvalidTokenError)
-def invalidToken(*args):
-    return {'error': 'Invalid token. Please log in again.'}, 401
-
-# example of protected route, which requires the user to have the medicalPersonnel role
-@router.post('/protectedRouteWithRole') 
-@requiresAuth
-@requiresRole('medicalPersonnel')
-def protectedRouteWithMedicalPersonnelRoleRequired():
-    return {"result": "you're authenticated and have the medicalPersonnel Role!"}, 200
-
-# example of protected route
-@router.post('/protectedRoute')
-@requiresAuth
-def protectedRoute():
-    return {"result": "you're authenticated :)!"}, 200
-
-@router.post('/login') # POST /auth/login
+@router.post('/login') # POST /api/auth/login
 def login():
-    data = request.get_json()
-    u = AuthUser(data['ci'], data['password']) # { 'ci' : 12345, 'password': contrasenaa }
-    success = u.login()
+    data = request.get_json() # { 'ci' : 12345, 'password': contrasenaa }
+    token, user = AuthUser.login(data['ci'], data['password'])
 
-    if not success:
+    if token is None:
         return {'error': 'incorrect CI or password'}, 400
     else:
-        token = u.issueAuthToken()
-
-        res = make_response(crudReturn(userToReturn(u.user)))
+        res = make_response(crudReturn(userToReturn(user)))
 
         res.set_cookie('authToken', token, httponly=True, samesite='Strict') # set the authToken as an httpOnly cookie (not accesible by javascript)
-        
+
         return res, 200
 
-@router.post('/logout') # POST /auth/logout
+@router.post('/me')
+@requiresAuth
+def me(ci:int):
+    user = User.getByCi(ci)
+    return crudReturn(userToReturn(user,request=request))
+
+@router.post('/role')
+@requiresRole('medicalPersonnel')
+def role():
+    return crudReturn(":D")
+
+@router.post('/logout') # POST /api/auth/logout
 def logout():
     res = make_response(crudReturn(True))
-    res.delete_cookie('authToken') # remove the cookie, future TODO: implement blacklist system?        
+    res.delete_cookie('authToken') # remove the cookie, future TODO: implement blacklist system?
     return res, 200

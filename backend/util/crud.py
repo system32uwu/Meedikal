@@ -1,9 +1,17 @@
-from typing import Any
-
 from flask.json import jsonify
-from .createDb import getDb
 
-db = getDb()
+def crudReturn(result=None): # kwarg
+    if result is None:
+        code = 404
+    else:
+        if isinstance(result,list):
+            if len(result) == 0:
+                code = 404
 
-def crudReturn(result:Any=None):
-    return jsonify({"result": result}), 200
+        elif isinstance(result, bool):
+            if result == False:
+                code = 404
+
+        code = 200
+        
+    return jsonify({"result": result}), code

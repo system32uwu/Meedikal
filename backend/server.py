@@ -19,9 +19,9 @@ app.register_blueprint(apiRouter) # api
 app.register_blueprint(frontendRouter) # frontend
 # --- ROUTERS
 
-@app.errorhandler(404) # whatever produces a 404, redirect to index 
-def handler(*args):
-    return render_template('index.html')
+# @app.errorhandler(404) # whatever produces a 404, redirect to index 
+# def handler(*args):
+#     return render_template('index.html')
 
 if __name__ == '__main__':
     app.run()

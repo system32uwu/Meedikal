@@ -121,10 +121,15 @@ class BaseModel:
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
 
-        db.execute(statement,values)
+        cursor = db.cursor()
+        cursor.execute(statement,values)
+        affectedRows = cursor.rowcount
         db.commit()
 
-        return True
+        if affectedRows < 0:
+            return False
+        else:
+            return True
 
     @classmethod
     def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
@@ -157,7 +162,7 @@ class BaseModel:
         {'SET ' + ', '.join(conditionList).replace("IS","=") if len(conditionList) > 0 else ''}
         {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
         """
-        print(statement,values)
+        
         cursor = db.cursor()
         cursor.execute(statement,values)
         db.commit()

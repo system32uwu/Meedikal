@@ -60,51 +60,46 @@ def deleteUser():
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
 def patient():
-    p = Patient(request.get_json()['ci'])
     if request.method == 'POST':
-        result = userToReturn(p.save())
+        result = userToReturn(Patient.save(request.get_json()))
     else:
-        result = Patient.delete({'ci': p.ci})
+        result = Patient.delete(request.get_json())
 
     return crudReturn(result)
 
 @router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalPersonnel
 def medicalPersonnel():
-    mp = MedicalPersonnel(request.get_json()['ci'])
     if request.method == 'POST':
-        result = userToReturn(mp.save())
+        result = userToReturn(MedicalPersonnel.save(request.get_json()))
     else:
-        result = MedicalPersonnel.delete({'ci': mp.ci})
+        result = MedicalPersonnel.delete(request.get_json())
 
     return crudReturn(result)
 
 @router.route('/doctor', methods=['POST', 'DELETE']) # POST | DELETE /api/doctor
 def doctor():
-    d = Doctor(request.get_json()['ci'])
     if request.method == 'POST':
-        result = userToReturn(d.save())
+        result = userToReturn(Doctor.save(request.get_json()))
     else:
-        result = Doctor.delete({'ci': d.ci})
+        result = Doctor.delete(request.get_json())
 
     return crudReturn(result)
 
 @router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
 def medicalAssitant():
-    ma = MedicalAssitant(request.get_json()['ci'])
     if request.method == 'POST':
-        result = userToReturn(ma.save())
+        result = userToReturn(MedicalAssitant.save(request.get_json()))
     else:
-        result = MedicalAssitant.delete({'ci': ma.ci})
+        result = MedicalAssitant.delete(request.get_json())
 
     return crudReturn(result)
 
 @router.route('/administrative', methods=['POST', 'DELETE']) # POST | DELETE /api/administrative
 def administrative():
-    a = Administrative(request.get_json()['ci'])
     if request.method == 'POST':
-        result = userToReturn(a.save())
+        result = userToReturn(Administrative.save(request.get_json()))
     else:
-        result = Administrative.delete({'ci': a.ci})
+        result = Administrative.delete(request.get_json())
 
     return crudReturn(result)
 
@@ -112,7 +107,7 @@ def administrative():
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
 def userBySurname1(surname1:str=None):
     if request.method == 'POST':
-        result = User.getByType(request=request)
+        result = User.filter(request.get_json())
     else:
         result = User.filter({'surname1' : surname1})
 
@@ -122,7 +117,7 @@ def userBySurname1(surname1:str=None):
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
 def userByName1nSurname1(name1:str=None,surname1:str=None):
     if request.method == 'POST':
-        result = User.getByType(request=request)
+        result = User.filter(request.get_json())
     else:
         result = User.filter({'name1' : name1,'surname1' : surname1})
 

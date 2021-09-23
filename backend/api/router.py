@@ -18,15 +18,15 @@ apiRouter.register_blueprint(appointmentRouter)
 apiRouter.register_blueprint(branchRouter)
 
 @apiRouter.errorhandler(jwt.ExpiredSignatureError)
-def expiredToken(*args):
+def expiredToken(e):
     return {'error': 'Signature expired. Please log in again.'}, 401
 
 @apiRouter.errorhandler(jwt.InvalidTokenError)
-def invalidToken(*args):
+def invalidToken(e):
     return {'error': 'Invalid token. Please log in again.'}, 401
 
 @apiRouter.errorhandler(MissingCookieError)
-def missingCookieError(*args):
+def missingCookieError(e):
     return {'error': 'Not authenticated (missing cookie)'}, 401
 
 @apiRouter.errorhandler(MissingRoleError)
@@ -34,7 +34,7 @@ def missingRoleError(e: MissingRoleError):
     return {'error': f'Insufficient permissions to perfom action. It should be done by: a {e.role} user'}, 401
 
 @apiRouter.errorhandler(UpdatePasswordError)
-def updatePasswordError(*args):
+def updatePasswordError(e):
     return {'error': f"can't update password with this method. PUT or PATCH the api/auth/updatePassword endpoint instead."}, 400
 
 @apiRouter.errorhandler(Exception) # TODO: Handle errors better

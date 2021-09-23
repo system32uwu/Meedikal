@@ -1,11 +1,11 @@
-from dataclasses import asdict, dataclass, fields
+from dataclasses import dataclass, fields
 import sqlite3
 
 from util.createDb import getDb
 
 db = getDb()
 
-def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', command:str='SELECT', returns='tuple'):
+def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple'):
     extraTables = []
     conditionList = []
     values = []
@@ -15,7 +15,7 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
         data = {}
 
         for f in fields(cls):
-            data[f.name] = conditions.get(f.name, None)
+            data[f.name] = conditions.get(f.name)
         conditions = [k for k in data.keys()]
         values = [v for v in data.values()]
 
@@ -89,6 +89,7 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
 
     if returns == 'tuple':
         return extraTables, conditionList, values, statement
+    
     if command == 'SELECT':
         result = db.execute(statement, values)
         if returns == 'all':
@@ -98,12 +99,11 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
                 return cls(*result.fetchone())
             except:
                 return None
-
     else:
         cursor = db.cursor()
         cursor.execute(statement, values)
         db.commit()
-            
+        
         if command == 'DELETE':
             return cursor.rowcount
             
@@ -144,26 +144,26 @@ class BaseModel:
     
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
     def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
-        return buildQueryComponents(conditions, logicalOperator, cls, 'SELECT', returns)
+        return buildQueryComponents(cls, conditions, logicalOperator, 'SELECT', returns)
 
     @classmethod
     def save(cls, conditions: dict= {}, returns='one'):
-        return buildQueryComponents(conditions, cls=cls, command='INSERT', returns=returns)
+        return buildQueryComponents(cls, conditions, command='INSERT', returns=returns)
 
     @classmethod 
     def saveOrGet(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
         try:
-            return cls.save(conditions,logicalOperator,returns)
+            return cls.save(cls, conditions, logicalOperator, returns)
         except sqlite3.IntegrityError: # record already exists
-            return cls.filter(conditions,logicalOperator,returns)
+            return cls.filter(cls, conditions,logicalOperator,returns)
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='DELETE'):
-        return buildQueryComponents(conditions, logicalOperator, cls, 'DELETE', returns)
+        return buildQueryComponents(cls, conditions, logicalOperator, 'DELETE', returns)
 
     @classmethod
     def update(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='all'):
-        return buildQueryComponents(conditions, logicalOperator, cls, 'UPDATE', returns)
+        return buildQueryComponents(cls, conditions, logicalOperator, 'UPDATE', returns)
 
 @dataclass
 class TableWithId: # tables that have "id" field will inherit from this one in order to use the methods like getById

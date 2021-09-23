@@ -1,5 +1,5 @@
 CREATE TABLE user (
-    ci integer PRIMARY KEY,
+    ci integer PRIMARY KEY NOT NULL,
     name1 VARCHAR(32) NOT NULL,
     surname1 VARCHAR(32) NOT NULL,
     sex VARCHAR(1) NOT NULL,
@@ -12,40 +12,40 @@ CREATE TABLE user (
     surname2 VARCHAR(32),
     genre VARCHAR(32),
     active BOOLEAN NOT NULL DEFAULT 1
-);
+) WITHOUT ROWID;
 
 CREATE TABLE medicalPersonnel (
-    ci integer PRIMARY KEY,
+    ci integer PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE doctor (
-    ci integer PRIMARY KEY,
+    ci integer PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE medicalAssistant (
-    ci integer PRIMARY KEY,
+    ci integer PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE administrative (
-    ci integer PRIMARY KEY,
+    ci integer PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE patient (
-    ci integer PRIMARY KEY,
+    ci integer PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE userPhone (
-    ci integer,
-    phone VARCHAR(32),
+    ci integer NOT NULL,
+    phone VARCHAR(32) NOT NULL,
 
     PRIMARY KEY(ci,phone),
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 -- Nurses and Doctors might be specialized.
 CREATE TABLE specialty (
@@ -54,15 +54,15 @@ CREATE TABLE specialty (
 );
 
 CREATE TABLE mpHasSpec (
-    idSpec integer,
-    ciMp integer,
+    idSpec integer NOT NULL,
+    ciMp integer NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
 
     PRIMARY KEY (idSpec,ciMp),
     FOREIGN KEY (ciMp) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idSpec) REFERENCES specialty(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE appointment (
     id integer PRIMARY KEY AUTOINCREMENT,
@@ -85,26 +85,26 @@ CREATE TABLE branch (
 );
 
 CREATE TABLE apTakesPlace (
-    idAp integer,
-    idBranch integer,
+    idAp integer NOT NULL,
+    idBranch integer NOT NULL,
 
     PRIMARY KEY(idAp,idBranch),
     FOREIGN KEY(idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(idBranch) REFERENCES Branch(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE assignedTo (
-    idAp integer,
-    ciDoc integer,
+    idAp integer NOT NULL,
+    ciDoc integer NOT NULL,
 
     PRIMARY KEY(idAp),
     FOREIGN KEY (ciDoc) REFERENCES doctor(ci) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE attendsTo (
-    idAp integer,
-    ciPa integer,
+    idAp integer NOT NULL,
+    ciPa integer NOT NULL,
     -- OPTIONAL FIELD
     motive VARCHAR(256),
     number integer UNIQUE, --NULLABLE, but in case it's provided should be UNIQUE.
@@ -113,17 +113,17 @@ CREATE TABLE attendsTo (
     PRIMARY KEY (idAp,ciPa),
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE,
     FOREIGN KEY (ciPa) REFERENCES patient(ci) ON DELETE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE assistsAp (
-    idAp integer,
-    ciMa integer,
-    time datetime,
+    idAp integer NOT NULL,
+    ciMa integer NOT NULL,
+    time datetime NOT NULL,
 
     FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE
     PRIMARY KEY(idAp,ciMa,time)
-);
+) WITHOUT ROWID;
 
 CREATE TABLE clinicalSign (
     id integer PRIMARY KEY AUTOINCREMENT,
@@ -147,37 +147,37 @@ CREATE TABLE symptom (
 );
 
 CREATE TABLE registersCs (
-    idAp integer,
-    ciPa integer,
-    idCs integer,
+    idAp integer NOT NULL,
+    ciPa integer NOT NULL,
+    idCs integer NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idCs),
     FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idCs) REFERENCES clinicalSign(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE registersSy (
-    idAp integer,
-    ciPa integer,
-    idSy integer,
+    idAp integer NOT NULL,
+    ciPa integer NOT NULL,
+    idSy integer NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
     
     PRIMARY KEY(idAp,ciPa,idSy),
     FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idSy) REFERENCES symptom(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;
 
 CREATE TABLE diagnoses (
-    idAp integer,
-    ciPa integer,
-    idDis integer,
+    idAp integer NOT NULL,
+    ciPa integer NOT NULL,
+    idDis integer NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idDis),
     FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idDis) REFERENCES disease(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) WITHOUT ROWID;

@@ -89,7 +89,7 @@ class User(SharedUserMethods):
         cursor.execute(statement, [password,ci])
         db.commit()
 
-        return cursor.rowcount
+        return True if cursor.rowcount > 0 else False
 
 class AuthUser:
 

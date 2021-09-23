@@ -15,7 +15,6 @@ router = Blueprint('appointment', __name__, url_prefix='/appointment')
 @router.get('/<int:id>') # GET /api/appointment/<id>
 def getAppointmentById(id:int):
     a = Appointment.getById(id)
-    print(a)
     return crudReturn(asdict(a))
 
 @router.post('/filter') # POST /api/appointment/filter { 'name': 'oftalmology', 'state': 'OK', date: '2021-09-11', ... }
@@ -25,8 +24,7 @@ def filterAppointments():
 
 @router.post('') # POST /api/appointment
 def createAppointment():
-    a = Appointment(**request.get_json()).save()
-    print(a)
+    a = Appointment().save(request.get_json())
     return crudReturn(asdict(a))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/appointment
@@ -53,7 +51,7 @@ def assignedTo(idAp:int=None, ciDoc:int=None): # a [doctor] is <assigned to> an 
     else:
         data = request.get_json()
         if request.method == 'POST':
-            return crudReturn(asdict(AssignedTo(**data).save()))
+            return crudReturn(asdict(AssignedTo.save(data)))
         if request.method == 'PUT' or request.method == 'PATCH':
             return crudReturn([asdict(ast) for ast in AssignedTo.update(data)])
         if request.method == 'DELETE':
@@ -73,7 +71,7 @@ def assistsAp(idAp:int=None,ciMa:int=None): # a [medicalAssistant] <assists an> 
     else:
         data = request.get_json()
         if request.method == 'POST':
-            return crudReturn(asdict(AssistsAp(**data).save()))
+            return crudReturn(asdict(AssistsAp.save(data)))
         if request.method == 'PUT' or request.method == 'PATCH':
             return crudReturn([asdict(asa) for asa in AssistsAp.update(data)])
         if request.method == 'DELETE':
@@ -93,7 +91,7 @@ def attendsTo(idAp:int=None,ciPa:int=None): # a [patient] <attends to> an [appoi
     else:
         data = request.get_json()
         if request.method == 'POST':
-            return crudReturn(asdict(AttendsTo(**data).save()))
+            return crudReturn(asdict(AttendsTo().save(data)))
         if request.method == 'PUT' or request.method == 'PATCH':
             return crudReturn([asdict(att) for att in AttendsTo.update(data)])
         if request.method == 'DELETE':
@@ -115,18 +113,17 @@ def diagnosedDisease(idAp:int=None, ciPa:int=None): # input diagnosed diseases
         for d in data:
             if request.method == 'POST':
                 if d.get('idDis', None) is None:
-                    _d = Disease(name=d['name']).saveOrGet(['name'])
+                    _d = Disease.saveOrGet({'name': d['name']})
                     d['idDis'] = _d.id
                     d.pop('name')
 
-                diagnosesInstance = Diagnoses(**d).save()
+                diagnosesInstance = Diagnoses.save(d)
                 diagnosesReturn = asdict(diagnosesInstance)
                 diagnosesReturn['name'] = Disease.getById(d['idDis']).name
                 result.append(diagnosesReturn)
 
             elif request.method == 'DELETE':
-                Diagnoses.delete(d)
-                result = True
+                result.append(Diagnoses.delete(d))
 
     return crudReturn(result)
 
@@ -144,18 +141,17 @@ def registersSy(idAp:int=None,ciPa:int=None): # input registered symptoms
         for s in data:
             if request.method == 'POST':
                 if s.get('idSy', None) is None:
-                    _s = Symptom(name=s['name']).saveOrGet(['name'])
+                    _s = Symptom.saveOrGet({'name': s['name']})
                     s['idSy'] = _s.id
                     s.pop('name')
 
-                registersSyInstance = RegistersSy(**s).save()
+                registersSyInstance = RegistersSy.save(s)
                 registersSyReturn = asdict(registersSyInstance)
                 registersSyReturn['name'] = Symptom.getById(s['idSy']).name
                 result.append(registersSyReturn)
 
             elif request.method == 'DELETE':
-                RegistersSy.delete(s)
-                result = True
+                result.append(RegistersSy.delete(s))
 
     return crudReturn(result)
 
@@ -173,7 +169,7 @@ def registersCs(idAp:int=None, ciPa:int=None): # input registered clinical signs
         for cs in data:
             if request.method == 'POST':
                 if cs.get('idCs', None) is None:
-                    _cs = ClinicalSign(name=cs['name']).saveOrGet(['name'])
+                    _cs = ClinicalSign.saveOrGet({'name': cs['name']})
                     cs['idCs'] = _cs.id
                     cs.pop('name')
                 
@@ -183,7 +179,6 @@ def registersCs(idAp:int=None, ciPa:int=None): # input registered clinical signs
                 result.append(registersCsReturn)
 
             elif request.method == 'DELETE':
-                RegistersCs.delete(cs)
-                result = True
+                result.append(RegistersCs.delete(cs))
 
     return crudReturn(result)

@@ -44,7 +44,7 @@ def deleteBranch():
 def apTakesPlace(idAp:int=None):
     data = request.get_json()
     if request.method == 'POST':
-        return crudReturn(asdict(ApTakesPlace(**data).save()))
+        return crudReturn(asdict(ApTakesPlace.save(data)))
     if request.method == 'PUT' or request.method == 'PATCH':
         return crudReturn([asdict(aptp) for aptp in ApTakesPlace.update(data)])
     if request.method == 'DELETE':

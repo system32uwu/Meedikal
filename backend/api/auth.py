@@ -1,5 +1,5 @@
 from middleware.authGuard import requiresAuth, requiresRole
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, session
 from models.User import User, AuthUser
 from .user import userToReturn
 from util.crud import crudReturn
@@ -14,18 +14,13 @@ def login():
     if token is None:
         return {'error': 'incorrect CI or password'}, 400
     else:
-        res = make_response(crudReturn(userToReturn(user)))
-
-        res.set_cookie('authToken', token, httponly=True, samesite='Strict') # set the authToken as an httpOnly cookie (not accesible by javascript)
-
-        return res, 200
-
+        session['authToken'] = token
+        return crudReturn(userToReturn(user))
 
 @router.post('/logout') # POST /api/auth/logout
 def logout():
-    res = make_response(crudReturn(True))
-    res.delete_cookie('authToken') # remove the cookie, future TODO: implement blacklist system?
-    return res, 200
+    session.pop('authToken', None)
+    return crudReturn(True)
 
 @router.route('/me', methods=['POST', 'GET'])
 @requiresAuth
@@ -39,7 +34,7 @@ def updatePassword(ci:int):
     res = User.updatePassword(ci,request.get_json()['password'])
     return crudReturn(res)
 
-@router.post('/role')
+@router.post('/roleExample') # example of route protected by role
 @requiresRole('medicalPersonnel')
 def role():
-    return crudReturn(":D")
+    return crudReturn("you have the correct role for this protected route!")

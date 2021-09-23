@@ -9,6 +9,7 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
     extraTables = []
     conditionList = []
     values = []
+    newValues = []
 
     if command == 'INSERT':
         data = {}
@@ -26,15 +27,24 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
                     if table not in extraTables and table != cls.__tablename__:
                         extraTables.append(table)
                 else:
-                    k = f'{cls.__tablename__}.{str(k)}'
+                    if command != 'UPDATE':
+                        k = f'{cls.__tablename__}.{str(k)}'
 
                 if isinstance(v,dict):
                     operator = v.get('operator', '=')
                     value = v.get('value')
+                    
+                    if command == 'UPDATE':
+                        newValue = v.get('newValue', value)
+                        newValues.append(newValue)
+
                     joinsTable = v.get('joins', False)
                 else:
                     operator = '='
                     value = v
+                    if command == 'UPDATE':
+                        newValues.append(v)
+
                     joinsTable = False
 
                 if value is None:
@@ -48,7 +58,13 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
                     table = str(value).split(".")[0] #table.attribute
                     if table not in extraTables and table != cls.__tablename__:
                         extraTables.append(table)
+    
     statement = command
+
+    if command == 'UPDATE':
+        values = newValues + values
+        statement += f' {cls.__tablename__}'
+
     if command == 'SELECT':
         statement += f' {cls.__tablename__}.*'
     
@@ -93,7 +109,6 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
             
         elif command == 'INSERT':
             lastrowid = cursor.lastrowid
-            returns = 'one' if cursor.rowcount <= 1 else 'all'
                 
             for key, value in data.items():
                 if key == 'id':
@@ -105,9 +120,14 @@ def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', 
             for key, value in conditions.items():
                 if isinstance(value,dict):
                     conditions[key] = value.get("newValue", value.get("value"))
-
-        conditions.pop('password', None)
-        return cls.filter(conditions, returns=returns)
+        
+        if cursor.rowcount > 0:
+            return cls.filter(conditions, returns=returns)
+        else:
+            if returns == 'all':
+                return []
+            else:
+                return None
 
 @dataclass
 class BaseModel:
@@ -127,37 +147,23 @@ class BaseModel:
         return buildQueryComponents(conditions, logicalOperator, cls, 'SELECT', returns)
 
     @classmethod
-    def save(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
-        return buildQueryComponents(conditions, logicalOperator, cls, 'INSERT', returns)
+    def save(cls, conditions: dict= {}, returns='one'):
+        return buildQueryComponents(conditions, cls=cls, command='INSERT', returns=returns)
 
-    def saveOrGet(self, pks:list=None): # list of primary keys to filter with
-
-        conditionList = [f"{key} = ?"
-                        for key in pks]
-
-        statement = f"""SELECT * FROM {self.__tablename__} 
-                    WHERE 
-                    {' AND '.join(conditionList)}"""
-
-        values = [v for k, v in asdict(self).items() if k in pks]
-
+    @classmethod 
+    def saveOrGet(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
         try:
-            return self.save()
+            return cls.save(conditions,logicalOperator,returns)
         except sqlite3.IntegrityError: # record already exists
-            cursor = db.cursor()
-            cursor.execute(statement, values)
-            result = cursor.fetchone()
-            db.commit()
-            cursor.close()
-            return self.instantiate(*result)
+            return cls.filter(conditions,logicalOperator,returns)
 
     @classmethod
-    def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        return buildQueryComponents(conditions, logicalOperator, cls, 'DELETE', returns='DELETE')
+    def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='DELETE'):
+        return buildQueryComponents(conditions, logicalOperator, cls, 'DELETE', returns)
 
     @classmethod
-    def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        return buildQueryComponents(conditions, logicalOperator, cls, 'UPDATE', 'all')
+    def update(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='all'):
+        return buildQueryComponents(conditions, logicalOperator, cls, 'UPDATE', returns)
 
 @dataclass
 class TableWithId: # tables that have "id" field will inherit from this one in order to use the methods like getById

@@ -45,25 +45,12 @@ def getUserByCi(ci:int=None):
 
 @router.post('') # POST /api/user
 def createUser():
-    data = json.loads(request.data)
-    
-    data['password'] = generate_password_hash(data['password'])
-
-    result = User.save(data)
-
+    result = User.save(request.get_json())
     return crudReturn(userToReturn(result, request=request))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 def updateUser():
-    data = json.loads(request.data)
-    
-    if data.get('password', None) is not None: # encrypt the password
-        if data['password'].get('value', None) is not None:
-            data['password']['value'] = generate_password_hash(data['password']['value'])
-        if data['password'].get('newValue', None) is not None:
-            data['password']['newValue'] = generate_password_hash(data['password']['newValue'])
-
-    result = User.update(data)
+    result = User.update(request.get_json())
     return crudReturn([userToReturn(u) for u in result])
 
 @router.delete('') # DELETE /api/user
@@ -152,10 +139,10 @@ def phoneNumbers(ci:int=None):
         data = request.get_json()['userPhone']
         for phone in data:
             if request.method == 'POST':
-                UserPhone(**phone).save()
+                UserPhone.saveOrGet(phone)
             elif request.method == 'DELETE':
-                UserPhone.delete(phone)
-        result = data if request.method == 'POST' else True
+                rows = UserPhone.delete(phone)
+        result = data if request.method == 'POST' else rows
 
     return crudReturn(result)
 
@@ -172,18 +159,17 @@ def mpHasSpec(ciMp:int=None):
         for hsp in data:
             if request.method == 'POST':
                 if hsp.get('idSpec', None) is None:
-                    _sp = Specialty(title=hsp['title']).saveOrGet(['title'])
+                    _sp = Specialty.saveOrGet({'title': hsp['title']})
                     hsp['idSpec'] = _sp.id
                     hsp.pop('title')
                 
-                hspInstance = MpHasSpec(**hsp).save()
+                hspInstance = MpHasSpec.save(hsp)
                 hspReturn = asdict(hspInstance)
                 hspReturn['title'] = Specialty.getById(hsp['idSpec']).title
                 result.append(hspReturn)
 
             elif request.method == 'DELETE':
-                MpHasSpec.delete(hsp)
-                result = True
+                result = MpHasSpec.delete(hsp)
 
     return crudReturn(result)
 

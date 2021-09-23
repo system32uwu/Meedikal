@@ -33,7 +33,7 @@ def me(ci:int):
     user = User.getByCi(ci)
     return crudReturn(userToReturn(user,request=request))
 
-@router.post('/updatePassword')
+@router.route('/updatePassword', methods=['PUT', 'PATCH'])
 @requiresAuth
 def updatePassword(ci:int):
     res = User.updatePassword(ci,request.get_json()['password'])

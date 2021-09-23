@@ -1,3 +1,4 @@
+from util.errors import UpdatePasswordError
 from dataclasses import dataclass
 from flask import json
 from flask.wrappers import Request
@@ -11,7 +12,7 @@ import jwt
 class SharedUserMethods(BaseModel):
 
     @classmethod
-    def getByCi(cls, ci: int):
+    def getByCi(cls, ci: int) -> 'User':
         return cls.filter({'ci': ci}, returns='one')
 
 @dataclass
@@ -33,13 +34,29 @@ class User(SharedUserMethods):
 
     @classmethod
     def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
-
         try:
-            userType = conditions['extraFilters']['userType']
-            conditions.pop('extraFilters')
+            extraFilters:dict = conditions.get('extraFilters', None)
+            if extraFilters is not None:
+                userType = extraFilters.get('userType', None)
+            
+            conditions.pop('extraFilters', None)
             conditions[f'{userType}.ci'] = {'value': 'user.ci', 'joins': True}
+
+            conditions.pop('password') # doesn't make sense to filter by password
         finally:
             return super().filter(conditions,logicalOperator,returns)
+    
+    @classmethod
+    def save(cls, conditions: dict= {}, returns='one'):
+        conditions['password'] = generate_password_hash(conditions['password'])
+        return super().save(conditions, returns)
+
+    @classmethod
+    def update(cls, conditions: dict= {}, logicalOperator='AND') -> list['User']:
+        if conditions.get('password', None) is not None:
+            raise UpdatePasswordError
+        
+        return super().update(conditions, logicalOperator, 'all')
 
     @classmethod
     def getRoles(cls, ci:int) -> list[str]:
@@ -72,7 +89,7 @@ class User(SharedUserMethods):
         cursor.execute(statement, [password,ci])
         db.commit()
 
-        return True if cursor.rowcount > 0 else False
+        return cursor.rowcount
 
 class AuthUser:
 

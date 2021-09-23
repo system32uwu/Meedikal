@@ -25,6 +25,9 @@ def userToReturn(user: User, userType=None, request:Request=None):
         hasSpec = MpHasSpec.filter({'ciMp': user.ci})
         obj['specialties'] = [asdict(hsp) for hsp in hasSpec]
 
+        for hsp in obj['specialties']:
+            hsp['title'] = Specialty.getById(hsp['idSpec']).title
+
     obj['user'].pop('password', None)
     
     return obj
@@ -171,8 +174,22 @@ def mpHasSpec(ciMp:int=None):
 @router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'userType': 'doctor'}}
 @router.get('/medicalPersonnel/<title>') # specialty title
 def getMpUsersBySpecialty(title:str=None):
+    users = []
     if request.method == 'POST':
-        users = MedicalPersonnel.getBySpecialty(request=request)
+        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(request.get_json())
     else:
-        users = MedicalPersonnel.getBySpecialty(title=title)
+        specialty = Specialty.filter({'title': title}, returns='one')
+        if specialty is not None:
+            mps: list[MedicalPersonnel] = MedicalPersonnel.filter({'specialty.id': specialty.id,
+                                             'mpHasSpec.ciMp': {
+                                                 'value': 'medicalPersonnel.ci',
+                                                 'joins': True},
+                                             'mpHasSpec.idSpec': {
+                                                 'value': 'specialty.id',
+                                                 'joins': True}})
+        else: # specialty doesn't exist
+            return crudReturn([])
+    
+    users = [User.getByCi(mp.ci) for mp in mps]
+            
     return crudReturn([userToReturn(u, 'medicalPersonnel') for u in users])

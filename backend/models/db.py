@@ -1,9 +1,113 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 import sqlite3
 
 from util.createDb import getDb
 
 db = getDb()
+
+def buildQueryComponents(conditions:dict, logicalOperator:str, cls:'BaseModel', command:str='SELECT', returns='tuple'):
+    extraTables = []
+    conditionList = []
+    values = []
+
+    if command == 'INSERT':
+        data = {}
+
+        for f in fields(cls):
+            data[f.name] = conditions.get(f.name, None)
+        conditions = [k for k in data.keys()]
+        values = [v for v in data.values()]
+
+    else: # filter
+        if conditions is not None:
+            for k,v in conditions.items():
+                if '.' in str(k): # table.attribute
+                    table = str(k).split(".")[0]
+                    if table not in extraTables and table != cls.__tablename__:
+                        extraTables.append(table)
+                else:
+                    k = f'{cls.__tablename__}.{str(k)}'
+
+                if isinstance(v,dict):
+                    operator = v.get('operator', '=')
+                    value = v.get('value')
+                    joinsTable = v.get('joins', False)
+                else:
+                    operator = '='
+                    value = v
+                    joinsTable = False
+
+                if value is None:
+                    operator = 'IS'
+
+                if not joinsTable:
+                    conditionList.append(f"{k} {operator} ?")
+                    values.append(value)
+                else:
+                    conditionList.append(f"{k} {operator} {value}")
+                    table = str(value).split(".")[0] #table.attribute
+                    if table not in extraTables and table != cls.__tablename__:
+                        extraTables.append(table)
+    statement = command
+    if command == 'SELECT':
+        statement += f' {cls.__tablename__}.*'
+    
+    if command == 'SELECT' or command == 'DELETE':
+        
+        statement += f'\nFROM {cls.__tablename__}'
+        statement += "," if len(extraTables) > 0 else ''
+        statement += ', '.join(extraTables)
+
+    elif command == 'INSERT':
+        statement += '\nINTO '
+        statement += f'''\n{cls.__tablename__} 
+                    ({",".join(conditions)}) 
+                    VALUES({",".join("?"*len(values))})'''
+
+    elif command == 'UPDATE':
+        statement += '\nSET ' if len(conditionList) > 0 else ''
+        statement += ', '.join(conditionList).replace("IS","=")
+
+    if command != 'INSERT':
+        statement += '\nWHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''
+
+    if returns == 'tuple':
+        return extraTables, conditionList, values, statement
+    if command == 'SELECT':
+        result = db.execute(statement, values)
+        if returns == 'all':
+            return [cls(*data) for data in result.fetchall()]
+        else:
+            try:
+                return cls(*result.fetchone())
+            except:
+                return None
+
+    else:
+        cursor = db.cursor()
+        cursor.execute(statement, values)
+        db.commit()
+            
+        if command == 'DELETE':
+            return cursor.rowcount
+            
+        elif command == 'INSERT':
+            lastrowid = cursor.lastrowid
+            returns = 'one' if cursor.rowcount <= 1 else 'all'
+                
+            for key, value in data.items():
+                if key == 'id':
+                    value = lastrowid
+                data[key] = value
+            conditions = data
+
+        elif command == 'UPDATE':   
+            for key, value in conditions.items():
+                if isinstance(value,dict):
+                    conditions[key] = value.get("newValue", value.get("value"))
+
+        conditions.pop('password', None)
+        return cls.filter(conditions, returns=returns)
 
 @dataclass
 class BaseModel:
@@ -17,64 +121,14 @@ class BaseModel:
     def query(cls):
         return [cls(*row) for row in 
         db.execute(f"SELECT * FROM {cls.__tablename__}")]
-
+    
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def filter(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='all'):
-        conditionList = []
-        values = []
-        
-        if conditions is not None:
-            for k,v in conditions.items():
-                if isinstance(v,dict):
-                    operator = v.get('operator', '=')
-                    value = v.get('value')
-                else:
-                    operator = '='
-                    value = v
-                if value is None:
-                    operator = 'IS'
+    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
+        return buildQueryComponents(conditions, logicalOperator, cls, 'SELECT', returns)
 
-                conditionList.append(f"{k} {operator} ?")
-
-                values.append(value)
-
-        statement = f"""
-        SELECT * FROM {cls.__tablename__} 
-        {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
-        """
-                
-        if returns == 'all':
-            return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
-        else:
-            try:
-                return cls(*db.execute(statement, values).fetchone())
-            except:
-                return None
-
-    def save(self):
-        data = asdict(self)
-        attrs = data.keys()
-        values = [v for v in data.values()]
-        
-        statement = f"""
-        INSERT INTO {self.__tablename__} ({','.join(attrs)})
-        VALUES ({",".join("?"*len(values))}) 
-        """ 
-
-        cursor = db.cursor()
-        cursor.execute(statement, values)
-        db.commit()
-        lastrowid = cursor.lastrowid
-        cursor.close()
-        
-        conditions = {}
-
-        for key, value in data.items():
-            if key == 'id':
-                value = lastrowid
-            conditions[key] = value
-        
-        return self.filter(conditions, returns='one')
+    @classmethod
+    def save(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
+        return buildQueryComponents(conditions, logicalOperator, cls, 'INSERT', returns)
 
     def saveOrGet(self, pks:list=None): # list of primary keys to filter with
 
@@ -99,83 +153,15 @@ class BaseModel:
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        conditionList = []
-        values = []
-        
-        for k,v in conditions.items():
-            if isinstance(v,dict):
-                operator = v.get('operator', '=')
-                value = v.get('value')
-            else:
-                operator = '='
-                value = v
-            if value is None:
-                    operator = 'IS'
-                    
-            conditionList.append(f"{k} {operator} ?")
-
-            values.append(value)
-
-        statement = f"""
-        DELETE FROM {cls.__tablename__} 
-        {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
-        """
-
-        cursor = db.cursor()
-        cursor.execute(statement,values)
-        affectedRows = cursor.rowcount
-        db.commit()
-
-        if affectedRows < 0:
-            return False
-        else:
-            return True
+        return buildQueryComponents(conditions, logicalOperator, cls, 'DELETE', returns='DELETE')
 
     @classmethod
     def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        conditionList = []
-        values = []
-        newValues = []
-        
-        for k,v in conditions.items():
-            if isinstance(v,dict):
-                operator = v.get('operator', '=')
-                value = v.get('value')
-                newValue = v.get('newValue', value)
-            else:
-                operator = '='
-                value = v
-                newValue = v
-
-            if value is None:
-                operator = 'IS'
-                    
-            conditionList.append(f"{k} {operator} ?")
-
-            values.append(value)
-            newValues.append(newValue)
-        
-        values = newValues + values
-
-        statement = f"""
-        UPDATE {cls.__tablename__}
-        {'SET ' + ', '.join(conditionList).replace("IS","=") if len(conditionList) > 0 else ''}
-        {'WHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
-        """
-        
-        cursor = db.cursor()
-        cursor.execute(statement,values)
-        db.commit()
-        cursor.close()
-
-        for key, value in conditions.items():
-            conditions[key] = value.get("newValue", value.get("value"))
-
-        return cls.filter(conditions) # return the affected rows
+        return buildQueryComponents(conditions, logicalOperator, cls, 'UPDATE', 'all')
 
 @dataclass
 class TableWithId: # tables that have "id" field will inherit from this one in order to use the methods like getById
 
     @classmethod
-    def getById(cls, id: int):
+    def getById(cls: BaseModel, id: int):
         return cls.filter({'id': id}, returns='one')

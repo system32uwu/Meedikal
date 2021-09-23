@@ -1,5 +1,7 @@
 from werkzeug.security import generate_password_hash
 from util.crud import crudReturn
+from util.requestParsers import parseUserType
+from middleware.authGuard import requiresAuth
 from dataclasses import asdict
 
 from flask import Blueprint, json, request
@@ -9,38 +11,14 @@ from models.User import *
 
 router = Blueprint('user', __name__, url_prefix='/user')
 
-def getTypes(ci):
-    types = [User.__tablename__]
-
-    if Administrative.getByCi(ci) is not None:
-        types.append(Administrative.__tablename__)
-    
-    if Patient.getByCi(ci) is not None:
-        types.append(Patient.__tablename__)
-    
-    if MedicalPersonnel.getByCi(ci) is not None:
-        types.append(MedicalPersonnel.__tablename__)
-    
-        if Doctor.getByCi(ci) is not None:
-            types.append(Doctor.__tablename__)
-        
-        elif MedicalAssitant.getByCi(ci) is not None:
-            types.append(MedicalAssitant.__tablename__)
-    
-    return types
-
 def userToReturn(user: User, userType=None, request:Request=None):
     if user is None:
         return None
-
     if request is not None:
-        try:
-            userType = request.get_json()['extraFilters']['userType']
-        except:
-            userType = None
-
+        userType = parseUserType(request)
+    
     obj = {'user': asdict(user), 
-           'types': getTypes(user.ci),
+           'roles': User.getRoles(ci=user.ci),
            'phoneNumbers': [asdict(p) for p in UserPhone.getByCi(user.ci)]}
 
     if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
@@ -48,12 +26,12 @@ def userToReturn(user: User, userType=None, request:Request=None):
         obj['specialties'] = [asdict(hsp) for hsp in hasSpec]
 
     obj['user'].pop('password', None)
-
+    
     return obj
 
 @router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
 def allUsers():
-    users = User.getByType(request=request)
+    users = User.filter(request.get_json())
     return crudReturn([userToReturn(u, request=request) for u in users])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
@@ -71,7 +49,7 @@ def createUser():
     
     data['password'] = generate_password_hash(data['password'])
 
-    result = User(**data).save()
+    result = User.save(data)
 
     return crudReturn(userToReturn(result, request=request))
 

@@ -1,7 +1,6 @@
 from util.errors import MissingCookieError, MissingRoleError
 from flask import request
-from api.user import getTypes
-from models.User import AuthUser
+from models.User import User,AuthUser
 from functools import wraps
 
 def requiresAuth(f):
@@ -10,7 +9,7 @@ def requiresAuth(f):
         token = None
         try:
             token = request.cookies.get('authToken', None)
-        except:
+        except: # flask out of context error (raises when starting the app)
             pass
 
         if token is None:
@@ -26,7 +25,7 @@ def requiresRole(role:str): # the required role to execute the action
         @requiresAuth
         @wraps(f)
         def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
-            userRoles = getTypes(ci)
+            userRoles = User.getRoles(ci)
             if role not in userRoles:
                 raise MissingRoleError(role)
             else:

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from flask import json
 from flask.wrappers import Request
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from .db import BaseModel, db
 from datetime import datetime, timedelta
 from typing import Optional
@@ -11,7 +11,7 @@ import jwt
 class SharedUserMethods(BaseModel):
 
     @classmethod
-    def getByCi(cls, ci: int) -> 'User':
+    def getByCi(cls, ci: int):
         return cls.filter({'ci': ci}, returns='one')
 
 @dataclass
@@ -32,100 +32,47 @@ class User(SharedUserMethods):
     active: Optional[bool] = True
 
     @classmethod
-    def update(cls, conditions: dict= {}, logicalOperator: str = 'AND'):
-        conditionList = []
-        values = []
-        newValues = []
-        
-        for k,v in conditions.items():
-            if isinstance(v,dict):
-                operator = v.get('operator', '=')
-                value = v.get('value')
-                newValue = v.get('newValue', value)
-            else:
-                operator = '='
-                value = v
-                newValue = v
-            if value is None:
-                operator = 'IS'
-                    
-            conditionList.append(f"{k} {operator} ?")
+    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
 
-            if k != 'password':
-                values.append(value)
-
-            newValues.append(newValue)
-        
         try:
-            # can't compare hashes (even if it's the same password) since they will always be different.
-            oldConditionList = conditionList.copy()
-            oldConditionList.remove("password = ?")
-        except ValueError:
-            pass
-        
-        values = newValues + values
-
-        statement = f"""
-        UPDATE {cls.__tablename__}
-        {'SET ' + ', '.join(conditionList).replace("IS","=") if len(conditionList) > 0 else ''}
-        {'WHERE ' + f' {logicalOperator} '.join(oldConditionList) if len(oldConditionList) > 0 else ''}
-        """
-
-        cursor = db.cursor()
-        cursor.execute(statement,values)
-        db.commit()
-        cursor.close()
-
-        for key, value in conditions.items():
-            conditions[key] = value.get("newValue", value.get("value"))
-
-        return cls.filter(conditions) # return the affected rows
-
-    @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def getByType(cls, logicalOperator: str = 'AND', returns:str='all', request:Request=None):
-        
-        try:
-            conditions = json.loads(request.data)
-            userType = conditions.get('extraFilters', {}).get('userType', None)
+            userType = conditions['extraFilters']['userType']
             conditions.pop('extraFilters')
-        except:
-            conditions = None
-            userType = None
+            conditions[f'{userType}.ci'] = {'value': 'user.ci', 'joins': True}
+        finally:
+            return super().filter(conditions,logicalOperator,returns)
+
+    @classmethod
+    def getRoles(cls, ci:int) -> list[str]:
+        types = [User.__tablename__]
+
+        if Administrative.filter({'ci': ci}, returns='one') is not None:
+            types.append(Administrative.__tablename__)
+
+        if Patient.filter({'ci': ci}, returns='one') is not None:
+            types.append(Patient.__tablename__)
         
-        if userType is None:
-            return cls.filter(conditions,logicalOperator,returns)
+        if MedicalPersonnel.filter({'ci': ci}, returns='one') is not None:
+            types.append(MedicalPersonnel.__tablename__)
 
-        conditionList = []
-        values = []
+            if Doctor.filter({'ci': ci}, returns='one') is not None:
+                types.append(Doctor.__tablename__)
+            
+            if MedicalAssitant.filter({'ci': ci}, returns='one') is not None:
+                types.append(MedicalAssitant.__tablename__)
+                
+        return types
 
-        for k,v in conditions.items():
-            if isinstance(v,dict):
-                operator = v.get('operator', '=')
-                value = v.get('value')
-            else:
-                operator = '='
-                value = v
-            if value is None:
-                operator = 'IS'
-                    
-            conditionList.append(f"{k} {operator} ?")
+    @classmethod
+    def updatePassword(cls, ci, password) -> bool:
+        password = generate_password_hash(password)
+        
+        statement = f"""UPDATE {cls.__tablename__} 
+                        SET password = ? WHERE ci= ? """
+        cursor = db.cursor()
+        cursor.execute(statement, [password,ci])
+        db.commit()
 
-            values.append(value)
-
-        statement = f"""
-        SELECT {User.__tablename__}.* FROM {User.__tablename__}, {userType} 
-        {'WHERE ' + f'{User.__tablename__}.ci = {userType}.ci '}
-        {logicalOperator if len(conditionList) > 0 else ''}
-        {f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''}
-        """
-
-        if returns == 'all':
-            return [cls(*obj) for obj in db.execute(statement, values).fetchall()]
-        else:
-            try:
-                return cls(*db.execute(statement, values).fetchone())
-            except:
-                return None
+        return True if cursor.rowcount > 0 else False
 
 class AuthUser:
 
@@ -163,31 +110,16 @@ class UserPhone(BaseModel):
     def getByCi(cls, ci: int):
         return cls.filter({'ci': ci}, returns='all')
 
-class CategorizedUser(SharedUserMethods):
-    ci: int
-    user: User = None
-
-    def __init__(self, ci:int):
-        self.ci = ci
-        self.user = self.getByCi(ci)
-        return self.user
-
 @dataclass
-class Patient(CategorizedUser):
+class Patient(BaseModel):
     __tablename__ = 'patient'
     ci: int
-
-    def __init__(self, ci: int):
-        super().__init__(ci)
     
 @dataclass # users from the medical personnel, those without further categorization (either doctor or medical assitant), will be stored only in this table and have limited permissions and access
-class MedicalPersonnel(CategorizedUser):
+class MedicalPersonnel(BaseModel):
     __tablename__ = 'medicalPersonnel'
     ci: int
     
-    def __init__(self, ci: int):
-        super().__init__(ci)
-
     @classmethod
     def getBySpecialty(cls, returns:str='all', request:Request=None, title:str=None):
         userType = 'medicalPersonnel'
@@ -218,25 +150,16 @@ class MedicalPersonnel(CategorizedUser):
                 return None
 
 @dataclass # users from the medical personnel, who are doctors. 
-class Doctor(CategorizedUser):
+class Doctor(BaseModel):
     __tablename__ = 'doctor'
     ci: int
     
-    def __init__(self, ci: int):
-        super().__init__(ci)
-        
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
-class MedicalAssitant(CategorizedUser):
+class MedicalAssitant(BaseModel):
     __tablename__ = 'medicalAssistant'
     ci: int
 
-    def __init__(self, ci: int):
-        super().__init__(ci)
-
 @dataclass
-class Administrative(CategorizedUser):
+class Administrative(BaseModel):
     __tablename__ = 'administrative'
     ci: int
-    
-    def __init__(self, ci: int):
-        super().__init__(ci)

@@ -20,19 +20,26 @@ def login():
 
         return res, 200
 
-@router.post('/me')
-@requiresAuth
-def me(ci:int):
-    user = User.getByCi(ci)
-    return crudReturn(userToReturn(user,request=request))
-
-@router.post('/role')
-@requiresRole('medicalPersonnel')
-def role():
-    return crudReturn(":D")
 
 @router.post('/logout') # POST /api/auth/logout
 def logout():
     res = make_response(crudReturn(True))
     res.delete_cookie('authToken') # remove the cookie, future TODO: implement blacklist system?
     return res, 200
+
+@router.route('/me', methods=['POST', 'GET'])
+@requiresAuth
+def me(ci:int):
+    user = User.getByCi(ci)
+    return crudReturn(userToReturn(user,request=request))
+
+@router.post('/updatePassword')
+@requiresAuth
+def updatePassword(ci:int):
+    res = User.updatePassword(ci,request.get_json()['password'])
+    return crudReturn(res)
+
+@router.post('/role')
+@requiresRole('medicalPersonnel')
+def role():
+    return crudReturn(":D")

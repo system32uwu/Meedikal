@@ -6,9 +6,9 @@ from typing import Optional
 class ClinicalSign(BaseModel, TableWithId):
     __tablename__ = 'clinicalSign'
 
-    id: int
-    name: str
-    description: Optional[str] = None
+    id:int
+    name:str
+    description:Optional[str] = None
     
     def __init__(self, id:int=None, name:str=None, description:str=None):
         self.id = id

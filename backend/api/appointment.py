@@ -1,5 +1,5 @@
 from dataclasses import asdict
-
+from models.Appointment import *
 from models.ClinicalSign import ClinicalSign, RegistersCs
 from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy
@@ -7,93 +7,91 @@ from flask import Blueprint, request
 
 from util.crud import *
 from util.returnMessages import *
-
-from models.Appointment import *
+from middleware.data import passJsonData
 
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 @router.get('/<int:id>') # GET /api/appointment/<id>
 def getAppointmentById(id:int):
-    a = Appointment.getById(id)
-    return crudReturn(asdict(a))
+    return crudReturn(Appointment.getById(id))
 
 @router.post('/filter') # POST /api/appointment/filter { 'name': 'oftalmology', 'state': 'OK', date: '2021-09-11', ... }
-def filterAppointments():
-    aps = Appointment.filter(request.get_json())
-    return crudReturn([asdict(ap) for ap in aps])
+@passJsonData
+def filterAppointments(data:dict):
+    return crudReturn(Appointment.filter(data))
 
 @router.post('') # POST /api/appointment
-def createAppointment():
-    a = Appointment().save(request.get_json())
-    return crudReturn(asdict(a))
+@passJsonData
+def createAppointment(data:dict):
+    return crudReturn(Appointment(**data).save(data))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/appointment
-def updateAppointment():
-    aps = Appointment.update(request.get_json())
-    return crudReturn([asdict(ap) for ap in aps])
+@passJsonData
+def updateAppointment(data:dict):
+    return crudReturn(Appointment.update(data))
 
 @router.delete('') # DELETE /api/appointment
-def deleteAppointment():
-    a = Appointment.delete(request.get_json())
-    return crudReturn(a)
+@passJsonData
+def deleteAppointment(data:dict):
+    return crudReturn(Appointment.delete(data))
 
 @router.route('/assignedTo', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assignedTo
 @router.get('/assignedTo/<int:idAp>')
 @router.get('/assignedTo/ciDoc/<int:ciDoc>')
-def assignedTo(idAp:int=None, ciDoc:int=None): # a [doctor] is <assigned to> an [appointment]
+@passJsonData
+def assignedTo(idAp:int=None, ciDoc:int=None, data:dict=None): # a [doctor] is <assigned to> an [appointment]
     if request.method == 'GET':
         conditions = {}
         if idAp is not None:
             conditions['idAp'] = idAp
         if ciDoc is not None:
             conditions['ciDoc'] = ciDoc
-        return crudReturn([asdict(ast) for ast in AssignedTo.filter(conditions)])
+        return crudReturn(AssignedTo.filter(conditions))
     else:
-        data = request.get_json()
         if request.method == 'POST':
-            return crudReturn(asdict(AssignedTo.save(data)))
+            return crudReturn(AssignedTo(**data).save(data))
         if request.method == 'PUT' or request.method == 'PATCH':
-            return crudReturn([asdict(ast) for ast in AssignedTo.update(data)])
+            return crudReturn(AssignedTo.update(data))
         if request.method == 'DELETE':
             return crudReturn(AssignedTo.delete(data))
     
 @router.route('/assistsAp', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assistsAp
 @router.get('/assistsAp/<int:idAp>')
 @router.get('/assistsAp/ciMa/<int:ciMa>')
-def assistsAp(idAp:int=None,ciMa:int=None): # a [medicalAssistant] <assists an> an [appointment]
+@passJsonData
+def assistsAp(idAp:int=None,ciMa:int=None, data:dict=None): # a [medicalAssistant] <assists an> an [appointment]
     if request.method == 'GET':
         conditions = {}
         if idAp is not None:
             conditions['idAp'] = idAp
         if ciMa is not None:
             conditions['ciMa'] = ciMa
-        return crudReturn([asdict(ast) for ast in AssistsAp.filter(conditions)])
+        return crudReturn(AssistsAp.filter(conditions))
     else:
-        data = request.get_json()
         if request.method == 'POST':
-            return crudReturn(asdict(AssistsAp.save(data)))
+            return crudReturn(AssistsAp(**data).save(data))
         if request.method == 'PUT' or request.method == 'PATCH':
-            return crudReturn([asdict(asa) for asa in AssistsAp.update(data)])
+            return crudReturn(AssistsAp.update(data))
         if request.method == 'DELETE':
             return crudReturn(AssistsAp.delete(data))
         
 @router.route('/attendsTo', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/attendsTo
 @router.get('/attendsTo/<int:idAp>')
 @router.get('/attendsTo/ciPa/<int:ciPa>')
-def attendsTo(idAp:int=None,ciPa:int=None): # a [patient] <attends to> an [appointment] 
+@passJsonData
+def attendsTo(idAp:int=None,ciPa:int=None, data:dict=None): # a [patient] <attends to> an [appointment] 
     if request.method == 'GET':
         conditions = {}
         if idAp is not None:
             conditions['idAp'] = idAp
         if ciPa is not None:
             conditions['ciPa'] = ciPa
-        return crudReturn([asdict(ast) for ast in AttendsTo.filter(conditions)])
+        return crudReturn(AttendsTo.filter(conditions))
     else:
-        data = request.get_json()
         if request.method == 'POST':
-            return crudReturn(asdict(AttendsTo().save(data)))
+            return crudReturn(AttendsTo(**data).save(data))
         if request.method == 'PUT' or request.method == 'PATCH':
-            return crudReturn([asdict(att) for att in AttendsTo.update(data)])
+            return crudReturn(AttendsTo.update(data))
         if request.method == 'DELETE':
             return crudReturn(AttendsTo.delete(data))
         
@@ -101,13 +99,14 @@ def attendsTo(idAp:int=None,ciPa:int=None): # a [patient] <attends to> an [appoi
 
 @router.route('/diagnoses', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/diagnoses
 @router.get('/diagnoses/<int:idAp>/<int:ciPa>') # GET /api/appointment/diagnoses/<idAp>
-def diagnosedDisease(idAp:int=None, ciPa:int=None): # input diagnosed diseases
+@passJsonData
+def diagnosedDisease(idAp:int=None, ciPa:int=None, data:dict=None): # input diagnosed diseases
     if request.method == 'GET':
-        result = [asdict(d) for d in Diagnoses.filter({'idAp': idAp, 'ciPa': ciPa})]
+        result = Diagnoses.filter({'idAp': idAp, 'ciPa': ciPa})
         for d in result:
             d['name'] = Disease.getById(d['idDis']).name
     else:
-        data = request.get_json()['diagnoses']
+        data = data['diagnoses']
         result = []
 
         for d in data:
@@ -117,7 +116,7 @@ def diagnosedDisease(idAp:int=None, ciPa:int=None): # input diagnosed diseases
                     d['idDis'] = _d.id
                     d.pop('name')
 
-                diagnosesInstance = Diagnoses.save(d)
+                diagnosesInstance = Diagnoses(**d).save(d)
                 diagnosesReturn = asdict(diagnosesInstance)
                 diagnosesReturn['name'] = Disease.getById(d['idDis']).name
                 result.append(diagnosesReturn)
@@ -129,13 +128,14 @@ def diagnosedDisease(idAp:int=None, ciPa:int=None): # input diagnosed diseases
 
 @router.route('/registersSy', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersSy
 @router.get('/registersSy/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersSy/<idAp>
-def registersSy(idAp:int=None,ciPa:int=None): # input registered symptoms
+@passJsonData
+def registersSy(idAp:int=None,ciPa:int=None, data:dict=None): # input registered symptoms
     if request.method == 'GET':
-        result = [asdict(sy) for sy in RegistersSy.filter({'idAp': idAp,'ciPa': ciPa})]
+        result = RegistersSy.filter({'idAp': idAp,'ciPa': ciPa})
         for sy in result:
             sy['name'] = Symptom.getById(sy['idSy']).name
     else:
-        data = request.get_json()['registersSy']
+        data = data['registersSy']
         result = []
 
         for s in data:
@@ -145,7 +145,7 @@ def registersSy(idAp:int=None,ciPa:int=None): # input registered symptoms
                     s['idSy'] = _s.id
                     s.pop('name')
 
-                registersSyInstance = RegistersSy.save(s)
+                registersSyInstance = RegistersSy(**s).save(s)
                 registersSyReturn = asdict(registersSyInstance)
                 registersSyReturn['name'] = Symptom.getById(s['idSy']).name
                 result.append(registersSyReturn)
@@ -157,13 +157,14 @@ def registersSy(idAp:int=None,ciPa:int=None): # input registered symptoms
 
 @router.route('/registersCs', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersCs
 @router.get('/registersCs/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersCs/<idAp>
-def registersCs(idAp:int=None, ciPa:int=None): # input registered clinical signs
+@passJsonData
+def registersCs(idAp:int=None, ciPa:int=None, data:dict=None): # input registered clinical signs
     if request.method == 'GET':
-        result = [asdict(cs) for cs in RegistersCs.filter({'idAp': idAp, 'ciPa': ciPa})]
+        result = RegistersCs.filter({'idAp': idAp, 'ciPa': ciPa})
         for cs in result:
             cs['name'] = ClinicalSign.getById(cs['idCs']).name
     else:
-        data = request.get_json()['registersCs']
+        data = data['registersCs']
         result = []
 
         for cs in data:
@@ -173,7 +174,7 @@ def registersCs(idAp:int=None, ciPa:int=None): # input registered clinical signs
                     cs['idCs'] = _cs.id
                     cs.pop('name')
                 
-                registersCsInstance = RegistersCs(**cs).save()
+                registersCsInstance = RegistersCs(**cs).save(cs)
                 registersCsReturn = asdict(registersCsInstance)
                 registersCsReturn['name'] = ClinicalSign.getById(cs['idCs']).name
                 result.append(registersCsReturn)

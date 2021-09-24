@@ -1,16 +1,14 @@
-def recordDoesntExist(tablename:str="record"):
-    return {"error": f"{tablename} doesn't exist"}, 400
+def genericErrorReturn(errMessage=None, extraMessage=None, code=400):
+    return {"error": errMessage, "extraMessage": extraMessage}, code
 
-def foreignKeyError():
-    return {"error": f"Foreign key error: one of the values you are referring to was deleted or never existed"}, 400
+def zeroRowReturn():
+    return genericErrorReturn("zero rows matched the specified conditions", code=404)
+
+def recordDoesntExist(tablename:str="record"):
+    return genericErrorReturn(f"{tablename} doesn't exist")
 
 def recordAlreadyExists(tablename:str="record", extraMessage=None):
-    return {"error": f"{tablename} already exists",
-            "extraMessage": extraMessage}, 400
+    return genericErrorReturn(f"{tablename} already exists", extraMessage)
 
 def provideData(extraMessage:str=None):
-    return {"error": "no data was provided or it was invalid",
-            "extraMessage": extraMessage}, 412
-
-def recordCUDSuccessfully(success:bool):
-    return {"result": True if success else False}, 200 if success else 400
+    return genericErrorReturn("no data was provided or it was invalid", extraMessage, 412)

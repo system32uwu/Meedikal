@@ -1,27 +1,34 @@
+from dataclasses import asdict
+from models.db import BaseModel
+from .returnMessages import zeroRowReturn
 from flask.json import jsonify
+from flask import request
 
 def crudReturn(result=None):
-    if result is None:
-        code = 404
+    if request.method == 'PUT' or request.method == 'PATCH' or request.method == 'DELETE':
+        if result < 1:
+            return zeroRowReturn()
+        else:
+            return jsonify({"result": f"{result} rows were affected"}, 200)
     else:
-        if isinstance(result,list):
-            if len(result) < 1:
-                code = 404
-            else:
-                code = 200
+        if result is None:
+            zeroRowReturn()
 
+        elif isinstance(result, BaseModel):
+            result = asdict(result)
+
+        elif isinstance(result,list):
+            if len(result) < 1:
+                zeroRowReturn()
+            else:
+                result = [asdict(obj) for obj in result if isinstance(obj,BaseModel)]
+        
         elif isinstance(result, bool):
             if result == False:
-                code = 404
-            else:
-                code = 200
-
+                zeroRowReturn()
+        
         elif isinstance(result,int):
             if result < 1:
-                code = 404
-            else:
-                code = 200
-        else:
-            code = 200
-        
-    return jsonify({"result": result}), code
+                zeroRowReturn()
+
+        return jsonify({"result": result}), 200

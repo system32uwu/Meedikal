@@ -104,7 +104,7 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         cursor.execute(statement, values)
         db.commit()
         
-        if command == 'DELETE':
+        if command == 'DELETE' or command == 'UPDATE':
             return cursor.rowcount
             
         elif command == 'INSERT':
@@ -116,11 +116,6 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
                 data[key] = value
             conditions = data
 
-        elif command == 'UPDATE':   
-            for key, value in conditions.items():
-                if isinstance(value,dict):
-                    conditions[key] = value.get("newValue", value.get("value"))
-        
         if cursor.rowcount > 0:
             return cls.filter(conditions, returns=returns)
         else:

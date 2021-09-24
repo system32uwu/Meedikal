@@ -1,26 +1,27 @@
+from flask import Blueprint, request
+from dataclasses import asdict
+
 from util.crud import crudReturn
 from util.requestParsers import parseRole
 from middleware.authGuard import requiresAuth
-from dataclasses import asdict
-
-from flask import Blueprint, request
+from middleware.data import passJsonData
 
 from models.Specialty import *
 from models.User import *
 
 router = Blueprint('user', __name__, url_prefix='/user')
 
-def userToReturn(user: User, userType=None, request:Request=None):
+def userToReturn(user: User, role=None):
     if user is None:
         return None
-    if request is not None:
-        userType = parseRole(request)
+    if role is None:
+        role = parseRole(request)
     
     obj = {'user': asdict(user), 
            'roles': User.getRoles(ci=user.ci),
            'phoneNumbers': [asdict(p) for p in UserPhone.getByCi(user.ci)]}
 
-    if userType == 'medicalPersonnel' or userType == 'doctor' or userType == 'medicalAssitant':
+    if role == 'medicalPersonnel' or role == 'doctor' or role == 'medicalAssitant':
         hasSpec = MpHasSpec.filter({'ciMp': user.ci})
         obj['specialties'] = [asdict(hsp) for hsp in hasSpec]
 
@@ -32,111 +33,120 @@ def userToReturn(user: User, userType=None, request:Request=None):
     return obj
 
 @router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
-def allUsers():
-    users = User.filter(request.get_json())
-    return crudReturn([userToReturn(u, request=request) for u in users])
+@passJsonData
+def allUsers(data:dict=None):
+    users = User.filter(data)
+    return crudReturn(users)
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
 @router.post('/ci') # POST /api/user/ci
-def getUserByCi(ci:int=None):
+@passJsonData
+def getUserByCi(ci:int=None, data:dict=None):
     if request.method == 'POST':
-        ci = request.get_json()['ci']
+        ci = data['ci']
 
-    u = User.getByCi(ci)
-    return crudReturn(userToReturn(u, request=request))
+    return crudReturn(userToReturn(User.getByCi(ci)))
 
 @router.post('') # POST /api/user
-def createUser():
-    result = User.save(request.get_json())
-    return crudReturn(userToReturn(result, request=request))
+@passJsonData
+def createUser(data:dict):
+    return crudReturn(userToReturn(User(**data).save(data)))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
-def updateUser():
-    result = User.update(request.get_json())
-    return crudReturn([userToReturn(u) for u in result])
+@passJsonData
+def updateUser(data:dict):
+    return crudReturn(User.update(data))
 
 @router.delete('') # DELETE /api/user
-def deleteUser():
-    result = User.delete(request.get_json())
-    return crudReturn(result)
+@passJsonData
+def deleteUser(data:dict):
+    return crudReturn(User.delete(data))
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
-def patient():
+@passJsonData
+def patient(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Patient.save(request.get_json()))
+        result = userToReturn(Patient(**data).save(data))
     else:
-        result = Patient.delete(request.get_json())
+        result = Patient.delete(data)
 
     return crudReturn(result)
 
 @router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalPersonnel
-def medicalPersonnel():
+@passJsonData
+def medicalPersonnel(data:dict):
     if request.method == 'POST':
-        result = userToReturn(MedicalPersonnel.save(request.get_json()))
+        result = userToReturn(MedicalPersonnel(**data).save(data))
     else:
-        result = MedicalPersonnel.delete(request.get_json())
+        result = MedicalPersonnel.delete(data)
 
     return crudReturn(result)
 
 @router.route('/doctor', methods=['POST', 'DELETE']) # POST | DELETE /api/doctor
-def doctor():
+@passJsonData
+def doctor(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Doctor.save(request.get_json()))
+        result = userToReturn(Doctor(**data).save(data))
     else:
-        result = Doctor.delete(request.get_json())
+        result = Doctor.delete(data)
 
     return crudReturn(result)
 
 @router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
-def medicalAssitant():
+@passJsonData
+def medicalAssitant(data:dict):
     if request.method == 'POST':
-        result = userToReturn(MedicalAssitant.save(request.get_json()))
+        result = userToReturn(MedicalAssitant(**data).save(data))
     else:
-        result = MedicalAssitant.delete(request.get_json())
+        result = MedicalAssitant.delete(data)
 
     return crudReturn(result)
 
 @router.route('/administrative', methods=['POST', 'DELETE']) # POST | DELETE /api/administrative
-def administrative():
+@passJsonData
+def administrative(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Administrative.save(request.get_json()))
+        result = userToReturn(Administrative(**data).save(data))
     else:
-        result = Administrative.delete(request.get_json())
+        result = Administrative.delete(data)
 
     return crudReturn(result)
 
-@router.post('/surname1') # POST /api/user/surname1 filter by surname1 and userType
+@router.post('/surname1') # POST /api/user/surname1 filter by surname1 and role
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
-def userBySurname1(surname1:str=None):
+@passJsonData
+def userBySurname1(surname1:str=None, data:dict=None):
     if request.method == 'POST':
-        result = User.filter(request.get_json())
+        result = User.filter(data)
     else:
         result = User.filter({'surname1' : surname1})
 
-    return crudReturn([userToReturn(u, request=request) for u in result])
+    return crudReturn([userToReturn(u) for u in result])
 
 @router.post('/name1surname1') # GET /api/user/name1surname1
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
-def userByName1nSurname1(name1:str=None,surname1:str=None):
+@passJsonData
+def userByName1nSurname1(name1:str=None,surname1:str=None, data:dict=None):
     if request.method == 'POST':
-        result = User.filter(request.get_json())
+        result = User.filter(data)
     else:
-        result = User.filter({'name1' : name1,'surname1' : surname1})
+        result = User.filter({'name1' : name1, 'surname1' : surname1})
 
-    return crudReturn([userToReturn(u, request=request) for u in result])
+    return crudReturn([userToReturn(u) for u in result])
 
 @router.route('/phoneNumbers', methods=['POST', 'DELETE'])
 @router.get('/phoneNumbers/<ci>')
-def phoneNumbers(ci:int=None):
+@passJsonData
+def phoneNumbers(ci:int=None, data:dict=None):
     result = None
 
     if request.method == 'GET':
-        result = [asdict(p) for p in UserPhone.getByCi(ci)]
+        result = UserPhone.getByCi(ci)
     else:
-        data = request.get_json()['userPhone']
+        data = data['userPhone']
         for phone in data:
             if request.method == 'POST':
-                UserPhone.saveOrGet(phone)
+                UserPhone(**phone).saveOrGet(phone)
             elif request.method == 'DELETE':
                 rows = UserPhone.delete(phone)
         result = data if request.method == 'POST' else rows
@@ -145,22 +155,23 @@ def phoneNumbers(ci:int=None):
 
 @router.route('/medicalPersonnel/mpHasSpec', methods=['POST', 'DELETE'])
 @router.get('/medicalPersonnel/mpHasSpec/<int:ciMp>')
-def mpHasSpec(ciMp:int=None):
+@passJsonData
+def mpHasSpec(ciMp:int=None, data:dict=None):
     if request.method == 'GET':
-        result = [asdict(sp) for sp in MpHasSpec.filter({'ciMp': ciMp})]
+        result = MpHasSpec.filter({'ciMp': ciMp})
         for sp in result:
             sp['title'] = Specialty.getById(sp['idSpec']).title
     else:
-        data = request.get_json()['mpHasSpec']
+        data = data['mpHasSpec']
         result = []
         for hsp in data:
             if request.method == 'POST':
                 if hsp.get('idSpec', None) is None:
-                    _sp = Specialty.saveOrGet({'title': hsp['title']})
+                    _sp = Specialty(**hsp).saveOrGet({'title': hsp['title']})
                     hsp['idSpec'] = _sp.id
                     hsp.pop('title')
                 
-                hspInstance = MpHasSpec.save(hsp)
+                hspInstance = MpHasSpec(**hsp).save(hsp)
                 hspReturn = asdict(hspInstance)
                 hspReturn['title'] = Specialty.getById(hsp['idSpec']).title
                 result.append(hspReturn)
@@ -170,12 +181,13 @@ def mpHasSpec(ciMp:int=None):
 
     return crudReturn(result)
 
-@router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'userType': 'doctor'}}
+@router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'role': 'doctor'}}
 @router.get('/medicalPersonnel/<title>') # specialty title
-def getMpUsersBySpecialty(title:str=None):
+@passJsonData
+def getMpUsersBySpecialty(title:str=None, data:dict=None):
     users = []
     if request.method == 'POST':
-        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(request.get_json())
+        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(data)
     else:
         specialty = Specialty.filter({'title': title}, returns='one')
         if specialty is not None:

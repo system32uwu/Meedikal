@@ -6,9 +6,9 @@ from typing import Optional
 class Disease(BaseModel, TableWithId):
     __tablename__ = 'disease'
 
-    id: int
-    name: str
-    description: Optional[str]
+    id:int
+    name:str
+    description:Optional[str]
 
     def __init__(self, id:int=None, name:str=None, description:str=None):
         self.id = id

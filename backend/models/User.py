@@ -12,25 +12,25 @@ import jwt
 class SharedUserMethods(BaseModel):
 
     @classmethod
-    def getByCi(cls, ci: int) -> 'User':
+    def getByCi(cls, ci:int) -> 'User':
         return cls.filter({'ci': ci}, returns='one')
 
 @dataclass
 class User(SharedUserMethods):
     __tablename__ = 'user'
     
-    ci: int
-    name1: str
-    surname1: str
-    sex: str
-    birthdate: datetime
-    location: str
-    email: str
-    password: str
-    name2: Optional[str] = None
-    surname2: Optional[str] = None
-    genre: Optional[str] = None
-    active: Optional[bool] = True
+    ci:int
+    name1:str
+    surname1:str
+    sex:str
+    birthdate:datetime
+    location:str
+    email:str
+    password:str
+    name2:Optional[str] = None
+    surname2:Optional[str] = None
+    genre:Optional[str] = None
+    active:Optional[bool] = True
 
     @classmethod
     def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
@@ -52,7 +52,7 @@ class User(SharedUserMethods):
         return super().save(conditions, returns)
 
     @classmethod
-    def update(cls, conditions: dict= {}, logicalOperator='AND') -> list['User']:
+    def update(cls, conditions: dict= {}, logicalOperator='AND'):
         if conditions.get('password', None) is not None:
             raise UpdatePasswordError
         
@@ -80,16 +80,16 @@ class User(SharedUserMethods):
         return types
 
     @classmethod
-    def updatePassword(cls, ci, password) -> bool:
+    def updatePassword(cls, ci, password):
         password = generate_password_hash(password)
         
         statement = f"""UPDATE {cls.__tablename__} 
-                        SET password = ? WHERE ci= ? """
+                        SET password = ? WHERE ci= ?"""
         cursor = db.cursor()
         cursor.execute(statement, [password,ci])
         db.commit()
 
-        return True if cursor.rowcount > 0 else False
+        return cursor.rowcount
 
 class AuthUser:
 
@@ -105,11 +105,11 @@ class AuthUser:
                     'sub': ci
                 }
                 token = jwt.encode(payload,Config.SECRET_KEY, algorithm="HS256")
-                return token, user
+                return token
             else:
-                return None, None
+                return None
         except: # self.user is None
-            return None, None
+            return None
 
     @staticmethod
     def verifyToken(token) -> int: # exceptions handled by auth error handler.

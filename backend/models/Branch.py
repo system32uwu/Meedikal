@@ -5,10 +5,10 @@ from dataclasses import dataclass
 class Branch(BaseModel, TableWithId):
     __tablename__ = 'branch'
 
-    id: int
-    name: str
-    phoneNumber: str
-    location: str
+    id:int
+    name:str
+    phoneNumber:str
+    location:str
 
     def __init__(self, id:int=None, name:str=None, phoneNumber:str=None, location:str=None):
        self.id = id

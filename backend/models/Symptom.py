@@ -6,9 +6,9 @@ from typing import Optional
 class Symptom(BaseModel, TableWithId):
     __tablename__ = 'symptom'
 
-    id: int
-    name: str
-    description: Optional[str] = None
+    id:int
+    name:str
+    description:Optional[str] = None
 
     def __init__(self, id:int=None, name:str=None, description:str=None):
         self.id = id
@@ -19,7 +19,7 @@ class Symptom(BaseModel, TableWithId):
 class RegistersSy(BaseModel): # { Patient < attendsTo > [ Doctor < assignedTo > Appointment] } < registersSy > Symptom
     __tablename__ = 'registersSy'
 
-    idAp: int
-    ciPa: int
-    idSy: int
-    detail: Optional[str] = None
+    idAp:int
+    ciPa:int
+    idSy:int
+    detail:Optional[str] = None

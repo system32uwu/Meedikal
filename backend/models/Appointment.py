@@ -9,15 +9,15 @@ appointmentStates = ('OK','CANCELLED', 'RESCHEDULING')
 class Appointment(BaseModel, TableWithId):
     __tablename__ = 'appointment'
 
-    id: int
-    name: str
-    state: str
-    date: d
+    id:int
+    name:str
+    state:str
+    date:d
 
-    startsAt: Optional[datetime] = None
-    endsAt: Optional[datetime] = None
-    etpp: Optional[int] = None # estimated time per patient, in seconds
-    maxTurns: Optional[int] = None # max patients to be attended
+    startsAt:Optional[datetime] = None
+    endsAt:Optional[datetime] = None
+    etpp:Optional[int] = None # estimated time per patient, in seconds
+    maxTurns:Optional[int] = None # max patients to be attended
 
     def __init__(self, id:int=None, name:str=None,state:str=None,date:str=None,
                 startsAt:str=None, endsAt:str=None, etpp:int=None, maxTurns:int=None):
@@ -44,6 +44,11 @@ class AssistsAp(BaseModel): # MedicalAssistant < assistsAp > [ Doctor < assigned
     idAp: int
     ciMa: int
     time: datetime
+
+    def __init__(self,idAp:int,ciMa:int,time:str):
+        self.idAp = idAp
+        self.ciMa = ciMa
+        self.time = datetime.fromisoformat(time)
 
 @dataclass
 class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appointment]

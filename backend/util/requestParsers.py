@@ -1,8 +1,8 @@
 from models.User import *
 from flask import Request
 
-def parseUserType(request:Request) -> str:
+def parseRole(request:Request) -> str:
     try:
-        return request.get_json()['extraFilters']['userType']
+        return request.get_json()['extraFilters']['role']
     except:
         return None

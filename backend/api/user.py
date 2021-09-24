@@ -1,10 +1,9 @@
-from werkzeug.security import generate_password_hash
 from util.crud import crudReturn
-from util.requestParsers import parseUserType
+from util.requestParsers import parseRole
 from middleware.authGuard import requiresAuth
 from dataclasses import asdict
 
-from flask import Blueprint, json, request
+from flask import Blueprint, request
 
 from models.Specialty import *
 from models.User import *
@@ -15,7 +14,7 @@ def userToReturn(user: User, userType=None, request:Request=None):
     if user is None:
         return None
     if request is not None:
-        userType = parseUserType(request)
+        userType = parseRole(request)
     
     obj = {'user': asdict(user), 
            'roles': User.getRoles(ci=user.ci),

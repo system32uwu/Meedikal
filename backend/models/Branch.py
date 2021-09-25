@@ -1,4 +1,4 @@
-from models.db import BaseModel, TableWithId
+from ._base import BaseModel, TableWithId
 from dataclasses import dataclass
 
 @dataclass

@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from models.db import BaseModel
+from models._base import BaseModel
 from .returnMessages import zeroRowReturn
 from flask.json import jsonify
 from flask import request
@@ -21,7 +21,9 @@ def crudReturn(result=None):
             if len(result) < 1:
                 zeroRowReturn()
             else:
-                result = [asdict(obj) for obj in result if isinstance(obj,BaseModel)]
+                for i in range(len(result)):
+                    if not isinstance(result[i],dict):
+                        result[i] = asdict(result[i])
         
         elif isinstance(result, bool):
             if result == False:

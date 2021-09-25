@@ -29,14 +29,13 @@ def userToReturn(user: User, role=None):
             hsp['title'] = Specialty.getById(hsp['idSpec']).title
 
     obj['user'].pop('password', None)
-    
+
     return obj
 
 @router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
 @passJsonData
 def allUsers(data:dict=None):
-    users = User.filter(data)
-    return crudReturn(users)
+    return crudReturn([userToReturn(u) for u in User.filter(data)])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
 @router.post('/ci') # POST /api/user/ci
@@ -146,6 +145,7 @@ def phoneNumbers(ci:int=None, data:dict=None):
         data = data['userPhone']
         for phone in data:
             if request.method == 'POST':
+                print(UserPhone)
                 UserPhone(**phone).saveOrGet(phone)
             elif request.method == 'DELETE':
                 rows = UserPhone.delete(phone)
@@ -181,25 +181,23 @@ def mpHasSpec(ciMp:int=None, data:dict=None):
 
     return crudReturn(result)
 
-@router.post('/medicalPersonnel/specialty') # {'title': 'oftalmology', 'extraFilters': {'role': 'doctor'}}
-@router.get('/medicalPersonnel/<title>') # specialty title
+@router.post('/medicalPersonnel/specialty') # {'specialty.title': 'oftalmology', 'extraFilters': {'role': 'doctor'}}
+@router.get('/medicalPersonnel/<specialty>') # specialty title
 @passJsonData
-def getMpUsersBySpecialty(title:str=None, data:dict=None):
+def filterMpUsersBySpecialty(specialty:str=None, data:dict=None):
     users = []
+    baseConditions = {'specialty.title': specialty,
+                      'mpHasSpec.ciMp': {
+                        'value': 'medicalPersonnel.ci',
+                        'joins': True},
+                      'mpHasSpec.idSpec': {
+                        'value': 'specialty.id',
+                        'joins': True}}
+
     if request.method == 'POST':
-        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(data)
+        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions | data)
     else:
-        specialty = Specialty.filter({'title': title}, returns='one')
-        if specialty is not None:
-            mps: list[MedicalPersonnel] = MedicalPersonnel.filter({'specialty.id': specialty.id,
-                                             'mpHasSpec.ciMp': {
-                                                 'value': 'medicalPersonnel.ci',
-                                                 'joins': True},
-                                             'mpHasSpec.idSpec': {
-                                                 'value': 'specialty.id',
-                                                 'joins': True}})
-        else: # specialty doesn't exist
-            return crudReturn([])
+        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions)
     
     users = [User.getByCi(mp.ci) for mp in mps]
             

@@ -148,9 +148,9 @@ class BaseModel:
     @classmethod 
     def saveOrGet(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
         try:
-            return cls.save(cls, conditions, logicalOperator, returns)
+            return cls.save(conditions, returns)
         except sqlite3.IntegrityError: # record already exists
-            return cls.filter(cls, conditions,logicalOperator,returns)
+            return cls.filter(conditions,logicalOperator,returns)
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='DELETE'):

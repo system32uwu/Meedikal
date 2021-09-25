@@ -1,4 +1,4 @@
-from models.db import BaseModel, TableWithId
+from ._base import BaseModel, TableWithId
 from dataclasses import dataclass
 from datetime import datetime, date as d
 from typing import Optional

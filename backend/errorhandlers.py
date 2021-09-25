@@ -29,6 +29,7 @@ def updatePasswordError(e):
 def typeError(e:TypeError):
     err = repr(e)
     extraMessage = None
+    print(e)
 
     if 'missing' in err:
         extraMessage = err.split(': ')[1].split('")')[0]

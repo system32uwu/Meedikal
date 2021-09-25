@@ -1,11 +1,14 @@
-from util.errors import UpdatePasswordError
-from dataclasses import dataclass
 from flask import json
 from flask.wrappers import Request
 from werkzeug.security import check_password_hash, generate_password_hash
-from .db import BaseModel, db
+
+from util.errors import UpdatePasswordError
+from dataclasses import dataclass
+from ._base import BaseModel, db
+
 from datetime import datetime, timedelta
 from typing import Optional
+
 from config import Config
 import jwt
 
@@ -37,12 +40,11 @@ class User(SharedUserMethods):
         try:
             extraFilters:dict = conditions.get('extraFilters', None)
             if extraFilters is not None:
-                userType = extraFilters.get('userType', None)
+                userType = extraFilters.get('role', None)
+                conditions[f'{userType}.ci'] = {'value': 'user.ci', 'joins': True}
             
             conditions.pop('extraFilters', None)
-            conditions[f'{userType}.ci'] = {'value': 'user.ci', 'joins': True}
-
-            conditions.pop('password') # doesn't make sense to filter by password
+            conditions.pop('password', None) # doesn't make sense to filter by password
         finally:
             return super().filter(conditions,logicalOperator,returns)
     

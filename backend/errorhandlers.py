@@ -28,12 +28,11 @@ def updatePasswordError(e):
 @apiRouter.errorhandler(TypeError)
 def typeError(e:TypeError):
     err = repr(e)
-    extraMessage = None
-    print(e)
+    field = None
 
     if 'missing' in err:
-        extraMessage = err.split(': ')[1].split('")')[0]
-    return provideData(extraMessage)
+        field = err.split(': ')[1].split('")')[0]
+    return provideData(f'missing key field: {field}')
 
 @apiRouter.errorhandler(KeyError)
 def keyError(e:KeyError):

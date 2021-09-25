@@ -23,7 +23,7 @@ def crudReturn(result=None):
             else:
                 for i in range(len(result)):
                     if not isinstance(result[i],dict):
-                        result[i] = asdict(result[i])
+                        result[i] = asdict(result[i]) # make it json serializable
         
         elif isinstance(result, bool):
             if result == False:

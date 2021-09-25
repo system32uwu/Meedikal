@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from config import DevelopmentConfig
-from routers import apiRouter, frontendRouter
+from routers import apiRouter, frontendRouter, imagesRouter
 import errorhandlers
 from util.JSONEncoder import JsonExtendEncoder
 
@@ -16,6 +16,7 @@ app.json_encoder = JsonExtendEncoder
 # --- MAIN ROUTERS
 app.register_blueprint(apiRouter) # api
 app.register_blueprint(frontendRouter) # frontend
+app.register_blueprint(imagesRouter) # /images
 # --- MAIN ROUTERS
 
 if __name__ == '__main__':

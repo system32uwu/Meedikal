@@ -1,4 +1,7 @@
+import os
+from config import Config
 from flask import Blueprint, render_template
+from flask import send_file
 from api.user import router as userRouter # handles /api/user
 from api.appointment import router as appointmentRouter # handles /api/appointment
 from api.branch import router as branchRouter # handles /api/branch
@@ -11,6 +14,11 @@ apiRouter.register_blueprint(authRouter)
 apiRouter.register_blueprint(userRouter)
 apiRouter.register_blueprint(appointmentRouter) 
 apiRouter.register_blueprint(branchRouter)
+
+imagesRouter = Blueprint('images', __name__, url_prefix='/images') # handles /images
+@imagesRouter.get('/<resource>')
+def returnResource(resource:str):
+    return send_file(os.path.join(Config.UPLOAD_FOLDER, resource))
 
 frontendRouter = Blueprint('frontend', __name__, url_prefix='/') # handles /
 

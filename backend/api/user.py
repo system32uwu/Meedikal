@@ -69,10 +69,11 @@ def deleteUser(data:dict):
 @router.route('/photo', methods=['POST', 'PUT', 'PATCH'])
 @passFile(['jpg', 'jpeg', 'png'])
 @requiresAuth
-def updatePhoto(ci:int=None, file: FileStorage = None):
+def updatePhoto(ci:int, file:FileStorage):
     file.filename = secure_filename(f'{ci}.jpg') # force jpg format
-    file.save(os.path.join(Config.UPLOAD_FOLDER, file.filename))
-    
+    photoUrl = os.path.join(Config.UPLOAD_FOLDER, file.filename)
+    file.save(photoUrl)
+    User.getByCi(ci).update({'ci': ci, 'photoUrl': {"value": None, "newValue": photoUrl}})
     return crudReturn(file.filename)
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient

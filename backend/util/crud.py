@@ -6,10 +6,13 @@ from flask import request
 
 def crudReturn(result=None):
     if request.method == 'PUT' or request.method == 'PATCH' or request.method == 'DELETE':
+        if isinstance(result,list):
+            result = sum(result)
+        
         if result < 1:
             return zeroRowReturn()
         else:
-            return jsonify({"result": f"{result} rows were affected"}, 200)
+            return jsonify({"result": f"{result} rows were affected"}), 200
     else:
         if result is None:
             zeroRowReturn()

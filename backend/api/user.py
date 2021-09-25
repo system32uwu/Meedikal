@@ -48,7 +48,6 @@ def getUserByCi(ci:int=None, data:dict=None):
 
 @router.post('') # POST /api/user
 @passJsonData
-#@requiresRole('administrative')
 def createUser(data:dict):
     return crudReturn(userToReturn(User(**data).save(data)))
 
@@ -59,13 +58,11 @@ def updateUser(data:dict):
 
 @router.delete('') # DELETE /api/user
 @passJsonData
-#@requiresRole('administrative')
 def deleteUser(data:dict):
     return crudReturn(User.delete(data))
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
 @passJsonData
-#@requiresRole('administrative')
 def patient(data:dict):
     if request.method == 'POST':
         result = userToReturn(Patient(**data).save(data))
@@ -76,7 +73,6 @@ def patient(data:dict):
 
 @router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalPersonnel
 @passJsonData
-#@requiresRole('administrative')
 def medicalPersonnel(data:dict):
     if request.method == 'POST':
         result = userToReturn(MedicalPersonnel(**data).save(data))
@@ -87,7 +83,6 @@ def medicalPersonnel(data:dict):
 
 @router.route('/doctor', methods=['POST', 'DELETE']) # POST | DELETE /api/doctor
 @passJsonData
-#@requiresRole('administrative')
 def doctor(data:dict):
     if request.method == 'POST':
         result = userToReturn(Doctor(**data).save(data))
@@ -98,7 +93,6 @@ def doctor(data:dict):
 
 @router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
 @passJsonData
-#@requiresRole('administrative')
 def medicalAssitant(data:dict):
     if request.method == 'POST':
         result = userToReturn(MedicalAssitant(**data).save(data))
@@ -109,7 +103,6 @@ def medicalAssitant(data:dict):
 
 @router.route('/administrative', methods=['POST', 'DELETE']) # POST | DELETE /api/administrative
 @passJsonData
-#@requiresRole('administrative')
 def administrative(data:dict):
     if request.method == 'POST':
         result = userToReturn(Administrative(**data).save(data))
@@ -203,9 +196,9 @@ def filterMpUsersBySpecialty(specialty:str=None, data:dict=None):
                      }}
 
     if request.method == 'POST':
-        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions | data)
+        mps:list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions | data)
     else:
-        mps: list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions)
+        mps:list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions)
     
     users = [User.getByCi(mp.ci) for mp in mps]
             

@@ -97,89 +97,54 @@ def attendsTo(idAp:int=None,ciPa:int=None, data:dict=None): # a [patient] <atten
         
 # # -- DATA INPUTTED WHEN A PATIENT IS BEING INTERVIEWED IN AN APPOINTMENT
 
+def getSufferingOfAp(entity:BaseModel, relationship:BaseModel, idAp:int, ciPa:int, idField:str, nameField:str='name'):
+    result = [asdict(r) for r in relationship.filter({'idAp': idAp, 'ciPa': ciPa})]
+    for row in result:
+        row[nameField] = asdict(entity.getById(row[idField]))[nameField]
+    return crudReturn(result)
+
+def operateSufferingOfAp(entity:BaseModel, relationship:BaseModel, data:dict, idField:str, nameField:str='name'):
+    result = []
+    for row in data[relationship.__tablename__]:
+        if request.method == 'POST':
+            if row.get(idField, None) is None:
+                _entity = entity.saveOrGet({nameField: row[nameField]}, returns='one')
+                row[idField] = _entity.id
+                row.pop(nameField)
+                            
+            relationshipInstance = relationship(**row).save(row)
+            relationshipReturn = asdict(relationshipInstance)
+            relationshipReturn[nameField] = asdict(entity.getById(row[idField]))[nameField]
+            result.append(relationshipReturn)
+
+        elif request.method == 'DELETE':
+            result.append(relationship.delete(row))
+
+    return crudReturn(result)
+
 @router.route('/diagnoses', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/diagnoses
 @router.get('/diagnoses/<int:idAp>/<int:ciPa>') # GET /api/appointment/diagnoses/<idAp>
 @passJsonData
 def diagnosedDisease(idAp:int=None, ciPa:int=None, data:dict=None): # input diagnosed diseases
     if request.method == 'GET':
-        result = Diagnoses.filter({'idAp': idAp, 'ciPa': ciPa})
-        for d in result:
-            d['name'] = Disease.getById(d['idDis']).name
+        return getSufferingOfAp(Disease, Diagnoses, idAp, ciPa, 'idDis')
     else:
-        data = data['diagnoses']
-        result = []
-
-        for d in data:
-            if request.method == 'POST':
-                if d.get('idDis', None) is None:
-                    _d = Disease.saveOrGet({'name': d['name']}, returns='one')
-                    d['idDis'] = _d.id
-                    d.pop('name')
-
-                diagnosesInstance = Diagnoses(**d).save(d)
-                diagnosesReturn = asdict(diagnosesInstance)
-                diagnosesReturn['name'] = Disease.getById(d['idDis']).name
-                result.append(diagnosesReturn)
-
-            elif request.method == 'DELETE':
-                result.append(Diagnoses.delete(d))
-
-    return crudReturn(result)
+        return operateSufferingOfAp(Disease, Diagnoses, data, 'idDis')
 
 @router.route('/registersSy', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersSy
 @router.get('/registersSy/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersSy/<idAp>
 @passJsonData
 def registersSy(idAp:int=None,ciPa:int=None, data:dict=None): # input registered symptoms
     if request.method == 'GET':
-        result = RegistersSy.filter({'idAp': idAp,'ciPa': ciPa})
-        for sy in result:
-            sy['name'] = Symptom.getById(sy['idSy']).name
+        return getSufferingOfAp(Symptom, RegistersSy, idAp, ciPa, 'idSy')
     else:
-        data = data['registersSy']
-        result = []
-
-        for s in data:
-            if request.method == 'POST':
-                if s.get('idSy', None) is None:
-                    _s = Symptom.saveOrGet({'name': s['name']}, returns='one')
-                    s['idSy'] = _s.id
-                    s.pop('name')
-
-                registersSyInstance = RegistersSy(**s).save(s)
-                registersSyReturn = asdict(registersSyInstance)
-                registersSyReturn['name'] = Symptom.getById(s['idSy']).name
-                result.append(registersSyReturn)
-
-            elif request.method == 'DELETE':
-                result.append(RegistersSy.delete(s))
-
-    return crudReturn(result)
+        return operateSufferingOfAp(Symptom, RegistersSy, data, 'idSy')
 
 @router.route('/registersCs', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersCs
 @router.get('/registersCs/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersCs/<idAp>
 @passJsonData
 def registersCs(idAp:int=None, ciPa:int=None, data:dict=None): # input registered clinical signs
     if request.method == 'GET':
-        result = RegistersCs.filter({'idAp': idAp, 'ciPa': ciPa})
-        for cs in result:
-            cs['name'] = ClinicalSign.getById(cs['idCs']).name
+        return getSufferingOfAp(ClinicalSign, RegistersCs, idAp, ciPa, 'idCs')
     else:
-        data = data['registersCs']
-        result = []
-
-        for cs in data:
-            if request.method == 'POST':
-                if cs.get('idCs', None) is None:
-                    _cs = ClinicalSign.saveOrGet({'name': cs['name']}, returns='one')
-                    cs['idCs'] = _cs.id
-                    cs.pop('name')
-                
-                registersCsInstance = RegistersCs(**cs).save(cs)
-                registersCsReturn = asdict(registersCsInstance)
-                registersCsReturn['name'] = ClinicalSign.getById(cs['idCs']).name
-                result.append(registersCsReturn)
-
-            elif request.method == 'DELETE':
-                result.append(RegistersCs.delete(cs))
-
-    return crudReturn(result)
+        return operateSufferingOfAp(ClinicalSign, RegistersCs, data, 'idCs')

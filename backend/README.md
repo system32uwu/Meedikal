@@ -30,14 +30,22 @@ Then install the dependencies:
 pip install -r requirements.txt
 ```
 
-## Creating the database and adding the first administrative user
-
-The file `util/initialData.sql` contains and INSERT statement with some default values for a default administrative user, you may update those values directly or later from the admin panel (in the frontend).
+## Creating the database
 
 On first run, or when making changes to database schema, run:
 
 ```sh
 python util/createDb.py
+```
+
+## Adding the first administrative user
+
+The file `config.py` contains the Config class, which has the field `Admin`, you should update the values accordingly.
+
+Once you've updated the values of the said object, run:
+
+```sh
+python util/createAdmin.py
 ```
 
 ## Incoming data shape notes

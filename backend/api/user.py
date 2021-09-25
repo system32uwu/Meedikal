@@ -70,9 +70,7 @@ def deleteUser(data:dict):
 @passFile(['jpg', 'jpeg', 'png'])
 @requiresAuth
 def updatePhoto(ci:int=None, file: FileStorage = None):
-    ext = file.filename.rsplit('.')[1]
-
-    file.filename = secure_filename(f'{ci}.{ext}')
+    file.filename = secure_filename(f'{ci}.jpg') # force jpg format
     file.save(os.path.join(Config.UPLOAD_FOLDER, file.filename))
     
     return crudReturn(file.filename)

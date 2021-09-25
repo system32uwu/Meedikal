@@ -30,7 +30,9 @@ Then install the dependencies:
 pip install -r requirements.txt
 ```
 
-## Creating the database
+## Creating the database and adding the first administrative user
+
+The file `util/initialData.sql` contains and INSERT statement with some default values for a default administrative user, you may update those values directly or later from the admin panel (in the frontend).
 
 On first run, or when making changes to database schema, run:
 
@@ -126,3 +128,16 @@ By default the update method will use the = operator, if LIKE were to be used th
     }
 }
 ```
+
+This is also valid:
+
+```json
+{
+    "ci": 123,
+    "name": {"value": "mateo", "newValue": "marcos"}
+}
+```
+
+## For DELETE
+
+You may provide any filters in the body of the requests, in the same way that you would filter records as shown with the previous methods.

@@ -91,7 +91,6 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         return extraTables, conditionList, values, statement
     
     if command == 'SELECT':
-        print(statement,values)
         result = db.execute(statement, values)
         if returns == 'all':
             return [cls(*data) for data in result.fetchall()]
@@ -143,7 +142,7 @@ class BaseModel:
         return buildQueryComponents(cls, conditions, logicalOperator, 'SELECT', returns)
 
     @classmethod
-    def save(cls, conditions: dict= {}, returns='one'):
+    def save(cls, conditions: dict= {}, returns='one') -> 'BaseModel':
         return buildQueryComponents(cls, conditions, command='INSERT', returns=returns)
 
     @classmethod 

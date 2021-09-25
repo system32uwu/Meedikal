@@ -1,10 +1,10 @@
+from flask import Blueprint, request
 from dataclasses import asdict
+
 from models.Appointment import *
 from models.ClinicalSign import ClinicalSign, RegistersCs
 from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy
-from flask import Blueprint, request
-
 from util.crud import *
 from util.returnMessages import *
 from middleware.data import passJsonData
@@ -35,45 +35,43 @@ def updateAppointment(data:dict):
 def deleteAppointment(data:dict):
     return crudReturn(Appointment.delete(data))
 
+# -- Users <> appointment
+
+def getUserAppointment(relationship:BaseModel, idAp:int, ciUser:int, ciField:str):
+    conditions = {}
+    if idAp is not None:
+        conditions['idAp'] = idAp
+    if ciUser is not None:
+        conditions[ciField] = ciUser
+    return crudReturn(relationship.filter(conditions))
+
+def operateUserAppointment(relationship:BaseModel, data:dict):
+    if request.method == 'POST':
+        return crudReturn(relationship(**data).save(data))
+    elif request.method == 'PUT' or request.method == 'PATCH':
+        return crudReturn(relationship.update(data))
+    elif request.method == 'DELETE':
+        return crudReturn(relationship.delete(data))
+
 @router.route('/assignedTo', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assignedTo
 @router.get('/assignedTo/<int:idAp>')
 @router.get('/assignedTo/ciDoc/<int:ciDoc>')
 @passJsonData
 def assignedTo(idAp:int=None, ciDoc:int=None, data:dict=None): # a [doctor] is <assigned to> an [appointment]
     if request.method == 'GET':
-        conditions = {}
-        if idAp is not None:
-            conditions['idAp'] = idAp
-        if ciDoc is not None:
-            conditions['ciDoc'] = ciDoc
-        return crudReturn(AssignedTo.filter(conditions))
+        return getUserAppointment(AssignedTo, idAp, ciDoc, 'ciDoc')
     else:
-        if request.method == 'POST':
-            return crudReturn(AssignedTo(**data).save(data))
-        if request.method == 'PUT' or request.method == 'PATCH':
-            return crudReturn(AssignedTo.update(data))
-        if request.method == 'DELETE':
-            return crudReturn(AssignedTo.delete(data))
-    
+        return operateUserAppointment(AssignedTo, data)
+
 @router.route('/assistsAp', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assistsAp
 @router.get('/assistsAp/<int:idAp>')
 @router.get('/assistsAp/ciMa/<int:ciMa>')
 @passJsonData
 def assistsAp(idAp:int=None,ciMa:int=None, data:dict=None): # a [medicalAssistant] <assists an> an [appointment]
     if request.method == 'GET':
-        conditions = {}
-        if idAp is not None:
-            conditions['idAp'] = idAp
-        if ciMa is not None:
-            conditions['ciMa'] = ciMa
-        return crudReturn(AssistsAp.filter(conditions))
+        return getUserAppointment(AssistsAp, idAp, ciMa, 'ciMa')
     else:
-        if request.method == 'POST':
-            return crudReturn(AssistsAp(**data).save(data))
-        if request.method == 'PUT' or request.method == 'PATCH':
-            return crudReturn(AssistsAp.update(data))
-        if request.method == 'DELETE':
-            return crudReturn(AssistsAp.delete(data))
+        return operateUserAppointment(AssistsAp, data)
         
 @router.route('/attendsTo', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/attendsTo
 @router.get('/attendsTo/<int:idAp>')
@@ -81,19 +79,9 @@ def assistsAp(idAp:int=None,ciMa:int=None, data:dict=None): # a [medicalAssistan
 @passJsonData
 def attendsTo(idAp:int=None,ciPa:int=None, data:dict=None): # a [patient] <attends to> an [appointment] 
     if request.method == 'GET':
-        conditions = {}
-        if idAp is not None:
-            conditions['idAp'] = idAp
-        if ciPa is not None:
-            conditions['ciPa'] = ciPa
-        return crudReturn(AttendsTo.filter(conditions))
+        return getUserAppointment(AttendsTo, idAp, ciPa, 'ciPa')
     else:
-        if request.method == 'POST':
-            return crudReturn(AttendsTo(**data).save(data))
-        if request.method == 'PUT' or request.method == 'PATCH':
-            return crudReturn(AttendsTo.update(data))
-        if request.method == 'DELETE':
-            return crudReturn(AttendsTo.delete(data))
+        return operateUserAppointment(AttendsTo, data)
         
 # # -- DATA INPUTTED WHEN A PATIENT IS BEING INTERVIEWED IN AN APPOINTMENT
 

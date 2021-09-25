@@ -17,10 +17,20 @@ def getDb() -> Connection: # ensure that this connection will always check forei
 if __name__ == '__main__':
     
     schemaPath = f'{p}/meedikal.sql'
+    initialDataPath = f'{p}/initialData.sql'
 
     if os.path.exists(dbPath):
         os.remove(dbPath)
 
     schema = open(schemaPath, 'r').read()
 
-    getDb().cursor().executescript(schema)
+    db = getDb()
+    cursor = db.cursor()
+
+    cursor.executescript(schema)
+
+    initialData = open(initialDataPath, 'r').read()
+
+    cursor.executescript(initialData)
+
+    db.commit()

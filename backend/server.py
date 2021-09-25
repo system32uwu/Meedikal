@@ -1,5 +1,6 @@
+import os
 from flask import Flask
-
+from flask_cors import CORS
 from config import DevelopmentConfig
 from routers import apiRouter, frontendRouter
 import errorhandlers
@@ -18,4 +19,10 @@ app.register_blueprint(frontendRouter) # frontend
 # --- MAIN ROUTERS
 
 if __name__ == '__main__':
-    app.run()
+    try: # create the uploads folder if it doesn't exist
+        os.makedirs(DevelopmentConfig.UPLOAD_FOLDER)
+    except:
+        pass
+    finally:
+        CORS(app, supports_credentials=True)    
+        app.run()

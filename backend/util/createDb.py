@@ -29,8 +29,4 @@ if __name__ == '__main__':
 
     cursor.executescript(schema)
 
-    initialData = open(initialDataPath, 'r').read()
-
-    cursor.executescript(initialData)
-
     db.commit()

@@ -28,15 +28,18 @@ def updatePasswordError(e):
 @apiRouter.errorhandler(TypeError)
 def typeError(e:TypeError):
     err = repr(e)
-    field = None
 
     if 'missing' in err:
         field = err.split(': ')[1].split('")')[0]
-    return provideData(f'missing key field: {field}')
+        return provideData(f'missing key field: {field}')
+    else:
+        return provideData()
 
 @apiRouter.errorhandler(KeyError)
 def keyError(e:KeyError):
-    return provideData(f'missing required fields: {", ".join(e.args)}')
+    print(e)
+    return provideData()
+    # return provideData(f'missing required fields: {", ".join(e.args)}')
 
 @apiRouter.errorhandler(IntegrityError)
 def integrityError(e:IntegrityError):

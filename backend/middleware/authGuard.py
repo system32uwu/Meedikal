@@ -1,5 +1,5 @@
 from util.errors import MissingCookieError, MissingRoleError
-from flask import session
+from flask import session, request
 from models.User import User,AuthUser
 from functools import wraps
 

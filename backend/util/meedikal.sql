@@ -11,7 +11,8 @@ CREATE TABLE user (
     name2 VARCHAR(32),
     surname2 VARCHAR(32),
     genre VARCHAR(32),
-    active BOOLEAN NOT NULL DEFAULT 1
+    active BOOLEAN NOT NULL DEFAULT 1,
+    photoUrl TEXT
 ) WITHOUT ROWID;
 
 CREATE TABLE medicalPersonnel (

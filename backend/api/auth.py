@@ -1,7 +1,7 @@
 from util.returnMessages import genericErrorReturn
 from middleware.data import passJsonData
 from middleware.authGuard import requiresAuth, requiresRole
-from flask import Blueprint, session
+from flask import Blueprint, session, make_response
 from models.User import User, AuthUser
 from .user import userToReturn
 from util.crud import crudReturn
@@ -17,11 +17,20 @@ def login(data:dict):
         return genericErrorReturn('incorrect CI or password')
     else:
         session['authToken'] = token
+        # res = make_response(crudReturn('OK'))
+
+        # res.set_cookie('authToken', token, domain='127.0.0.1', path='/app')
+
         return crudReturn('OK')
 
 @router.post('/logout') # POST /api/auth/logout
 def logout():
     session.pop('authToken', None)
+    
+    # res = make_response(crudReturn('OK'))
+
+    # res.delete_cookie('authToken')
+
     return crudReturn('OK')
 
 @router.route('/me', methods=['POST', 'GET']) # POST /api/auth/me

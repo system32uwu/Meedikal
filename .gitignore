@@ -29,6 +29,7 @@ backend/config.py
 
 backend/test.py
 
-meedikal.db
+backend/meedikal.db
 
+backend/images
 .vscode

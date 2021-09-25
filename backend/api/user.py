@@ -1,10 +1,15 @@
+import os
 from flask import Blueprint, request
 from dataclasses import asdict
 
 from util.crud import crudReturn
 from util.requestParsers import parseRole
 from middleware.authGuard import requiresAuth, requiresRole
-from middleware.data import passJsonData
+from util.returnMessages import genericErrorReturn
+
+from middleware.data import passJsonData, passFile
+from werkzeug.datastructures import FileStorage, ImmutableMultiDict
+from werkzeug.utils import secure_filename
 
 from models.Specialty import *
 from models.User import *
@@ -60,6 +65,17 @@ def updateUser(data:dict):
 @passJsonData
 def deleteUser(data:dict):
     return crudReturn(User.delete(data))
+
+@router.route('/photo', methods=['POST', 'PUT', 'PATCH'])
+@passFile(['jpg', 'jpeg', 'png'])
+@requiresAuth
+def updatePhoto(ci:int=None, file: FileStorage = None):
+    ext = file.filename.rsplit('.')[1]
+
+    file.filename = secure_filename(f'{ci}.{ext}')
+    file.save(os.path.join(Config.UPLOAD_FOLDER, file.filename))
+    
+    return crudReturn(file.filename)
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
 @passJsonData

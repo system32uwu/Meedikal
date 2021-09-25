@@ -1,3 +1,4 @@
+from os import remove
 from flask import json
 from flask.wrappers import Request
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -34,6 +35,7 @@ class User(SharedUserMethods):
     surname2:Optional[str] = None
     genre:Optional[str] = None
     active:Optional[bool] = True
+    photoUrl:Optional[str] = None
 
     @classmethod
     def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
@@ -49,7 +51,7 @@ class User(SharedUserMethods):
             return super().filter(conditions,logicalOperator,returns)
     
     @classmethod
-    def save(cls, conditions: dict= {}, returns='one'):
+    def save(cls, conditions: dict= {}, returns='one') -> 'User':
         conditions['password'] = generate_password_hash(conditions['password'])
         return super().save(conditions, returns)
 
@@ -93,6 +95,16 @@ class User(SharedUserMethods):
 
         return cursor.rowcount
 
+    @classmethod
+    def updatePhoto(cls, data:dict):
+        ci = data['ci']
+        photo = data.get('photo', None)
+
+        if photo is None:
+            remove(f'images/{ci}.jpg')
+        else:
+            with open (f'images/{ci}.jpg', 'wb') as f:
+                f.write(photo)
 class AuthUser:
 
     @classmethod

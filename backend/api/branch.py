@@ -11,13 +11,14 @@ def getBranchById(id:int):
     return crudReturn(Branch.getById(id))
 
 @router.get('/<name>') # GET /api/branch/<name>
-@router.post('/filter') # POST /api/branch/filter
+def getBranchByName(name:str=None):
+    branches = Branch.filter({'name': name})
+    return crudReturn(branches)
+
+@router.get('/filter') # GET /api/branch/filter
 @passJsonData
-def getBranchByFilters(name:str=None, data:dict=None):
-    if request.method == 'POST':
-        branches = Branch.filter(data)
-    else:
-        branches = Branch.filter({'name': name})
+def getBranchByFilters(data:dict=None):
+    branches = Branch.filter(data)
     return crudReturn(branches)
 
 @router.get('/all') # GET /api/branch/all

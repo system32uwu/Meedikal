@@ -42,14 +42,14 @@ python util/createDb.py
 
 ### For GET
 
-The `/all`, `/surname1`, `/surname1name1`, `/medicalPersoonel/mpHasSpec` user endpoints accept _extraFilters_, such as _userType_.
+The `/all`, `/surname1`, `/surname1name1`, `/medicalPersoonel/mpHasSpec` user endpoints accept _extraFilters_, such as _role_.
 
 The data shape should be the following:
 
 ```json
 {
     "extraFilters":{
-        "userType" : "medicalPersonnel"
+        "role" : "medicalPersonnel"
     }
 }
 ```
@@ -61,12 +61,12 @@ If providing any other filters:
     "name1": "juan",
     "name2": "perez",
     "extraFilters":{
-        "userType" : "medicalPersonnel"
+        "role" : "medicalPersonnel"
     }
 }
 ```
 
-The filters that don't go inside of _extraFilters_ are actual table attributes, that's why userType is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
+The filters that don't go inside of _extraFilters_ are actual table attributes, that's why role is an extraFilter. The same applies for any other applicable filter that's not in the table that's being queried.
 
 ### For multivalued attributes, or multiple records at once
 

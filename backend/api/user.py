@@ -111,26 +111,21 @@ def administrative(data:dict):
 
     return crudReturn(result)
 
-@router.post('/surname1') # POST /api/user/surname1 filter by surname1 and role
+@router.get('/filter') # GET /api/user/filter filter with anything passed to the body of the request.
+@passJsonData
+def filterUser(data:dict):
+    return crudReturn([userToReturn(u) for u in User.filter(data)])
+
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
 @passJsonData
 def userBySurname1(surname1:str=None, data:dict=None):
-    if request.method == 'POST':
-        result = User.filter(data)
-    else:
-        result = User.filter({'surname1' : surname1})
-
+    result = User.filter({'surname1' : surname1})
     return crudReturn([userToReturn(u) for u in result])
 
-@router.post('/name1surname1') # GET /api/user/name1surname1
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
 @passJsonData
 def userByName1nSurname1(name1:str=None,surname1:str=None, data:dict=None):
-    if request.method == 'POST':
-        result = User.filter(data)
-    else:
-        result = User.filter({'name1' : name1, 'surname1' : surname1})
-
+    result = User.filter({'name1' : name1, 'surname1' : surname1})
     return crudReturn([userToReturn(u) for u in result])
 
 @router.route('/phoneNumbers', methods=['POST', 'DELETE'])
@@ -145,7 +140,6 @@ def phoneNumbers(ci:int=None, data:dict=None):
         data = data['userPhone']
         for phone in data:
             if request.method == 'POST':
-                print(UserPhone)
                 UserPhone(**phone).saveOrGet(phone)
             elif request.method == 'DELETE':
                 rows = UserPhone.delete(phone)
@@ -181,7 +175,6 @@ def mpHasSpec(ciMp:int=None, data:dict=None):
 
     return crudReturn(result)
 
-@router.post('/medicalPersonnel/specialty') # {'specialty.title': 'oftalmology', 'extraFilters': {'role': 'doctor'}}
 @router.get('/medicalPersonnel/<specialty>') # specialty title
 @passJsonData
 def filterMpUsersBySpecialty(specialty:str=None, data:dict=None):

@@ -47,14 +47,13 @@ def integrityError(e:IntegrityError):
     if 'FOREIGN KEY' in err:
         return genericErrorReturn(f"foreign key error: one of the values you are referring to was deleted or never existed")
     else:       
-        errData = err.split('.')
-        tablename = errData[0].split(": ")[1]
-        attr = errData[1].split("')")[0]
+        errData = err.split(": ")
+        attrs = errData[1].split("')")[0]
 
-        if 'UNIQUE' in err:        
-            return recordAlreadyExists(tablename, attr)
+        if 'UNIQUE' in err:
+            return recordAlreadyExists(extraMessage=attrs)
         elif 'NOT NULL' in err:
-            return provideData(f'missing required field: {attr} for {tablename}')
+            return provideData(f'missing required fields: {attrs}')
 
 @apiRouter.errorhandler(Exception) # any other exception
 def handle_exception(e:Exception):

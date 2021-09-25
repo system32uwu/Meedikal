@@ -112,7 +112,7 @@ def diagnosedDisease(idAp:int=None, ciPa:int=None, data:dict=None): # input diag
         for d in data:
             if request.method == 'POST':
                 if d.get('idDis', None) is None:
-                    _d = Disease.saveOrGet({'name': d['name']})
+                    _d = Disease.saveOrGet({'name': d['name']}, returns='one')
                     d['idDis'] = _d.id
                     d.pop('name')
 
@@ -141,7 +141,7 @@ def registersSy(idAp:int=None,ciPa:int=None, data:dict=None): # input registered
         for s in data:
             if request.method == 'POST':
                 if s.get('idSy', None) is None:
-                    _s = Symptom.saveOrGet({'name': s['name']})
+                    _s = Symptom.saveOrGet({'name': s['name']}, returns='one')
                     s['idSy'] = _s.id
                     s.pop('name')
 
@@ -170,7 +170,7 @@ def registersCs(idAp:int=None, ciPa:int=None, data:dict=None): # input registere
         for cs in data:
             if request.method == 'POST':
                 if cs.get('idCs', None) is None:
-                    _cs = ClinicalSign.saveOrGet({'name': cs['name']})
+                    _cs = ClinicalSign.saveOrGet({'name': cs['name']}, returns='one')
                     cs['idCs'] = _cs.id
                     cs.pop('name')
                 

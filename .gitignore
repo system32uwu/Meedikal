@@ -30,3 +30,5 @@ backend/config.py
 backend/test.py
 
 meedikal.db
+
+.vscode

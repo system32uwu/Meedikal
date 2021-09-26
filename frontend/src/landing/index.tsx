@@ -1,13 +1,18 @@
 import React from "react";
-import { RouteComponentProps, Router } from "@reach/router";
+// import { RouteComponentProps, Router } from "@reach/router";
 import { Home } from "./home";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
 
-interface IProps extends RouteComponentProps {}
+interface IProps {}
 
-export const LandingRouter: React.FC<IProps> = () => {
+export const Landing: React.FC<IProps> = () => {
   return (
-    <Router>
-      <Home path="/" />
-    </Router>
+    <BrowserRouter>
+      <Switch>
+        <Route>
+          <Home path="/" />
+        </Route>
+      </Switch>
+    </BrowserRouter>
   );
 };

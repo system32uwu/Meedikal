@@ -5,10 +5,9 @@ from dataclasses import asdict
 from util.crud import crudReturn
 from util.requestParsers import parseRole
 from middleware.authGuard import requiresAuth, requiresRole
-from util.returnMessages import genericErrorReturn
 
 from middleware.data import passJsonData, passFile
-from werkzeug.datastructures import FileStorage, ImmutableMultiDict
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 from models.Specialty import *
@@ -53,16 +52,19 @@ def getUserByCi(ci:int=None, data:dict=None):
 
 @router.post('') # POST /api/user
 @passJsonData
+@requiresRole('administrative')
 def createUser(data:dict):
     return crudReturn(userToReturn(User(**data).save(data)))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 @passJsonData
+@requiresAuth
 def updateUser(data:dict):
     return crudReturn(User.update(data))
 
 @router.delete('') # DELETE /api/user
 @passJsonData
+@requiresRole('administrative')
 def deleteUser(data:dict):
     return crudReturn(User.delete(data))
 
@@ -78,6 +80,7 @@ def updatePhoto(ci:int, file:FileStorage):
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
 @passJsonData
+@requiresRole('administrative')
 def patient(data:dict):
     if request.method == 'POST':
         result = userToReturn(Patient(**data).save(data))
@@ -88,6 +91,7 @@ def patient(data:dict):
 
 @router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalPersonnel
 @passJsonData
+@requiresRole('administrative')
 def medicalPersonnel(data:dict):
     if request.method == 'POST':
         result = userToReturn(MedicalPersonnel(**data).save(data))
@@ -98,6 +102,7 @@ def medicalPersonnel(data:dict):
 
 @router.route('/doctor', methods=['POST', 'DELETE']) # POST | DELETE /api/doctor
 @passJsonData
+@requiresRole('administrative')
 def doctor(data:dict):
     if request.method == 'POST':
         result = userToReturn(Doctor(**data).save(data))
@@ -108,6 +113,7 @@ def doctor(data:dict):
 
 @router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
 @passJsonData
+@requiresRole('administrative')
 def medicalAssitant(data:dict):
     if request.method == 'POST':
         result = userToReturn(MedicalAssitant(**data).save(data))
@@ -118,6 +124,7 @@ def medicalAssitant(data:dict):
 
 @router.route('/administrative', methods=['POST', 'DELETE']) # POST | DELETE /api/administrative
 @passJsonData
+@requiresRole('administrative')
 def administrative(data:dict):
     if request.method == 'POST':
         result = userToReturn(Administrative(**data).save(data))

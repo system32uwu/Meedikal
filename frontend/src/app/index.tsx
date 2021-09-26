@@ -1,13 +1,24 @@
+// import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
-import { RouteComponentProps, Router } from "@reach/router";
+import { Switch, Route, BrowserRouter } from "react-router-dom";
+import { NotFound } from "../components/notFound";
 import { Dashboard } from "./dashboard";
+import { Login } from "./login";
 
-interface IProps extends RouteComponentProps {}
+interface IProps {}
 
-export const AppRouter: React.FC<IProps> = () => {
+export const App: React.FC<IProps> = () => {
   return (
-    <Router>
-      <Dashboard path="/" />
-    </Router>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/app/dashboard">
+          <Dashboard />
+        </Route>
+        <Route path="/app/login">
+          <Login />
+        </Route>
+        <Route component={NotFound}/>
+      </Switch>
+    </BrowserRouter>
   );
 };

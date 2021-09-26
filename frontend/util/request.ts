@@ -1,1 +1,0 @@
-let apiUrl:string = 'http://localhost:5000/api'

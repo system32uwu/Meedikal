@@ -1,7 +1,9 @@
 import os
+
 from config import Config
 from flask import Blueprint, render_template
-from flask import send_file
+from flask import send_file, request, redirect
+from middleware.authGuard import requiresAuth
 from api.user import router as userRouter # handles /api/user
 from api.appointment import router as appointmentRouter # handles /api/appointment
 from api.branch import router as branchRouter # handles /api/branch
@@ -22,7 +24,16 @@ def returnResource(resource:str):
 
 frontendRouter = Blueprint('frontend', __name__, url_prefix='/') # handles /
 
-@frontendRouter.route('/')
+@frontendRouter.route('app/login')
+def loginRoute():
+    return render_template('index.html')
+
+@frontendRouter.route('app/<path:path>')
+@requiresAuth
+def appRoute(path=None, ci:int=None):
+    return render_template('index.html')
+
+@frontendRouter.route('')
 @frontendRouter.route('/<path:path>')
 def frontend(path=None):
     return render_template('index.html')

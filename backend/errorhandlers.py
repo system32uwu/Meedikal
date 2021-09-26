@@ -12,11 +12,7 @@ def expiredToken(e):
 @apiRouter.errorhandler(jwt.InvalidTokenError)
 def invalidToken(e):
     return genericErrorReturn('Invalid token. Please log in again.', code=401)
-
-@apiRouter.errorhandler(MissingCookieError)
-def missingCookieError(e):
-    return genericErrorReturn('Not authenticated (missing cookie)', code=401)
-
+    
 @apiRouter.errorhandler(MissingRoleError)
 def missingRoleError(e: MissingRoleError):
     return genericErrorReturn(f'Insufficient permissions to perfom action. It should be done by: a {e.role} user', code=403)

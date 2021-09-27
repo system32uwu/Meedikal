@@ -38,9 +38,7 @@ def typeError(e:TypeError):
 
 @apiRouter.errorhandler(KeyError)
 def keyError(e:KeyError):
-    print(e)
-    return provideData()
-    # return provideData(f'missing required fields: {", ".join(e.args)}')
+    return provideData(f'missing required fields: {", ".join(e.args)}')
 
 @apiRouter.errorhandler(IntegrityError)
 def integrityError(e:IntegrityError):

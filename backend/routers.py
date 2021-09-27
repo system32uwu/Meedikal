@@ -16,6 +16,7 @@ apiRouter.register_blueprint(appointmentRouter)
 apiRouter.register_blueprint(branchRouter)
 
 imagesRouter = Blueprint('images', __name__, url_prefix='/images') # handles /images
+
 @imagesRouter.get('/<resource>')
 def returnResource(resource:str):
     return send_file(os.path.join(Config.UPLOAD_FOLDER, resource))

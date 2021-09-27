@@ -1,5 +1,4 @@
 import React from "react";
-// import { RouteComponentProps, Router } from "@reach/router";
 import { Home } from "./home";
 import { Route, Switch, BrowserRouter } from "react-router-dom";
 

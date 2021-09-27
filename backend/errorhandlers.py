@@ -1,4 +1,5 @@
-from routers import apiRouter
+from flask import redirect
+from routers import apiRouter, frontendRouter
 from util.returnMessages import *
 from util.errors import *
 from sqlite3.dbapi2 import IntegrityError
@@ -12,7 +13,11 @@ def expiredToken(e):
 @apiRouter.errorhandler(jwt.InvalidTokenError)
 def invalidToken(e):
     return genericErrorReturn('Invalid token. Please log in again.', code=401)
-    
+        
+@apiRouter.errorhandler(MissingCookieError)
+def missingCookieError(e):
+    return genericErrorReturn('Not authenticated (missing cookie)', code=401)
+
 @apiRouter.errorhandler(MissingRoleError)
 def missingRoleError(e: MissingRoleError):
     return genericErrorReturn(f'Insufficient permissions to perfom action. It should be done by: a {e.role} user', code=403)
@@ -59,3 +64,15 @@ def handle_exception(e:Exception):
     print(err)
     getDb().rollback()
     return {"error": repr(err)}, 400
+
+@frontendRouter.errorhandler(MissingCookieError)
+def missingCookieError(e):
+    return redirect('/app/login')
+
+@apiRouter.errorhandler(jwt.ExpiredSignatureError)
+def expiredToken(e):
+    return redirect('/app/login')
+
+@apiRouter.errorhandler(jwt.InvalidTokenError)
+def invalidToken(e):
+    return redirect('/app/login')

@@ -1,4 +1,3 @@
-// import { Redirect, RouteComponentProps, Router } from "@reach/router";
 import React from "react";
 import { Switch, Route, BrowserRouter } from "react-router-dom";
 import { NotFound } from "../components/notFound";

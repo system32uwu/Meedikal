@@ -1,10 +1,10 @@
-from util.returnMessages import genericErrorReturn
+from flask import Blueprint, session
 from middleware.data import passJsonData
 from middleware.authGuard import requiresAuth, requiresRole
-from flask import Blueprint, session, make_response
 from models.User import User, AuthUser
 from .user import userToReturn
 from util.crud import crudReturn
+from util.returnMessages import genericErrorReturn
 
 router = Blueprint('auth', __name__, url_prefix='/auth')
 

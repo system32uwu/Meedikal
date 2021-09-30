@@ -3,7 +3,6 @@ from flask import Flask
 from flask_cors import CORS
 from config import DevelopmentConfig
 from routers import apiRouter, frontendRouter, imagesRouter
-import errorhandlers
 from util.JSONEncoder import JsonExtendEncoder
 
 app = Flask(__name__, static_folder='build/static', template_folder='build')

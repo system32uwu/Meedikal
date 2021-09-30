@@ -27,6 +27,8 @@ frontendRouter = Blueprint('frontend', __name__, url_prefix='/') # handles /
 def loginRoute():
     return render_template('index.html')
 
+@frontendRouter.route('app')
+@frontendRouter.route('app/')
 @frontendRouter.route('app/<path:path>')
 @requiresAuth
 def appRoute(path=None, ci:int=None):

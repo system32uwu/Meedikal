@@ -1,5 +1,4 @@
 import os
-import errorhandlers
 from config import Config
 from flask import Blueprint, render_template, send_file
 from middleware.authGuard import requiresAuth

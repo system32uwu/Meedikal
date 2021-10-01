@@ -22,3 +22,9 @@ export interface User {
   active: boolean | null;
   photoUrl: string | null;
 }
+
+export interface FullUser{
+  user: User;
+  roles: string[];
+  phoneNumbers: string[];
+}

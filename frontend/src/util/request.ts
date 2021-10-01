@@ -1,5 +1,5 @@
 import axios from "axios";
-import { OKResponseShape } from "../types";
+import { ErrorResponseShape, OKResponseShape } from "../types";
 
 const baseUrl = "http://localhost:5000";
 
@@ -13,7 +13,7 @@ _axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      return Promise.reject(error.response.data);
+      return Promise.reject(error.response.data as ErrorResponseShape);
     }
   }
 );

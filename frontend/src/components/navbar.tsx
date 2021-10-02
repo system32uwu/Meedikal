@@ -36,12 +36,12 @@ const Navbar: React.FC<IProps> = () => {
               alt="company logo"
               className="rounded-full w-10"
             />
-            <a
+            <Link
               className="focus:outline-none text-md font-thin text-gray-800 dark:text-white lg:text-2xl self-end pl-2 text-turqoise"
-              href="/"
+              to="/"
             >
               Healthcare Company
-            </a>
+            </Link>
           </div>
 
           <div className="flex md:hidden">
@@ -64,8 +64,8 @@ const Navbar: React.FC<IProps> = () => {
         <div className={"items-center md:flex " + (menu ? "block" : "hidden")}>
           <div className="flex flex-col md:flex-row md:mx-6">
             {MenuItems.map((item) => (
-              <a
-                href={item.url}
+              <Link
+                to={item.url}
                 key={item.label}
                 className={
                   "my-1 text-sm font-medium text-gray-700 hover:text-turqoise md:mx-4 md:my-0 " +
@@ -73,7 +73,7 @@ const Navbar: React.FC<IProps> = () => {
                 }
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             {window.location.href.endsWith("login") ? (
               <Link

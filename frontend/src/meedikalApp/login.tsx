@@ -4,6 +4,7 @@ import { Auth, ErrorResponseShape } from "../types";
 import { apiCall, setApi } from "../util/request";
 import illustration from "../static/healthcare-graphic.png";
 import Navbar from "../components/navbar";
+import { Link } from "@reach/router";
 
 interface IProps {}
 
@@ -45,12 +46,12 @@ export const Login: React.FC<IProps> = () => {
               <p className="text-2xl font-bold">Welcome</p>
               <p className="text-2xs">
                 Don't have an account?
-                <a
-                  href="/app/register"
+                <Link
+                  to="/app/register"
                   className="text-turqoise font-bold pl-1"
                 >
                   Register
-                </a>
+                </Link>
               </p>
             </div>
             <form
@@ -103,9 +104,9 @@ export const Login: React.FC<IProps> = () => {
                 </div>
               ) : null}
               <div className="mt-4 text-right">
-                <a href="/app/forgot" className="text-turqoise">
+                <Link to="/app/forgot" className="text-turqoise">
                   Forgot your password?
-                </a>
+                </Link>
               </div>
               <div className="mt-4">
                 <button

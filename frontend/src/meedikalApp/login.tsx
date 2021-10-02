@@ -1,10 +1,9 @@
 import React, { FormEvent, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { Auth, ErrorResponseShape } from "../types";
 import { apiCall, setApi } from "../util/request";
 import illustration from "../static/healthcare-graphic.png";
 import Navbar from "../components/navbar";
-import { Link } from "@reach/router";
 
 interface IProps {}
 

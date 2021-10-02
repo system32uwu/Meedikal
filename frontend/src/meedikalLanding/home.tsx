@@ -1,9 +1,8 @@
 import React from "react";
-import { RouteComponentProps } from "@reach/router";
 import hero from "../static/hero.jpg";
 import { Link } from "react-router-dom";
 
-interface IProps extends RouteComponentProps {}
+interface IProps {}
 
 export const Home: React.FC<IProps> = () => {
   return (

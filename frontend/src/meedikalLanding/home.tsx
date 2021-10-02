@@ -23,7 +23,7 @@ export const Home: React.FC<IProps> = () => {
             </p>
             <div className="flex justify-center">
               <Link to="/plans">
-                <button className="inline-flex text-white bg-turqoise border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                <button className="inline-flex text-white bg-turqoise border-0 py-2 px-6 focus:outline-none rounded text-lg">
                   Plans
                 </button>
               </Link>

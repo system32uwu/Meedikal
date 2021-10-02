@@ -25,7 +25,7 @@ const Contact: React.FC<IProps> = () => {
               <h2 className="title-font font-semibold text-gray-900 tracking-widest text-xs">
                 EMAIL
               </h2>
-              <a className="text-turqoise leading-relaxed">
+              <a className="text-turqoise leading-relaxed" href="mailto:support@hccompay.com">
                 support@hccompay.com
               </a>
               <h2 className="title-font font-semibold text-gray-900 tracking-widest text-xs mt-4">

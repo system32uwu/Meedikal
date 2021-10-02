@@ -17,7 +17,7 @@ export const Login: React.FC<IProps> = () => {
     apiCall<Auth>("auth/login", "POST", { ci: ci, password: password })
       .then((res) => {
         let config = {};
-        if (process.env.NODE_ENV == "development") {
+        if (process.env.NODE_ENV === "development") {
           config = {
             headers: {
               Authorization: `Bearer ${res.authToken}`,
@@ -43,7 +43,7 @@ export const Login: React.FC<IProps> = () => {
               <p className="text-4xl font-extrabold">Welcome</p>
               <p className="text-2xs">
                 Don't have an account?
-                <a href="#" className="text-turqoise font-bold pl-1">
+                <a href="/app/register" className="text-turqoise font-bold pl-1">
                   Register
                 </a>
               </p>
@@ -94,7 +94,7 @@ export const Login: React.FC<IProps> = () => {
                 </div>
               ) : null}
               <div className="mt-4 text-right">
-                <a href="#" className="text-turqoise">
+                <a href="/app/forgot" className="text-turqoise">
                   Forgot your password?
                 </a>
               </div>
@@ -109,7 +109,7 @@ export const Login: React.FC<IProps> = () => {
           </div>
         </div>
         <div className="hidden lg:flex lg:my-auto lg:display-flex w-4/5">
-          <img src={logo} />
+          <img src={logo} alt="hospital illustration"/>
         </div>
       </div>
     </div>

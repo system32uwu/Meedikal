@@ -12,7 +12,7 @@ load_dotenv(f'{os.path.join(dirname(__file__))}../.env')
 
 app = Flask(__name__, static_folder='build/static', template_folder='build')
 
-if os.environ.get('ENV', None) == 'DEV':
+if os.environ.get('ENV', None) == 'development':
     app.config.from_object(DevelopmentConfig)
 else:
     app.config.from_object(ProductionConfig)
@@ -32,4 +32,4 @@ if __name__ == '__main__':
         pass
     finally:
         CORS(app, supports_credentials=True)
-        app.run()
+        app.run(port=os.environ.get('PORT', 80))

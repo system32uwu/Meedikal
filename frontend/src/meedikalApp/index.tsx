@@ -5,7 +5,7 @@ import { Login } from "./login";
 
 interface IProps {}
 
-export const App: React.FC<IProps> = () => {
+const MeedikalApp: React.FC<IProps> = () => {
   return (
     <BrowserRouter>
       <Switch>
@@ -20,3 +20,5 @@ export const App: React.FC<IProps> = () => {
     </BrowserRouter>
   );
 };
+
+export default MeedikalApp;

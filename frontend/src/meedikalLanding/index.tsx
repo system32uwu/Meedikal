@@ -5,7 +5,7 @@ import { NotFound } from "../components/notFound";
 
 interface IProps {}
 
-export const Landing: React.FC<IProps> = () => {
+const MeedikalLanding: React.FC<IProps> = () => {
   return (
     <BrowserRouter>
       <Switch>
@@ -17,3 +17,5 @@ export const Landing: React.FC<IProps> = () => {
     </BrowserRouter>
   );
 };
+
+export default MeedikalLanding;

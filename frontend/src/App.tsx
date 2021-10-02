@@ -1,6 +1,6 @@
 import React from "react";
-import { Landing as MeedikalLanding } from "./landing";
-import { App as MeedikalApp } from "./app";
+import MeedikalLanding from "./meedikalLanding";
+import MeedikalApp from "./meedikalApp";
 import { Route, Switch, BrowserRouter } from "react-router-dom";
 import { NotFound } from "./components/notFound";
 

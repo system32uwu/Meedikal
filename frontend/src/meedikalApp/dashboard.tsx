@@ -15,7 +15,7 @@ export const Dashboard: React.FC<IProps> = () => {
         setLoading(false);
       })
       .catch(() => push("/app/login"));
-  }, []);
+  }, [fetch, push]);
 
   return <div>{user?.user.ci}</div>;
 };

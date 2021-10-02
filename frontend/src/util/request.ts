@@ -1,10 +1,12 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { OKResponseShape, ErrorResponseShape } from "../types/index";
-export const baseUrl = "http://localhost:5000";
 
-export const apiUrl = `${baseUrl}/api`;
+const serverUrl =
+  process.env.NODE_ENV === "production" ? window.origin : "http://127.0.0.1:80";
 
-export const imagesUrl = `${baseUrl}/images`;
+export const apiUrl = `${serverUrl}/api`;
+
+export const imagesUrl = `${serverUrl}/images`;
 
 let _axios = axios.create({ baseURL: apiUrl });
 

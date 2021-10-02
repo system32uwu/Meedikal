@@ -23,13 +23,17 @@ def returnResource(resource:str):
 
 frontendRouter = Blueprint('frontend', __name__, url_prefix='/') # handles /
 
-@frontendRouter.route('app/login')
+@frontendRouter.route('app/login') # doesn't require auth
+def loginRoute():
+    return render_template('index.html')
+
+@frontendRouter.route('app/register') # doesn't require auth
 def loginRoute():
     return render_template('index.html')
 
 @frontendRouter.route('app')
 @frontendRouter.route('app/')
-@frontendRouter.route('app/<path:path>')
+@frontendRouter.route('app/<path:path>') 
 @requiresAuth
 def appRoute(path=None, ci:int=None):
     return render_template('index.html')

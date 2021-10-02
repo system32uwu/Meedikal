@@ -1,4 +1,4 @@
-rm -r -Force .\backend\build
+Remove-Item -r -Force .\backend\build
 .\backend\venv\Scripts\activate
 
 pip install -r backend\requirements.txt

@@ -1,5 +1,5 @@
 from util.errors import MissingCookieError, MissingRoleError
-from flask import session
+from flask import session, request
 from models.User import User,AuthUser
 from functools import wraps
 
@@ -8,7 +8,13 @@ def requiresAuth(f):
     def decorator(*args,**kwargs):
         token = None
         try:
-            token = session.get('authToken', None)
+            from server import app
+
+            if app.config['AUTH_METHOD'] == 'cookie':
+                token = session.get('authToken', None)
+            else:
+                token = request.headers.get('Authorization', None)
+                token = token.split('Bearer ')[1]
         except: # flask out of context error (raises when starting the app)
             pass
 

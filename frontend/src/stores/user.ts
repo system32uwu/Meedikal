@@ -1,5 +1,5 @@
 import create, { State } from "zustand";
-import { get } from "../util/request";
+import { api, apiCall } from "../util/request";
 import { FullUser, User } from "../types";
 
 interface userState extends State {
@@ -11,9 +11,12 @@ export const useUserStore = create<userState>((set, _get) => ({
   user: null,
   fetch: async () => {
     if (!_get().user) {
-      return await get<FullUser>("http://localhost:5000/api/auth/me")
-        .then((data) => {
-          set((_) => ({ user: data.result }));
+      return await apiCall<FullUser>(
+        "http://localhost:5000/api/auth/me",
+        "POST"
+      )
+        .then((res) => {
+          set((_) => ({ user: res }));
           return _get().user;
         })
         .catch((err) => {

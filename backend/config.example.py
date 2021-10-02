@@ -5,6 +5,7 @@ class Config(object):
     TESTING = False
     SESSION_COOKIE_SAMESITE = 'Strict'
     JSON_SORT_KEYS = False
+    AUTH_METHOD = 'cookie' # store jwt in session during production
     SECRET_KEY = 'secretkey' # used to sign and verify jwt tokens
     DATABASE = 'meedikal.db'
     UPLOAD_FOLDER = 'images/'
@@ -33,5 +34,6 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEBUG = True
     ENV= "development"
+    AUTH_METHOD = 'headers' # store jwt in local storage, only during development
 class TestingConfig(Config):
     TESTING = True

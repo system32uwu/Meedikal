@@ -13,7 +13,6 @@ export const Dashboard: React.FC<IProps> = () => {
     fetch()
       .then((_user) => {
         setLoading(false);
-        console.log(_user);
       })
       .catch(() => push("/app/login"));
   }, []);

@@ -1,25 +1,31 @@
-import axios from "axios";
-import { ErrorResponseShape, OKResponseShape } from "../types";
+import axios, { AxiosRequestConfig, Method } from "axios";
+import { OKResponseShape, ErrorResponseShape } from "../types/index";
+export const baseUrl = "http://localhost:5000";
 
-const baseUrl = "http://localhost:5000";
+export const apiUrl = `${baseUrl}/api`;
 
-const apiUrl = `${baseUrl}/api`;
+export const imagesUrl = `${baseUrl}/images`;
 
-const imagesUrl = `${baseUrl}/images`;
+let _axios = axios.create({ baseURL: apiUrl });
 
-const _axios = axios.create({ baseURL: apiUrl });
+export const api = () => {
+  return _axios;
+};
 
-_axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      return Promise.reject(error.response.data as ErrorResponseShape);
-    }
-  }
-);
+export const setApi = (config: AxiosRequestConfig) => {
+  _axios = axios.create({ ...config, baseURL: apiUrl });
+};
 
-export async function get<T>(url: string): Promise<OKResponseShape<T>> {
-  return await _axios.get(url).then((res) => {
-    return res.data;
-  });
+export async function apiCall<T>(
+  url: string,
+  method: Method,
+  data?: any
+): Promise<T> {
+  return await api()({ url, method, data })
+    .then((res) => {
+      return (res.data as OKResponseShape<T>).result;
+    })
+    .catch((err) => {
+      return Promise.reject(err.response.data as ErrorResponseShape);
+    });
 }

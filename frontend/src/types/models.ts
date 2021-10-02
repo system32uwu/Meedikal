@@ -28,3 +28,7 @@ export interface FullUser{
   roles: string[];
   phoneNumbers: string[];
 }
+
+export interface Auth{
+  authToken: string;
+}

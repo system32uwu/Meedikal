@@ -1,36 +1,38 @@
 import React, { FormEvent, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Auth, ErrorResponseShape } from "../types";
+import { apiCall, setApi } from "../util/request";
 import logo from "../static/healthcare-graphic.png";
-import { ErrorResponseShape } from "../types";
 
 interface IProps {}
 
-export const Login: React.FC<IProps> = ({}) => {
+export const Login: React.FC<IProps> = () => {
   const [ci, setCi] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { push } = useHistory();
   const [err, setErr] = useState<null | ErrorResponseShape>(null);
 
-  const handleLogin = (event: FormEvent) => {
+  const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
-    fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ ci: ci, password: password }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    apiCall<Auth>("auth/login", "POST", { ci: ci, password: password })
       .then((res) => {
-        res.json().then((data) => {
-          if (res.ok) {
-            push("/app/dashboard");
-          } else {
-            console.log(res.status, data);
-            setErr(data);
-          }
-        });
+        let config = {};
+        if (process.env.NODE_ENV == "development") {
+          config = {
+            headers: {
+              Authorization: `Bearer ${res.authToken}`,
+            },
+            withCredentials: true,
+          };
+        } else {
+          config = { withCredentials: true };
+        }
+        setApi(config);
+        push("/app/dashboard");
       })
-      .catch((e) => console.log(e));
+      .catch((err) => {
+        setErr(err);
+      });
   };
   return (
     <div className="flex w-full font-overpass">

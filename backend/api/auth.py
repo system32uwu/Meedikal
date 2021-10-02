@@ -16,21 +16,17 @@ def login(data:dict):
     if token is None:
         return genericErrorReturn('incorrect CI or password')
     else:
-        session['authToken'] = token
-        # res = make_response(crudReturn('OK'))
+        from server import app
 
-        # res.set_cookie('authToken', token, domain='127.0.0.1', path='/app')
-
-        return crudReturn('OK')
+        if app.config['AUTH_METHOD'] == 'cookie':
+            session['authToken'] = token
+            return crudReturn('OK')
+        else:
+            return crudReturn({'authToken': token})
 
 @router.post('/logout') # POST /api/auth/logout
 def logout():
     session.pop('authToken', None)
-    
-    # res = make_response(crudReturn('OK'))
-
-    # res.delete_cookie('authToken')
-
     return crudReturn('OK')
 
 @router.route('/me', methods=['POST', 'GET']) # POST /api/auth/me

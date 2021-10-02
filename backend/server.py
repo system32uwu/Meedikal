@@ -1,15 +1,21 @@
 import os
+from posixpath import dirname
 from flask import Flask
 from flask_cors import CORS
-from config import DevelopmentConfig
+from config import DevelopmentConfig, ProductionConfig
 from routers import apiRouter, frontendRouter, imagesRouter
 from util.JSONEncoder import JsonExtendEncoder
+from dotenv import load_dotenv
 import errorhandlers
+
+load_dotenv(f'{os.path.join(dirname(__file__))}../.env')
 
 app = Flask(__name__, static_folder='build/static', template_folder='build')
 
-app.config.from_object(DevelopmentConfig)
-
+if os.environ.get('ENV', None) == 'DEV':
+    app.config.from_object(DevelopmentConfig)
+else:
+    app.config.from_object(ProductionConfig)
 # --- CUSTOM ENCODER (used to encode dates)
 app.json_encoder = JsonExtendEncoder
 
@@ -25,5 +31,5 @@ if __name__ == '__main__':
     except:
         pass
     finally:
-        CORS(app, supports_credentials=True)    
+        CORS(app, supports_credentials=True)
         app.run()

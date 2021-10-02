@@ -6,11 +6,15 @@ interface IProps {}
 const Navbar: React.FC<IProps> = () => {
   const [menu, toggleMenu] = useState<boolean>(false);
   return (
-    <nav className="bg-white shadow dark:bg-gray-800">
+    <nav className="bg-white shadow font-overpass">
       <div className="container px-6 py-4 mx-auto md:flex md:justify-between md:items-center">
         <div className="flex items-center justify-between">
           <div className="flex flex-row">
-            <img src={companyLogo} alt="company logo" className="rounded-full w-10" />
+            <img
+              src={companyLogo}
+              alt="company logo"
+              className="rounded-full w-10"
+            />
             <a
               className="text-md font-thin text-gray-800 dark:text-white lg:text-2xl self-end pl-2 text-turqoise"
               href="/"
@@ -58,10 +62,25 @@ const Navbar: React.FC<IProps> = () => {
             </a>
             <a
               className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-turqoise dark:hover:text-indigo-400 md:mx-4 md:my-0"
-              href="/app/register"
+              href="/contact"
             >
-              Register
+              Plans
             </a>
+            {window.location.href.endsWith("login") ? (
+              <a
+                className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-turqoise dark:hover:text-indigo-400 md:mx-4 md:my-0"
+                href="/app/register"
+              >
+                Register
+              </a>
+            ) : (
+              <a
+                className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-turqoise dark:hover:text-indigo-400 md:mx-4 md:my-0"
+                href="/app/register"
+              >
+                Log In
+              </a>
+            )}
           </div>
         </div>
       </div>

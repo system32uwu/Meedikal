@@ -1,6 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import hero from "../static/hero.jpg";
+import { Link } from "react-router-dom";
 
 interface IProps extends RouteComponentProps {}
 
@@ -21,12 +22,16 @@ export const Home: React.FC<IProps> = () => {
               devices and the ideal plan for you and your family.
             </p>
             <div className="flex justify-center">
-              <button className="inline-flex text-white bg-turqoise border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                Plans
-              </button>
-              <button className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">
-                Contact
-              </button>
+              <Link to="/plans">
+                <button className="inline-flex text-white bg-turqoise border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                  Plans
+                </button>
+              </Link>
+              <Link to="/contact">
+                <button className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">
+                  Contact
+                </button>
+              </Link>
             </div>
           </div>
           <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
@@ -38,7 +43,6 @@ export const Home: React.FC<IProps> = () => {
           </div>
         </div>
       </section>
-      
     </div>
   );
 };

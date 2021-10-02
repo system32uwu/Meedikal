@@ -13,7 +13,7 @@ const App: React.FC<IProps> = () => {
         <Route path="/app">
           <MeedikalApp />
         </Route>
-        <Route exact path="/">
+        <Route path="/">
           <MeedikalLanding />
         </Route>
         <Route component={NotFound} />

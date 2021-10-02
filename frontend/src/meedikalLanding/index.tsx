@@ -10,8 +10,8 @@ interface IProps {}
 const MeedikalLanding: React.FC<IProps> = () => {
   return (
     <div>
-      <Navbar />
       <BrowserRouter>
+        <Navbar />
         <Switch>
           <Route exact path="/">
             <Home />
@@ -19,7 +19,7 @@ const MeedikalLanding: React.FC<IProps> = () => {
           <Route exact path="/contact">
             <Contact />
           </Route>
-          <Route component={NotFound}/>
+          <Route component={NotFound} />
         </Switch>
       </BrowserRouter>
     </div>

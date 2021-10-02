@@ -16,7 +16,7 @@ const Navbar: React.FC<IProps> = () => {
               className="rounded-full w-10"
             />
             <a
-              className="text-md font-thin text-gray-800 dark:text-white lg:text-2xl self-end pl-2 text-turqoise"
+              className="focus:outline-none text-md font-thin text-gray-800 dark:text-white lg:text-2xl self-end pl-2 text-turqoise"
               href="/"
             >
               Healthcare Company

@@ -109,7 +109,7 @@ export const Login: React.FC<IProps> = () => {
               </div>
               <div className="mt-4">
                 <button
-                  className="shadow bg-turqoise focus:shadow-outline text-white font-bold py-2 px-4 rounded w-full"
+                  className="focus:outline-none shadow bg-turqoise focus:shadow-outline text-white font-bold py-2 px-4 rounded w-full"
                   type="submit"
                 >
                   Log In

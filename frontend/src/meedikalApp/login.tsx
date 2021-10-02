@@ -40,7 +40,7 @@ export const Login: React.FC<IProps> = () => {
       <Navbar />
       <div className="lg:pt-4 flex w-full">
         <div className="flex flex-col w-full">
-          <div className="flex flex-col pt-8 md:pt-0 px-6 lg:pl-16 lg:h-full lg:justify-around">
+          <div className="lg:px-8 flex flex-col pt-8 md:pt-0 px-6 lg:pl-16 lg:h-full lg:justify-around">
             <div>
               <p className="text-2xl font-bold">Welcome</p>
               <p className="text-2xs">
@@ -54,7 +54,7 @@ export const Login: React.FC<IProps> = () => {
               </p>
             </div>
             <form
-              className="w-full lg:flex-wrap pt-4 md:pt-0"
+              className="w-full lg:w-5/6 lg:flex-wrap pt-4 md:pt-0"
               onSubmit={handleLogin}
             >
               <div className="lg:justify-between">
@@ -68,7 +68,7 @@ export const Login: React.FC<IProps> = () => {
                 </div>
                 <div>
                   <input
-                    className="appearance-none border-2 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white border-turqoise"
+                    className="appearance-none border border-gray-300 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-turqoise focus:border-turqoise"
                     id="ci"
                     type="text"
                     autoFocus
@@ -89,7 +89,7 @@ export const Login: React.FC<IProps> = () => {
                 </div>
                 <div>
                   <input
-                    className="appearance-none border-2 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white border-turqoise"
+                    className="appearance-none border border-gray-300 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-turqoise focus:border-turqoise"
                     id="inline-password"
                     type="password"
                     placeholder="**********"

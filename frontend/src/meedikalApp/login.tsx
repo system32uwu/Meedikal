@@ -2,7 +2,8 @@ import React, { FormEvent, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Auth, ErrorResponseShape } from "../types";
 import { apiCall, setApi } from "../util/request";
-import logo from "../static/healthcare-graphic.png";
+import illustration from "../static/healthcare-graphic.png";
+import Navbar from "../components/navbar";
 
 interface IProps {}
 
@@ -35,20 +36,27 @@ export const Login: React.FC<IProps> = () => {
       });
   };
   return (
-    <div className="flex w-full font-overpass">
-      <div className="lg:pt-14 flex w-full">
+    <div className="flex w-full font-overpass flex-col">
+      <Navbar />
+      <div className="lg:pt-4 flex w-full">
         <div className="flex flex-col w-full">
           <div className="flex flex-col pt-8 md:pt-0 px-6 lg:pl-16 lg:h-full lg:justify-around">
             <div>
-              <p className="text-4xl font-extrabold">Welcome</p>
+              <p className="text-2xl font-bold">Welcome</p>
               <p className="text-2xs">
                 Don't have an account?
-                <a href="/app/register" className="text-turqoise font-bold pl-1">
+                <a
+                  href="/app/register"
+                  className="text-turqoise font-bold pl-1"
+                >
                   Register
                 </a>
               </p>
             </div>
-            <form className="w-full lg:flex-wrap" onSubmit={handleLogin}>
+            <form
+              className="w-full lg:flex-wrap pt-4 md:pt-0"
+              onSubmit={handleLogin}
+            >
               <div className="lg:justify-between">
                 <div>
                   <label
@@ -60,9 +68,10 @@ export const Login: React.FC<IProps> = () => {
                 </div>
                 <div>
                   <input
-                    className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                    className="appearance-none border-2 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white border-turqoise"
                     id="ci"
                     type="text"
+                    autoFocus
                     placeholder="X.XXX.XXX-X"
                     value={ci}
                     onChange={(ev) => setCi(ev.target.value)}
@@ -80,7 +89,7 @@ export const Login: React.FC<IProps> = () => {
                 </div>
                 <div>
                   <input
-                    className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                    className="appearance-none border-2 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white border-turqoise"
                     id="inline-password"
                     type="password"
                     placeholder="**********"
@@ -100,7 +109,7 @@ export const Login: React.FC<IProps> = () => {
               </div>
               <div className="mt-4">
                 <input
-                  className="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded w-full"
+                  className="shadow bg-turqoise focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded w-full"
                   type="submit"
                   value="Log In"
                 />
@@ -108,8 +117,8 @@ export const Login: React.FC<IProps> = () => {
             </form>
           </div>
         </div>
-        <div className="hidden lg:flex lg:my-auto lg:display-flex w-4/5">
-          <img src={logo} alt="hospital illustration"/>
+        <div className="hidden lg:flex lg:my-auto lg:display-flex lg:mb-4">
+          <img src={illustration} alt="hospital illustration" />
         </div>
       </div>
     </div>

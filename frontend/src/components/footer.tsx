@@ -5,7 +5,7 @@ interface IProps {}
 const Footer: React.FC<IProps> = () => {
   return (
     <footer className="text-gray-600 body-font content-end">
-      <div className="container px-5 py-4 mx-auto flex items-center sm:flex-row md:static bottom-0 justify-between absolute">
+      <div className="container px-5 py-4 mx-auto flex items-center sm:flex-row bottom-0 justify-between static">
         <p className="text-sm text-gray-500 sm:py-2 sm:mt-0 mt-4">
           © 2021 Meedikal
         </p>

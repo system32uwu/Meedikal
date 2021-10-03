@@ -77,10 +77,15 @@ class User(SharedUserMethods):
 
             if Doctor.filter({'ci': ci}, returns='one') is not None:
                 types.append(Doctor.__tablename__)
+                types.remove(MedicalPersonnel.__tablename__)
             
             if MedicalAssitant.filter({'ci': ci}, returns='one') is not None:
                 types.append(MedicalAssitant.__tablename__)
-                
+                types.remove(MedicalPersonnel.__tablename__)
+
+        if len(types) > 1:
+            types.remove(User.__tablename__)
+
         return types
 
     @classmethod

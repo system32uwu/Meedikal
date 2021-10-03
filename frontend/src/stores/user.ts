@@ -5,6 +5,8 @@ import { FullUser } from "../types";
 interface userState extends State {
   user: FullUser | null;
   fetch: () => Promise<FullUser | null | undefined>;
+  currentRole: string | undefined;
+  setCurrentRole: (role: string | undefined) => void;
 }
 
 export const useUserStore = create<userState>((set, _get) => ({
@@ -19,4 +21,7 @@ export const useUserStore = create<userState>((set, _get) => ({
       return _get().user;
     }
   },
+  currentRole: undefined,
+  setCurrentRole: (role: string | undefined) =>
+    set((_) => ({ currentRole: role })),
 }));

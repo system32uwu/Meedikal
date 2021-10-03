@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import { Dashboard } from "../components/dashboard";
 import { useUserStore } from "../stores/user";
 
 interface IProps {}
 
-const Dashboard: React.FC<IProps> = () => {
-  const { user, fetch } = useUserStore();
-  const [loading, setLoading] = useState<boolean>(true);
+const MeedikalApp: React.FC<IProps> = () => {
+  const { fetch, setCurrentRole } = useUserStore();
   const { replace } = useHistory();
 
   useEffect(() => {
     fetch()
       .then((_user) => {
-        setLoading(false);
+        setCurrentRole(_user?.roles[0]); // set the first role found by default
       })
       .catch(() => replace("/login"));
-  }, [fetch, replace]);
+  }, [fetch, replace, setCurrentRole]);
 
-  return <div>{user?.user.ci}</div>;
+  return <Dashboard />;
 };
 
-export default Dashboard;
+export default MeedikalApp;
 
 // TODO: create the dashboard skeleton and use the pulse animation alongside spinners while loading is true.

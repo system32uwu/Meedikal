@@ -24,6 +24,7 @@ const Login: React.FC<IProps> = () => {
             },
             withCredentials: true,
           };
+          localStorage.setItem("authToken", res.authToken);
         } else {
           config = { withCredentials: true };
         }

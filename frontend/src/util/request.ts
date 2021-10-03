@@ -8,7 +8,12 @@ export const apiUrl = `${serverUrl}/api`;
 
 export const imagesUrl = `${serverUrl}/images`;
 
-let _axios = axios.create({ baseURL: apiUrl });
+let _axios = axios.create({
+  baseURL: apiUrl,
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+  },
+});
 
 export const api = () => {
   return _axios;

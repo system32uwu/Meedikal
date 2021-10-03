@@ -10,10 +10,6 @@ const MenuItems = [
     url: "/",
   },
   {
-    label: "Help",
-    url: "/help",
-  },
-  {
     label: "Contact",
     url: "/contact",
   },

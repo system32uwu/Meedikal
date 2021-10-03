@@ -8,6 +8,7 @@ import {
   patientPages,
 } from "./pages";
 import { Sidebar } from "./sidebar";
+import TitleBar from "./titleBar";
 
 interface IProps {}
 
@@ -30,11 +31,11 @@ export const Dashboard: React.FC<IProps> = () => {
 
 const UserBoard: React.FC<{ pages: DashboardPages }> = ({ pages }) => {
   const match = useRouteMatch();
-
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex">
       <Sidebar pages={pages} />
       <div className="flex-wrap w-full gap-x-4 h-full">
+        <TitleBar/>
         <Switch>
           {pages.map((p) => (
             <Route

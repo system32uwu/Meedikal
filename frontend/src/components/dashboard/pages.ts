@@ -3,7 +3,7 @@ import AdminAppointments from "./admin/appointments";
 import HomeAdmin from "./admin/home";
 
 export type DashboardPages = Array<{
-  name: string;
+  name?: string;
   url: string;
   component?: React.FC;
 }>;

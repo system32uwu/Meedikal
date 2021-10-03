@@ -4,6 +4,7 @@ import { Route, Switch, BrowserRouter } from "react-router-dom";
 import { NotFound } from "../components/notFound";
 import Navbar from "../components/navbar";
 import Contact from "./contact";
+import { Login } from "./login";
 
 interface IProps {}
 
@@ -18,6 +19,9 @@ const MeedikalLanding: React.FC<IProps> = () => {
           </Route>
           <Route exact path="/contact">
             <Contact />
+          </Route>
+          <Route exact path="/login">
+            <Login />
           </Route>
           <Route component={NotFound} />
         </Switch>

@@ -3,7 +3,6 @@ import { useHistory, Link } from "react-router-dom";
 import { Auth, ErrorResponseShape } from "../types";
 import { apiCall, setApi } from "../util/request";
 import illustration from "../static/healthcare-graphic.png";
-import Navbar from "../components/navbar";
 
 interface IProps {}
 
@@ -37,7 +36,6 @@ export const Login: React.FC<IProps> = () => {
   };
   return (
     <div className="flex w-full font-overpass flex-col">
-      <Navbar />
       <div className="lg:pt-4 flex w-full">
         <div className="flex flex-col w-full">
           <div className="lg:px-8 flex flex-col pt-8 md:pt-0 px-6 lg:pl-16 lg:h-full lg:justify-around">

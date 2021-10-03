@@ -64,13 +64,7 @@ def handle_exception(e:Exception):
     return {"error": repr(err)}, 400
 
 @frontendRouter.errorhandler(MissingCookieError)
+@frontendRouter.errorhandler(jwt.ExpiredSignatureError)
+@frontendRouter.errorhandler(jwt.InvalidTokenError)
 def missingCookieError(e):
-    return redirect('/app/login')
-
-@apiRouter.errorhandler(jwt.ExpiredSignatureError)
-def expiredToken(e):
-    return redirect('/app/login')
-
-@apiRouter.errorhandler(jwt.InvalidTokenError)
-def invalidToken(e):
-    return redirect('/app/login')
+    return redirect('/login')

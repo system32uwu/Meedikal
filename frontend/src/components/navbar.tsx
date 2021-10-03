@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import companyLogo from "../static/company-logo.png";
 
 interface IProps {}
@@ -25,7 +25,7 @@ const MenuItems = [
 
 const Navbar: React.FC<IProps> = () => {
   const [menu, toggleMenu] = useState<boolean>(false);
-
+  const { pathname } = useLocation();
   return (
     <nav className="bg-white shadow font-overpass">
       <div className="container px-6 py-4 mx-auto md:flex md:justify-between md:items-center">
@@ -69,23 +69,23 @@ const Navbar: React.FC<IProps> = () => {
                 key={item.label}
                 className={
                   "my-1 text-sm font-medium text-gray-700 hover:text-turqoise md:mx-4 md:my-0 " +
-                  (item.url == window.location.pathname ? "text-turqoise" : "")
+                  (pathname === item.url ? "text-turqoise" : "")
                 }
               >
                 {item.label}
               </Link>
             ))}
-            {window.location.href.endsWith("login") ? (
+            {pathname === "/login" ? (
               <Link
-                className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-turqoise dark:hover:text-indigo-400 md:mx-4 md:my-0"
-                to="/app/register"
+                to={"/register"}
+                className="my-1 text-sm font-medium text-gray-700 hover:text-turqoise md:mx-4 md:my-0"
               >
                 Register
               </Link>
             ) : (
               <Link
-                className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-turqoise dark:hover:text-indigo-400 md:mx-4 md:my-0"
-                to="/app/register"
+                to={"/login"}
+                className="my-1 text-sm font-medium text-gray-700 hover:text-turqoise md:mx-4 md:my-0"
               >
                 Log In
               </Link>

@@ -1,8 +1,8 @@
 import React from "react";
-import MeedikalLanding from "./meedikalLanding";
-import MeedikalApp from "./meedikalApp";
 import { Route, Switch, BrowserRouter } from "react-router-dom";
-import { NotFound } from "./components/notFound";
+import Navbar from "./components/navbar";
+import { Home, Login, Contact, Plans } from "./meedikalLanding";
+import Dashboard from "./meedikalApp";
 
 interface IProps {}
 
@@ -11,12 +11,25 @@ const App: React.FC<IProps> = () => {
     <BrowserRouter>
       <Switch>
         <Route path="/app">
-          <MeedikalApp />
+          <Dashboard />
         </Route>
         <Route path="/">
-          <MeedikalLanding />
+          <Navbar />
+          <Switch>
+            <Route exact path="/">
+              <Home />
+            </Route>
+            <Route exact path="/contact">
+              <Contact />
+            </Route>
+            <Route exact path="/login">
+              <Login />
+            </Route>
+            <Route exact path="/plans">
+              <Plans />
+            </Route>
+          </Switch>
         </Route>
-        <Route component={NotFound} />
       </Switch>
     </BrowserRouter>
   );

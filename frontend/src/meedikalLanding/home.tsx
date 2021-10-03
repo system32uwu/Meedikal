@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 interface IProps {}
 
-export const Home: React.FC<IProps> = () => {
+const Home: React.FC<IProps> = () => {
   return (
     <div>
       <section className="text-gray-600 body-font">
@@ -45,3 +45,5 @@ export const Home: React.FC<IProps> = () => {
     </div>
   );
 };
+
+export default Home;

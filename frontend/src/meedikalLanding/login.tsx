@@ -6,7 +6,7 @@ import illustration from "../static/healthcare-graphic.png";
 
 interface IProps {}
 
-export const Login: React.FC<IProps> = () => {
+const Login: React.FC<IProps> = () => {
   const [ci, setCi] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { push } = useHistory();
@@ -28,7 +28,7 @@ export const Login: React.FC<IProps> = () => {
           config = { withCredentials: true };
         }
         setApi(config);
-        push("/app/dashboard");
+        push("/app");
       })
       .catch((err) => {
         setErr(err);
@@ -123,3 +123,5 @@ export const Login: React.FC<IProps> = () => {
     </div>
   );
 };
+
+export default Login;

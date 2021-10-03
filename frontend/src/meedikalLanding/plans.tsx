@@ -41,7 +41,7 @@ const plans = [
   },
 ];
 
-const Plans: React.FC<IProps> = ({}) => {
+const Plans: React.FC<IProps> = () => {
   return (
     <section className="text-gray-600 body-font overflow-hidden">
       <div className="container px-5 py-4 mx-auto">

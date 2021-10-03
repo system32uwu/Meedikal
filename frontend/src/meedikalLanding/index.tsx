@@ -5,6 +5,7 @@ import { NotFound } from "../components/notFound";
 import Navbar from "../components/navbar";
 import Contact from "./contact";
 import { Login } from "./login";
+import Plans from "./plans";
 
 interface IProps {}
 
@@ -22,6 +23,9 @@ const MeedikalLanding: React.FC<IProps> = () => {
           </Route>
           <Route exact path="/login">
             <Login />
+          </Route>
+          <Route exact path="/plans">
+            <Plans />
           </Route>
           <Route component={NotFound} />
         </Switch>

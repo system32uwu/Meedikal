@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch, BrowserRouter, Router } from "react-router-dom";
+import { Route, Switch, Router } from "react-router-dom";
 import Navbar from "./components/navbar";
 import { Home, Login, Contact, Plans } from "./meedikalLanding";
 import Dashboard from "./meedikalApp";

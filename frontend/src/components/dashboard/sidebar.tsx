@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Link, useRouteMatch, useLocation, useHistory } from "react-router-dom";
+import { Link, useRouteMatch, useLocation } from "react-router-dom";
 import { useUserStore } from "../../stores/user";
-import { apiCall } from "../../util/request";
 import { DashboardPages } from "./pages";
 interface IProps {
   pages: DashboardPages;
@@ -11,7 +10,6 @@ export const Sidebar: React.FC<IProps> = ({ pages }) => {
   const [isSidebarOpen, toggleSidebar] = useState(true);
   const match = useRouteMatch();
   const { pathname } = useLocation();
-  const { push } = useHistory();
   const { logout } = useUserStore();
 
   return (

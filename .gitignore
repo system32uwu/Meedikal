@@ -34,3 +34,4 @@ backend/meedikal.db
 backend/images
 .vscode
 .env
+.flaskenv

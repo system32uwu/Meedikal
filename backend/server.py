@@ -1,18 +1,17 @@
 import os
-from posixpath import dirname
 from flask import Flask
 from flask_cors import CORS
+from dotenv import load_dotenv
 from config import DevelopmentConfig, ProductionConfig
 from routers import apiRouter, frontendRouter, imagesRouter
 from util.JSONEncoder import JsonExtendEncoder
-from dotenv import load_dotenv
 import errorhandlers
 
-load_dotenv(f'{os.path.join(dirname(__file__))}../.env')
+load_dotenv()
 
 app = Flask(__name__, static_folder='build/static', template_folder='build')
 
-if os.environ.get('ENV', None) == 'development':
+if os.environ.get('FLASK_ENV', None) == 'development':
     app.config.from_object(DevelopmentConfig)
 else:
     app.config.from_object(ProductionConfig)

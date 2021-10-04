@@ -1,36 +1,78 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import { DashboardPages } from "./pages";
-import companyLogo from "../../static/company-logo.png";
 interface IProps {
   pages: DashboardPages;
 }
 
 export const Sidebar: React.FC<IProps> = ({ pages }) => {
+  const [isSidebarOpen, toggleSidebar] = useState(true);
   const match = useRouteMatch();
+
   return (
-    <div className="pr-4 px-2 h-screen bg-pastel-skyblue w-60">
-      <div className="h-full w-full divide-y-2 divide-hard-blue">
-        <div className="pt-4 grid justify-items-stretch">
-          <img
-            src={companyLogo}
-            alt="company logo"
-            className="rounded-full w-20 justify-self-center"
-          />
-          <p className="text-xs text-center pb-2 pt-1 text-hard-blue font-semibold">
-            Healthcare Company
-          </p>
-        </div>
-        <div className="pt-2">
-          {pages.map((p) => (
-            <Link
-              to={`${match.path}${p.url}`}
-              key={p.name}
-              className="block text-hard-blue font-bold py-2"
-            >
-              {p.name}
-            </Link>
-          ))}
+    <div>
+      <div className="relative lg:display-none">
+        <button
+          type="button"
+          className={`text-white top-2 left-2 focus:outline-none focus:text-gray-600 hover:text-gray-600 ${
+            !isSidebarOpen ? "absolute" : "hidden"
+          }`}
+          aria-label="toggle menu"
+          onClick={() => toggleSidebar(!isSidebarOpen)}
+        >
+          <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+            <path
+              fillRule="evenodd"
+              d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+            ></path>
+          </svg>
+        </button>
+      </div>
+      <div
+        className={`transition-all  duration-500  fixed top-0 ${
+          isSidebarOpen ? "left-0" : "-left-64"
+        }`}
+      >
+        <div className="flex h-screen overflow-y-auto flex-col bg-white w-64 px-4 py-8 border-r min-h-screen relative">
+          <h2 className="fixed top-2 text-xl font-semibold text-gray-800">
+            Healthcare <span className="text-turqoise ml-1">Company</span>
+          </h2>
+          <button
+            onClick={() => toggleSidebar(!isSidebarOpen)}
+            className="absolute top-2 right-1  text-gray-600 w-8 h-8 rounded-full flex items-center justify-center active:bg-gray-300 focus:outline-none ml-6 hover:bg-gray-200 hover:text-gray-800"
+          >
+            <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+              <path
+                fillRule="evenodd"
+                d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+              ></path>
+            </svg>
+          </button>
+          <div className="flex flex-col mt-1  justify-between flex">
+            <nav className="text">
+              {pages.map((p) => (
+                <Link
+                  to={`${match.path}${p.url}`}
+                  key={p.name}
+                  className="block text-hard-blue font-bold py-2 flex items-start py-2 mt-5 rounded-md hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full"
+                >
+                  <span className="mx-4 font-medium">{p.name}</span>
+                </Link>
+              ))}
+              <hr className="my-6" />
+              <Link
+                to={`${match.path}/settings`}
+                className="flex items-start py-2 mt-5 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full"
+              >
+                {/* <MdSettings className="w-5 h-5" /> */}
+                <span className="mx-4 font-medium">Settings</span>
+              </Link>
+              <button className="w-full flex items-start py-2 mt-5 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-200 transition-colors transform">
+                {/* <HiTicket className="w-5 h-5" /> */}
+                <span className="mx-4 font-medium">Log out</span>
+              </button>
+            </nav>
+          </div>
         </div>
       </div>
     </div>

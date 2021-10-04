@@ -32,4 +32,4 @@ if __name__ == '__main__':
         pass
     finally:
         CORS(app, supports_credentials=True)
-        app.run(port=os.environ.get('PORT', 80))
+        app.run()

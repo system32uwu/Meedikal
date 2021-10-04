@@ -34,7 +34,7 @@ const UserBoard: React.FC<{ pages: DashboardPages }> = ({ pages }) => {
   return (
     <div className="flex">
       <Sidebar pages={pages} />
-      <div className="flex-wrap w-full gap-x-4 h-full">
+      <div className="flex-wrap w-full h-full">
         <TitleBar/>
         <Switch>
           {pages.map((p) => (

@@ -29,10 +29,10 @@ const TitleBar: React.FC = () => {
             {title}
           </p>
           <div className="justify-end float-right right-0 px-2 flex flex-row space-x-2 w-full">
-            <button className="w-6 h-6 rounded-full bg-white p-0.5">
+            <button className="z-10 w-6 h-6 rounded-full bg-white p-0.5">
               <img src={bell} alt="bell" />
             </button>
-            <button className="w-6 h-6 rounded-full bg-white">
+            <button className="z-10 w-6 h-6 rounded-full bg-white">
               <img
                 src={user?.user.photoUrl || userPlaceholder}
                 className="object-cover p-1"

@@ -11,6 +11,8 @@ const Home: React.FC<IProps> = ({ pages }) => {
       {pages.map((p) => {
         if (p.name !== "Home") {
           return <Card key={p.url} page={p} />;
+        } else {
+          return null;
         }
       })}
     </div>

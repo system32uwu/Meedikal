@@ -7,21 +7,22 @@ from routers import apiRouter, frontendRouter, imagesRouter
 from util.JSONEncoder import JsonExtendEncoder
 import errorhandlers
 
-load_dotenv()
+load_dotenv() # load .env file
 
 app = Flask(__name__, static_folder='build/static', template_folder='build')
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True) # apply CORS to flask app
 
 if os.environ.get('FLASK_ENV', None) == 'development':
     app.config.from_object(DevelopmentConfig)
 else:
     app.config.from_object(ProductionConfig)
+
 # --- CUSTOM ENCODER (used to encode dates)
 app.json_encoder = JsonExtendEncoder
 
 # --- MAIN ROUTERS
-app.register_blueprint(apiRouter) # api
-app.register_blueprint(frontendRouter) # frontend
+app.register_blueprint(apiRouter) # /api
+app.register_blueprint(frontendRouter) # /
 app.register_blueprint(imagesRouter) # /images
 # --- MAIN ROUTERS
 

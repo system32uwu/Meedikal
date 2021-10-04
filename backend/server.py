@@ -10,6 +10,7 @@ import errorhandlers
 load_dotenv()
 
 app = Flask(__name__, static_folder='build/static', template_folder='build')
+CORS(app, supports_credentials=True)
 
 if os.environ.get('FLASK_ENV', None) == 'development':
     app.config.from_object(DevelopmentConfig)
@@ -30,5 +31,4 @@ if __name__ == '__main__':
     except:
         pass
     finally:
-        CORS(app, supports_credentials=True)
         app.run()

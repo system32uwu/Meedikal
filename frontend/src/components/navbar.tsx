@@ -27,27 +27,27 @@ const Navbar: React.FC<IProps> = () => {
       <div className="container px-6 py-4 mx-auto md:flex md:justify-between md:items-center">
         <div className="flex items-center justify-between">
           <div className="flex flex-row">
-            <img
-              src={companyLogo}
-              alt="company logo"
-              className="rounded-full w-10"
-            />
             <Link
-              className="focus:outline-none text-md font-thin text-gray-800 dark:text-white lg:text-2xl self-end pl-2 text-turqoise"
+              className="flex flex-row focus:outline-none text-md font-thin text-gray-800 lg:text-2xl self-end text-turqoise"
               to="/"
             >
-              Healthcare Company
+              <img
+                src={companyLogo}
+                alt="company logo"
+                className="rounded-full w-10 mr-2"
+              />
+              <p className="text-center self-center">Healthcare Company</p>
             </Link>
           </div>
 
           <div className="flex md:hidden">
             <button
               type="button"
-              className="text-gray-500 dark:text-gray-200 hover:text-turqoise dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400"
+              className="text-gray-500 hover:text-turqoise focus:outline-none focus:text-gray-600 self-center"
               aria-label="toggle menu"
               onClick={() => toggleMenu(!menu)}
             >
-              <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+              <svg viewBox="0 0 24 24" className="w-6 h-10 fill-current">
                 <path
                   fillRule="evenodd"
                   d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"

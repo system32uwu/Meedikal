@@ -6,6 +6,7 @@ export type DashboardPages = Array<{
   name?: string;
   url: string;
   component?: React.FC;
+  icon?: any;
 }>;
 
 export const adminPages: DashboardPages = [
@@ -27,12 +28,16 @@ export const adminPages: DashboardPages = [
     name: "Stats",
     url: "/stats",
   },
+  {
+    name: "Branches",
+    url: "/branches",
+  },
 ];
 
 export const patientPages: DashboardPages = [
   {
     name: "Home",
-    url: "/home",
+    url: "",
   },
   {
     name: "Appointments",
@@ -59,7 +64,7 @@ export const patientPages: DashboardPages = [
 export const medicalPersonnelPages: DashboardPages = [
   {
     name: "Home",
-    url: "/home",
+    url: "",
   },
   {
     name: "Appointments",

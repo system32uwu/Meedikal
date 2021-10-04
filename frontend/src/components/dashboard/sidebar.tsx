@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useRouteMatch, useLocation, useHistory } from "react-router-dom";
+import { useUserStore } from "../../stores/user";
+import { apiCall } from "../../util/request";
 import { DashboardPages } from "./pages";
 interface IProps {
   pages: DashboardPages;
@@ -8,6 +10,9 @@ interface IProps {
 export const Sidebar: React.FC<IProps> = ({ pages }) => {
   const [isSidebarOpen, toggleSidebar] = useState(true);
   const match = useRouteMatch();
+  const { pathname } = useLocation();
+  const { push } = useHistory();
+  const { logout } = useUserStore();
 
   return (
     <div>
@@ -54,7 +59,9 @@ export const Sidebar: React.FC<IProps> = ({ pages }) => {
                 <Link
                   to={`${match.path}${p.url}`}
                   key={p.name}
-                  className="block text-hard-blue font-bold py-2 flex items-start py-2 mt-5 rounded-md hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full"
+                  className={`block text-hard-blue font-bold py-2 flex items-start py-2 mt-5 rounded-md hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full focus:outline-none ${
+                    match.path + p.url === pathname ? "bg-gray-200" : ""
+                  }`}
                 >
                   <span className="mx-4 font-medium">{p.name}</span>
                 </Link>
@@ -62,12 +69,19 @@ export const Sidebar: React.FC<IProps> = ({ pages }) => {
               <hr className="my-6" />
               <Link
                 to={`${match.path}/settings`}
-                className="flex items-start py-2 mt-5 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full"
+                className={`block text-hard-blue font-bold flex items-start py-2 mt-5 rounded-md hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full focus:outline-none ${
+                  match.path + "/settings" === pathname ? "bg-gray-200" : ""
+                }`}
               >
                 {/* <MdSettings className="w-5 h-5" /> */}
                 <span className="mx-4 font-medium">Settings</span>
               </Link>
-              <button className="w-full flex items-start py-2 mt-5 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-200 transition-colors transform">
+              <button
+                className="block text-hard-blue font-bold flex items-start py-2 mt-4 rounded-md hover:text-gray-700 hover:bg-gray-200 transition-colors transform w-full focus:outline-none"
+                onClick={() => {
+                  logout();
+                }}
+              >
                 {/* <HiTicket className="w-5 h-5" /> */}
                 <span className="mx-4 font-medium">Log out</span>
               </button>

@@ -3,7 +3,7 @@ import PlanCard from "../components/planCard";
 
 interface IProps {}
 
-const featureX = (x: number) => {
+const featureX = (x: number): Array<string> => {
   let lst = Array(x);
   for (let i = 1; i <= x; i++) lst.push(`feature ${i}`);
   return lst;

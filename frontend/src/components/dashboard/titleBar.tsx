@@ -22,21 +22,25 @@ const TitleBar: React.FC = () => {
   }, [location, setTitle]);
 
   return (
-    <div className="w-full bg-turqoise h-10 pt-2 flex">
-      <div className="text-center text-white font-bold subpixel-antialiased flex-grow lg:ml-64">
-        {title}
-      </div>
-      <div className="float-right px-2 flex flex-row space-x-2">
-        <button className="w-6 h-6 rounded-full bg-white p-0.5">
-          <img src={bell} alt="bell" />
-        </button>
-        <button className="w-6 h-6 rounded-full bg-white">
-          <img
-            src={user?.user.photoUrl || userPlaceholder}
-            className="object-cover p-1"
-            alt="user avatar"
-          />
-        </button>
+    <div className="w-full bg-turqoise h-10 pt-2 flex flex-grow">
+      <div className="flex lg:ml-64 w-full">
+        <div className="flex flex-row w-full justify-center">
+          <p className="fixed text-center w-full text-white font-bold subpixel-antialiased">
+            {title}
+          </p>
+          <div className="justify-end float-right right-0 px-2 flex flex-row space-x-2 w-full">
+            <button className="w-6 h-6 rounded-full bg-white p-0.5">
+              <img src={bell} alt="bell" />
+            </button>
+            <button className="w-6 h-6 rounded-full bg-white">
+              <img
+                src={user?.user.photoUrl || userPlaceholder}
+                className="object-cover p-1"
+                alt="user avatar"
+              />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

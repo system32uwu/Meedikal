@@ -14,7 +14,7 @@ export const Sidebar: React.FC<IProps> = ({ pages }) => {
 
   return (
     <div>
-      <div className="relative lg:display-none">
+      <div className="relative lg:hidden">
         <button
           type="button"
           className={`text-white top-2 left-2 focus:outline-none focus:text-gray-600 hover:text-gray-600 lg:hidden ${

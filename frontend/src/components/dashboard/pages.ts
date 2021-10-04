@@ -2,6 +2,13 @@ import React from "react";
 import AdminAppointments from "./admin/appointments";
 import HomeAdmin from "./admin/home";
 
+export type DashboardPage = {
+  name?: string | undefined;
+  url: string;
+  component?: React.FC<{}> | undefined;
+  icon?: any;
+};
+
 export type DashboardPages = Array<{
   name?: string;
   url: string;

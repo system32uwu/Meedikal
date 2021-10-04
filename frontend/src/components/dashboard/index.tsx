@@ -35,17 +35,19 @@ const UserBoard: React.FC<{ pages: DashboardPages }> = ({ pages }) => {
     <div className="flex">
       <Sidebar pages={pages} />
       <div className="flex-wrap w-full h-full">
-        <TitleBar/>
-        <Switch>
-          {pages.map((p) => (
-            <Route
-              exact
-              path={`${match.path}${p.url}`}
-              key={p.name}
-              component={p.component}
-            />
-          ))}
-        </Switch>
+        <TitleBar />
+        <div className="lg:ml-64"> {/* size of sidebar */}
+          <Switch>
+            {pages.map((p) => (
+              <Route
+                exact
+                path={`${match.path}${p.url}`}
+                key={p.name}
+                component={p.component}
+              />
+            ))}
+          </Switch>
+        </div>
       </div>
     </div>
   );

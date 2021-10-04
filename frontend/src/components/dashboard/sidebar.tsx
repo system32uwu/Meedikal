@@ -7,7 +7,7 @@ interface IProps {
 }
 
 export const Sidebar: React.FC<IProps> = ({ pages }) => {
-  const [isSidebarOpen, toggleSidebar] = useState(true);
+  const [isSidebarOpen, toggleSidebar] = useState(false);
   const match = useRouteMatch();
   const { pathname } = useLocation();
   const { logout } = useUserStore();
@@ -17,7 +17,7 @@ export const Sidebar: React.FC<IProps> = ({ pages }) => {
       <div className="relative lg:display-none">
         <button
           type="button"
-          className={`text-white top-2 left-2 focus:outline-none focus:text-gray-600 hover:text-gray-600 ${
+          className={`text-white top-2 left-2 focus:outline-none focus:text-gray-600 hover:text-gray-600 lg:hidden ${
             !isSidebarOpen ? "absolute" : "hidden"
           }`}
           aria-label="toggle menu"
@@ -32,17 +32,17 @@ export const Sidebar: React.FC<IProps> = ({ pages }) => {
         </button>
       </div>
       <div
-        className={`transition-all  duration-500  fixed top-0 ${
+        className={`transition-all  duration-500 fixed top-0 lg:-left-0 ${
           isSidebarOpen ? "left-0" : "-left-64"
         }`}
       >
         <div className="flex h-screen overflow-y-auto flex-col bg-white w-64 px-4 py-8 border-r min-h-screen relative">
-          <h2 className="fixed top-2 text-xl font-semibold text-gray-800">
-            Healthcare <span className="text-turqoise ml-1">Company</span>
+          <h2 className="fixed top-2 text-xl font-semibold text-gray-800 text-center self-center lg:mr-0 mr-4">
+            Healthcare <span className="text-turqoise">Company</span>
           </h2>
           <button
             onClick={() => toggleSidebar(!isSidebarOpen)}
-            className="absolute top-2 right-1  text-gray-600 w-8 h-8 rounded-full flex items-center justify-center active:bg-gray-300 focus:outline-none ml-6 hover:bg-gray-200 hover:text-gray-800"
+            className="absolute top-2 right-1 text-gray-600 w-8 h-8 rounded-full flex items-center justify-center active:bg-gray-300 focus:outline-none ml-6 hover:bg-gray-200 hover:text-gray-800 lg:hidden"
           >
             <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
               <path

@@ -23,7 +23,7 @@ const TitleBar: React.FC = () => {
 
   return (
     <div className="w-full bg-turqoise h-10 pt-2 flex">
-      <div className="text-center text-white font-bold subpixel-antialiased flex-grow">
+      <div className="text-center text-white font-bold subpixel-antialiased flex-grow lg:ml-64">
         {title}
       </div>
       <div className="float-right px-2 flex flex-row space-x-2">

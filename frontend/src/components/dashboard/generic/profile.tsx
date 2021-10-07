@@ -3,6 +3,14 @@ import { useUserStore } from "../../../stores/user";
 import { apiCall } from "../../../util/request";
 import { Chip } from "../../common/chip";
 
+interface Dictionary<T> {
+  [key: string]: T;
+}
+
+const RoleColors: Dictionary<string> = {
+  administrative: "bg-red-500",
+};
+
 interface IProps {}
 
 interface IUserFieldProps {
@@ -48,6 +56,7 @@ export const Profile: React.FC<IProps> = () => {
             <div className="flex flex-wrap justify-start">
               {user?.phoneNumbers.map((p) => (
                 <Chip
+                  key={p.phone}
                   text={p.phone}
                   btn
                   onClick={() => {
@@ -59,11 +68,9 @@ export const Profile: React.FC<IProps> = () => {
               ))}
             </div>
           </div>
-
-          <UserField name="Roles" value={user?.roles.join(", ")} />
         </div>
-        <div className="md:col-span-1 h-48 shadow-xl ">
-          <div className="flex w-full h-full relative">
+        <div className="md:col-span-1">
+          <div className="h-48 shadow-xl flex flex-col relative">
             <img
               src={
                 user?.user.photoUrl ||
@@ -72,7 +79,19 @@ export const Profile: React.FC<IProps> = () => {
               className="w-44 h-44 m-auto"
               alt="user profile picture"
             />
+            {user?.roles.map((r) => (
+              <Chip
+                key={r}
+                text={r}
+                bold
+                textColor="white"
+                bgColor={RoleColors[`${r}`]}
+              />
+            ))}
           </div>
+          {/* <div className="md:col-span-1 flex flex-wrap pt-2">
+            
+          </div> */}
         </div>
       </div>
     </div>

@@ -2,18 +2,34 @@ import React, { MouseEventHandler } from "react";
 
 interface IProps {
   text: string;
+  bgColor?: string;
+  textColor?: string;
+  bold?: boolean;
   btn?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
 }
 
-export const Chip: React.FC<IProps> = ({ text, btn, onClick }) => {
+export const Chip: React.FC<IProps> = ({
+  text,
+  textColor,
+  bold,
+  bgColor,
+  btn,
+  onClick,
+}) => {
   return (
-    <div className="inline-flex items-center rounded-full bg-white border border-gray-200 p-px">
-      <span className="px-1 text-sm">{text}</span>
+    <div
+      className={`inline-flex items-center rounded-full border border-gray-200 px-1 py-1 ${bgColor}`}
+    >
+      <span
+        className={`px-1 text-sm text-center w-full text-${textColor} ${bold ? "font-bold" : ""}`}
+      >
+        {text}
+      </span>
       {btn ? (
         <button
           type="button"
-          className="h-6 w-6 p-1 rounded-full bg-red-400 bg-opacity-25 focus:outline-none"
+          className="h-6 w-6 p-1 rounded-full bg-opacity-25 focus:outline-none"
           onClick={onClick}
         >
           <svg

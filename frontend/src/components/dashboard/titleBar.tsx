@@ -26,7 +26,7 @@ const TitleBar: React.FC = () => {
     <div className="w-full bg-turqoise h-10 pt-2 flex flex-grow">
       <div className="flex lg:ml-64 w-full">
         <div className="flex flex-row w-full justify-center">
-          <p className="fixed text-center w-full text-white font-bold subpixel-antialiased">
+          <p className="absolute text-center text-white font-bold subpixel-antialiased">
             {title}
           </p>
           <div className="justify-end float-right right-0 px-2 flex flex-row space-x-2 w-full">

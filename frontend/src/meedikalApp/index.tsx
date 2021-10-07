@@ -12,7 +12,9 @@ const MeedikalApp: React.FC<IProps> = () => {
   useEffect(() => {
     fetch()
       .then((_user) => {
-        setCurrentRole(_user?.roles[0]); // set the first role found by default
+        if (_user) {
+          setCurrentRole(_user.roles ? _user.roles[0] : "user"); // set the first role found by default
+        }
       })
       .catch(() => replace("/login"));
   }, [fetch, replace, setCurrentRole]);

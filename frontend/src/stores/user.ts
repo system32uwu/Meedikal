@@ -1,13 +1,14 @@
-import create, { State } from "zustand";
+import create, { UndoState } from "zundo";
 import { apiCall } from "../util/request";
 import { FullUser } from "../types";
 import { history } from "../App";
-interface userState extends State {
-  user: FullUser | null;
+interface userState extends UndoState {
+  user: FullUser | null | undefined;
   fetch: () => Promise<FullUser | null | undefined>;
   currentRole: string | undefined;
   setCurrentRole: (role: string | undefined) => void;
   logout: () => void;
+  setUser: (user: FullUser | null | undefined) => void;
 }
 
 export const useUserStore = create<userState>((set, _get) => ({
@@ -35,5 +36,8 @@ export const useUserStore = create<userState>((set, _get) => ({
       });
     }
     set((_) => ({ user: null, currentRole: undefined }));
+  },
+  setUser: (user: FullUser | null | undefined) => {
+    set((_) => ({ user: user }));
   },
 }));

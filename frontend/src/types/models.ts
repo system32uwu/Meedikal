@@ -12,7 +12,7 @@ export interface User {
   name1: string;
   surname1: string;
   sex: string;
-  birthdate: Date;
+  birthdate: string;
   location: string;
   email: string;
   password: string;
@@ -23,12 +23,12 @@ export interface User {
   photoUrl: string | null;
 }
 
-export interface FullUser{
+export interface FullUser {
   user: User;
   roles: string[];
-  phoneNumbers: string[];
+  phoneNumbers: { ci: number; phone: string }[];
 }
 
-export interface Auth{
+export interface Auth {
   authToken: string;
 }

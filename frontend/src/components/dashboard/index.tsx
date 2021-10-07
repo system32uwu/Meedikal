@@ -1,6 +1,7 @@
 import React from "react";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import { useUserStore } from "../../stores/user";
+import { Profile } from "./generic/profile";
 import {
   adminPages,
   DashboardPages,
@@ -46,6 +47,9 @@ const UserBoard: React.FC<{ pages: DashboardPages }> = ({ pages }) => {
                 component={p.component}
               />
             ))}
+            <Route exact path={`${match.path}/profile`}>
+              <Profile />
+            </Route>
           </Switch>
         </div>
       </div>

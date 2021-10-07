@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import { useUserStore } from "../../stores/user";
 import bell from "../../static/bell.svg";
 import userPlaceholder from "../../static/user.svg";
+import { history } from "../../App";
 
 const TitleBar: React.FC = () => {
   const { location } = useHistory();
@@ -32,7 +33,10 @@ const TitleBar: React.FC = () => {
             <button className="z-10 w-6 h-6 rounded-full bg-white p-0.5">
               <img src={bell} alt="bell" />
             </button>
-            <button className="z-10 w-6 h-6 rounded-full bg-white">
+            <button
+              className="z-10 w-6 h-6 rounded-full bg-white"
+              onClick={() => history.push("/app/profile")}
+            >
               <img
                 src={user?.user.photoUrl || userPlaceholder}
                 className="object-cover p-1"

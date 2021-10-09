@@ -9,7 +9,7 @@ import errorhandlers
 
 load_dotenv() # load .env file
 
-app = Flask(__name__, static_folder='build/static', template_folder='build')
+app = Flask(__name__)
 CORS(app, supports_credentials=True) # apply CORS to flask app
 
 if os.environ.get('FLASK_ENV', None) == 'development':

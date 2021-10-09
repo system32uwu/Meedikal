@@ -110,6 +110,22 @@ class User(SharedUserMethods):
         else:
             with open (f'images/{ci}.jpg', 'wb') as f:
                 f.write(photo)
+
+    @classmethod
+    def updateByCi(cls, ci:int, data: dict) -> int:
+        sets = [f'{k} = ?' for k in data.keys()]
+
+        statement = f"""
+        UPDATE {cls.__tablename__} SET
+        {', '.join(sets)}
+        WHERE ci = ?
+        """
+        values = [v for v in data.values()] + [ci]
+        cursor = db.cursor()
+        cursor.execute(statement, values)
+        db.commit()
+
+        return cursor.rowcount
 class AuthUser:
 
     @classmethod

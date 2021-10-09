@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useUserStore } from "../../../stores/user";
 import { Dictionary } from "../../../types";
 import { apiCall } from "../../../util/request";
@@ -17,9 +17,9 @@ interface IUserFieldProps {
 }
 
 const UserField: React.FC<IUserFieldProps> = ({ name, _key, readOnly }) => {
-  const { user, setUser } = useUserStore();
+  const { user } = useUserStore();
   const [value, setValue] = useState<string>(user?.user[_key] || "");
-  
+
   return (
     <div className="flex">
       <span className="text-sm border bg-blue-50 font-bold uppercase border-2 rounded-l px-4 py-2 bg-gray-50 whitespace-no-wrap w-2/6">
@@ -32,13 +32,6 @@ const UserField: React.FC<IUserFieldProps> = ({ name, _key, readOnly }) => {
         readOnly={readOnly}
         onChange={(e) => {
           setValue(e.target.value);
-          setUser({
-            ...user,
-            user: {
-              ...user!.user,
-              _key: e.target.value,
-            },
-          });
         }}
       />
     </div>
@@ -46,9 +39,7 @@ const UserField: React.FC<IUserFieldProps> = ({ name, _key, readOnly }) => {
 };
 
 export const Profile: React.FC<IProps> = () => {
-  const { user, undo } = useUserStore();
-
-  useEffect(() => {}, [user]);
+  const { user } = useUserStore();
 
   return (
     <div>
@@ -110,8 +101,7 @@ export const Profile: React.FC<IProps> = () => {
         <div className="mb-4 mt-4 flex justify-between">
           <button
             onClick={() => {
-              console.log("cancelling changes");
-              undo!;
+              window.location.reload();
             }}
             className="bg-red-500 w-96 font-bold text-white text-center text-sm rounded-full py-2"
           >
@@ -120,7 +110,9 @@ export const Profile: React.FC<IProps> = () => {
           <button
             onClick={() => {
               console.log("saving changes!");
-              console.log(user);
+              apiCall<any>("/user", "PUT", user?.user)
+                .then(() => window.location.reload())
+                .catch((e) => console.log(e));
             }}
             className="bg-turqoise w-96 font-bold text-white text-center text-sm rounded-full py-2"
           >

@@ -1,8 +1,8 @@
-import create, { UndoState } from "zundo";
+import create, { State } from "zustand";
 import { apiCall } from "../util/request";
 import { FullUser } from "../types";
 import { history } from "../App";
-interface userState extends UndoState {
+interface userState extends State {
   user: FullUser | null | undefined;
   fetch: () => Promise<FullUser | null | undefined>;
   currentRole: string | undefined;

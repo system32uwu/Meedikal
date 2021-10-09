@@ -59,8 +59,14 @@ def createUser(data:dict):
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 @passJsonData
 @requiresAuth
-def updateUser(data:dict):
-    return crudReturn(User.update(data))
+def updateUser(data:dict, ci:int):
+    return crudReturn(User.updateByCi(ci, data))
+
+@router.route('/<int:ci>', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
+@passJsonData
+@requiresRole('admin')
+def updateUserAsAdmin(data:dict):
+    return crudReturn(User.updateByCi(data['ci'], data))
 
 @router.delete('') # DELETE /api/user
 @passJsonData

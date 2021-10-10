@@ -10,10 +10,7 @@
   >
     <div class="flex items-center justify-between">
       <div class="flex flex-row">
-        <a
-          class="flex flex-row focus:outline-none self-end"
-          href="/"
-        >
+        <a class="flex flex-row focus:outline-none self-end" href="/">
           <img
             src="{{url_for('static', filename='images/company-logo.png')}}"
             alt="company logo"
@@ -44,6 +41,7 @@
             self-center
           "
           aria-label="toggle menu"
+          onclick="toggleMenu()"
         >
           <svg viewBox="0 0 24 24" class="w-6 h-10 fill-current">
             <path
@@ -54,7 +52,7 @@
         </button>
       </div>
     </div>
-    <div class="items-center md:flex block">
+    <div class="items-center md:flex hidden" id="menu">
       <div class="flex flex-col md:flex-row md:mx-6">
         {% for page in landing_pages%}
         <a
@@ -63,8 +61,7 @@
         >
           {{page.name}}
         </a>
-        {% endfor %}
-        {% if request.path == '/login' %}
+        {% endfor %} {% if request.path == '/login' %}
         <a
           href="/register"
           class="
@@ -97,3 +94,10 @@
     </div>
   </div>
 </nav>
+<script>
+  menu = document.getElementById("menu");
+  const toggleMenu = () => {
+    menu.classList.toggle("block");
+    menu.classList.toggle("hidden");
+  };
+</script>

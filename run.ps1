@@ -1,12 +1,9 @@
-Remove-Item -r -Force .\backend\build
-.\backend\venv\Scripts\activate
+Set-Location backend
 
-pip install -r backend\requirements.txt
+python -m venv venv 
 
-Set-Location .\frontend
-yarn build
-Move-Item build ../backend/build
+pip install -r requirements.txt
 
-Set-Location ..\backend
-python server.py # Flask will serve the compiled react app, and the api
-Set-Location ..\
+Move-Item .example.env .env
+
+flask run

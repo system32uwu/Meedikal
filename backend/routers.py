@@ -27,4 +27,4 @@ frontendRouter.register_blueprint(appRouter)
 
 @frontendRouter.get('')
 def index():
-    return render_template('index.html')
+    return render_template('pages/landing/index.html')

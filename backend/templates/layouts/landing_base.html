@@ -1,0 +1,12 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+
+    {% include 'components/landing/navbar.html' %}
+
+    {% block page_content %}{% endblock %}
+
+    {% block footer %}
+        {% include 'components/footer.html' %}
+    {% endblock %}
+
+{% endblock %}

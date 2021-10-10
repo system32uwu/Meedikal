@@ -29,6 +29,10 @@ frontendRouter.register_blueprint(appRouter)
 def index():
     return render_template('pages/landing/index.html')
 
+@frontendRouter.get('/contact')
+def contact():
+    return render_template('pages/landing/contact.html')
+
 class Page:
     route: str
     name: str
@@ -40,4 +44,7 @@ class Page:
 @frontendRouter.context_processor
 def globalVars():
     return dict(company_name='Healthcare Company', 
-    landing_pages=[Page('/', 'Home'), Page('/contact', 'Contact'), Page('/plans', 'Plans')])
+    landing_pages=[Page('/', 'Home'), Page('/contact', 'Contact'), Page('/plans', 'Plans')],
+    central_data={'address': 'Jorge Canning 2363, Montevideo',
+                  'email': 'support@hccompay.com',
+                  'phone': '123-456-7890'})

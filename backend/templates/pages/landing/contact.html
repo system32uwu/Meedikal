@@ -1,4 +1,6 @@
-{% extends "layouts/landing_base.html" %} {% block title %}Contact{% endblock %}
+{% extends "layouts/landing_base.html" %} 
+{% block title %}Contact{% endblock %}
+
 {% block page_content %}
 <section class="text-gray-600 body-font relative">
   <div class="container px-5 py-4 mx-auto flex sm:flex-nowrap flex-wrap">
@@ -23,7 +25,7 @@
         marginheight="0"
         marginwidth="0"
         scrolling="no"
-        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d13095.168728844454!2d-56.1938193!3d-34.8614488!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xa3c298c9fd703d35!2sSociedad%20M%C3%A9dica%20Universal!5e0!3m2!1sen!2suy!4v1633202238613!5m2!1sen!2suy"
+        src="{{central_data['google_maps_link']}}"
         width="100%"
         height="100%"
         frameborder="0"

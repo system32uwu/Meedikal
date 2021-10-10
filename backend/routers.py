@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from config import Config
 from flask import Blueprint, send_file, render_template
 from api.user import router as userRouter # handles /api/user
@@ -33,18 +34,13 @@ def index():
 def contact():
     return render_template('pages/landing/contact.html')
 
-class Page:
-    route: str
-    name: str
-
-    def __init__(self, route, name) -> None:
-        self.route = route
-        self.name = name
+@frontendRouter.get('/plans')
+def plans():
+    return render_template('pages/landing/plans.html')
 
 @frontendRouter.context_processor
 def globalVars():
-    return dict(company_name='Healthcare Company', 
-    landing_pages=[Page('/', 'Home'), Page('/contact', 'Contact'), Page('/plans', 'Plans')],
-    central_data={'address': 'Jorge Canning 2363, Montevideo',
-                  'email': 'support@hccompay.com',
-                  'phone': '123-456-7890'})
+    return dict(company_name=Config.company_name, 
+    landing_pages=Config.landing_pages,
+    central_data=Config.central_data,
+    plans=Config.plans)

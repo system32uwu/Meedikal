@@ -13,6 +13,7 @@ class Plan:
 class Page:
     route: str
     name: str
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -22,17 +23,17 @@ class Config(object):
     DATABASE = 'meedikal.db'
     UPLOAD_FOLDER = 'images/'
     Admin = {
-        'ci': None,
-        'name1': None,
-        'surname1': None,
-        'sex': None,
-        'birthdate': None,
-        'location': None,
-        'email': None,
-        'password': None,
-        'name2': None,
-        'surname2': None,
-        'genre': None,
+        'ci': 12345678,
+        'name1': 'Juan',
+        'surname1': 'Perez',
+        'sex': 'M',
+        'birthdate': '1992-08-08',
+        'location': 'Street 123',
+        'email': 'juanperez@gmail.com',
+        'password': '1234',
+        'name2': 'Marcos',
+        'surname2': 'Gonzalez',
+        'genre': 'Male',
         'active': 1,
         'photoUrl': None
     }

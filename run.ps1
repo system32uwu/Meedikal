@@ -6,4 +6,4 @@ pip install -r requirements.txt
 
 Move-Item .example.env .env
 
-flask run
+flask run | Start-Process "http://localhost"

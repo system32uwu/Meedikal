@@ -16,13 +16,8 @@ def login(data:dict):
     if token is None:
         return genericErrorReturn('incorrect CI or password')
     else:
-        from server import app
-
-        if app.config['AUTH_METHOD'] == 'cookie':
-            session['authToken'] = token
-            return crudReturn('OK')
-        else:
-            return crudReturn({'authToken': token})
+        session['authToken'] = token
+        return crudReturn('OK')
 
 @router.post('/logout') # POST /api/auth/logout
 def logout():

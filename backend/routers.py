@@ -38,6 +38,10 @@ def contact():
 def plans():
     return render_template('pages/landing/plans.html')
 
+@frontendRouter.get('/login')
+def login():
+    return render_template('pages/landing/login.html')
+
 @frontendRouter.context_processor
 def globalVars():
     return dict(company_name=Config.company_name, 

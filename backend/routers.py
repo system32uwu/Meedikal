@@ -25,6 +25,19 @@ frontendRouter = Blueprint('frontend', __name__, url_prefix='/') # handles /
 
 frontendRouter.register_blueprint(appRouter)
 
-@frontendRouter.get('')
+@frontendRouter.get('/')
 def index():
     return render_template('pages/landing/index.html')
+
+class Page:
+    route: str
+    name: str
+
+    def __init__(self, route, name) -> None:
+        self.route = route
+        self.name = name
+
+@frontendRouter.context_processor
+def globalVars():
+    return dict(company_name='Healthcare Company', 
+    landing_pages=[Page('/', 'Home'), Page('/contact', 'Contact'), Page('/plans', 'Plans')])

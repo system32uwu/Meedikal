@@ -1,0 +1,99 @@
+<nav class="bg-white shadow">
+  <div
+    class="
+      container
+      px-6
+      py-4
+      mx-auto
+      md:flex md:justify-between md:items-center
+    "
+  >
+    <div class="flex items-center justify-between">
+      <div class="flex flex-row">
+        <a
+          class="flex flex-row focus:outline-none self-end"
+          href="/"
+        >
+          <img
+            src="{{url_for('static', filename='images/company-logo.png')}}"
+            alt="company logo"
+            class="rounded-full w-10 mr-2"
+          />
+          <p
+            class="
+              text-center
+              self-center
+              text-md
+              font-thin
+              text-turqoise
+              lg:text-2xl
+            "
+          >
+            {{company_name}}
+          </p>
+        </a>
+      </div>
+
+      <div class="flex md:hidden">
+        <button
+          type="button"
+          class="
+            text-gray-500
+            hover:text-turqoise
+            focus:outline-none focus:text-gray-600
+            self-center
+          "
+          aria-label="toggle menu"
+        >
+          <svg viewBox="0 0 24 24" class="w-6 h-10 fill-current">
+            <path
+              fillRule="evenodd"
+              d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="items-center md:flex block">
+      <div class="flex flex-col md:flex-row md:mx-6">
+        {% for page in landing_pages%}
+        <a
+          href="{{page.route}}"
+          class="my-1 text-sm font-medium hover:text-turqoise md:mx-4 md:my-0 {{'text-turqoise' if request.path == page.route else 'text-gray-700'}}"
+        >
+          {{page.name}}
+        </a>
+        {% endfor %}
+        {% if request.path == '/login' %}
+        <a
+          href="/register"
+          class="
+            my-1
+            text-sm
+            font-medium
+            hover:text-turqoise
+            md:mx-4 md:my-0
+            text-gray-700
+          "
+        >
+          Register
+        </a>
+        {% else %}
+        <a
+          href="/login"
+          class="
+            my-1
+            text-sm
+            font-medium
+            hover:text-turqoise
+            md:mx-4 md:my-0
+            text-gray-700
+          "
+        >
+          Login
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>

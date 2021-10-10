@@ -23043,6 +23043,11 @@ video {
   color: rgba(157, 23, 77, var(--tw-text-opacity));
 }
 
+.text-turqoise {
+  --tw-text-opacity: 1;
+  color: rgba(0, 196, 186, var(--tw-text-opacity));
+}
+
 .text-pink-900 {
   --tw-text-opacity: 1;
   color: rgba(131, 24, 67, var(--tw-text-opacity));

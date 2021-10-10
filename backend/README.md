@@ -48,6 +48,16 @@ Once you've updated the values of the said object, run:
 python util/createAdmin.py
 ```
 
+## Enviroment variables
+
+The file _.example.env_ should be renamed to _.env_, set the FLASK_ENV variable to either development, testing or production.
+
+## Run it
+
+```sh
+flask run
+```
+
 ## Incoming data shape notes
 
 ### For GET

@@ -1,0 +1,18 @@
+{
+  "name": "meedikal-styles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "build:css": "postcss tailwind.css -o build/tailwind.css"
+  },
+  "keywords": [],
+  "author": "Mateo Carriqui",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.3.7",
+    "cssnano": "^5.0.8",
+    "postcss-cli": "^9.0.1",
+    "tailwindcss": "^2.2.16"
+  }
+}

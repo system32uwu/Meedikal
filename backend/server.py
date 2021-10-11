@@ -9,27 +9,30 @@ import errorhandlers
 
 load_dotenv() # load .env file
 
-app = Flask(__name__)
-CORS(app, supports_credentials=True) # apply CORS to flask app
+def create_app():
+    app = Flask(__name__)
+    CORS(app, supports_credentials=True) # apply CORS to flask app
 
-if os.environ.get('FLASK_ENV', None) == 'development':
-    app.config.from_object(DevelopmentConfig)
-else:
-    app.config.from_object(ProductionConfig)
+    if os.environ.get('FLASK_ENV', None) == 'development':
+        app.config.from_object(DevelopmentConfig)
+    else:
+        app.config.from_object(ProductionConfig)
 
-# --- CUSTOM ENCODER (used to encode dates)
-app.json_encoder = JsonExtendEncoder
+    # --- CUSTOM ENCODER (used to encode dates)
+    app.json_encoder = JsonExtendEncoder
 
-# --- MAIN ROUTERS
-app.register_blueprint(apiRouter) # /api
-app.register_blueprint(frontendRouter) # /
-app.register_blueprint(imagesRouter) # /images
-# --- MAIN ROUTERS
-
-if __name__ == '__main__':
+    # --- MAIN ROUTERS
+    app.register_blueprint(apiRouter) # /api
+    app.register_blueprint(frontendRouter) # /
+    app.register_blueprint(imagesRouter) # /images
+    # --- MAIN ROUTERS
+    
     try: # create the uploads folder if it doesn't exist
         os.makedirs(DevelopmentConfig.UPLOAD_FOLDER)
     except:
         pass
-    finally:
-        app.run()
+    
+    return app
+
+if __name__ == '__main__':
+    create_app.run()

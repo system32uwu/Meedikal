@@ -2,6 +2,7 @@ from flask import Blueprint, request
 
 from models.Branch import *
 from util.crud import *
+from middleware.authGuard import requiresRole
 from middleware.data import passJsonData
 
 router = Blueprint('branch', __name__, url_prefix='/branch')
@@ -27,28 +28,33 @@ def getAllBranches():
 
 @router.post('') # POST /api/branch
 @passJsonData
+@requiresRole('administrative')
 def createBranch(data:dict):
     return crudReturn(Branch(**data).save(data))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/branch
 @passJsonData
+@requiresRole('administrative')
 def updateBranch(data:dict):
     return crudReturn(Branch.update(data))
 
 @router.delete('') # DELETE /api/branch
 @passJsonData
+@requiresRole('administrative')
 def deleteBranch(data:dict):
     return crudReturn(Branch.delete(data))
 
 @router.route('/apTakesPlace', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH DELETE /api/branch/apTakesPlace
-@router.get('/apTakesPlace/<int:idAp>') # GET /api/branch/apTakesPlace/<idAp>
 @passJsonData
-def apTakesPlace(idAp:int=None, data:dict=None):
+@requiresRole('administrative')
+def apTakesPlace(data:dict=None):
     if request.method == 'POST':
         return crudReturn(ApTakesPlace(**data).save(data))
-    if request.method == 'PUT' or request.method == 'PATCH':
+    elif request.method == 'PUT' or request.method == 'PATCH':
         return crudReturn(ApTakesPlace.update(data))
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         return crudReturn(ApTakesPlace.delete(data))
-    elif request.method == 'GET':
-        return crudReturn(ApTakesPlace.filter({'idAp': idAp}))
+
+@router.get('/apTakesPlace/<int:idAp>') # GET /api/branch/apTakesPlace/<idAp>
+def getApTakesPlace(idAp:int):
+    return crudReturn(ApTakesPlace.filter({'idAp': idAp}))

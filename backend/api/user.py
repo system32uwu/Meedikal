@@ -51,32 +51,32 @@ def getUserByCi(ci:int=None, data:dict=None):
     return crudReturn(userToReturn(User.getByCi(ci)))
 
 @router.post('') # POST /api/user
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def createUser(data:dict):
     return crudReturn(userToReturn(User(**data).save(data)))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
-@passJsonData
 @requiresAuth
+@passJsonData
 def updateUser(data:dict, ci:int):
     return crudReturn(User.updateByCi(ci, data))
 
 @router.route('/<int:ci>', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
+@requiresRole('administrative')
 @passJsonData
-@requiresRole('admin')
 def updateUserAsAdmin(data:dict):
     return crudReturn(User.updateByCi(data['ci'], data))
 
 @router.delete('') # DELETE /api/user
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def deleteUser(data:dict):
     return crudReturn(User.delete(data))
 
 @router.route('/photo', methods=['POST', 'PUT', 'PATCH'])
-@passFile(['jpg', 'jpeg', 'png'])
 @requiresAuth
+@passFile(['jpg', 'jpeg', 'png'])
 def updatePhoto(ci:int, file:FileStorage):
     file.filename = secure_filename(f'{ci}.jpg') # force jpg format
     photoUrl = os.path.join(Config.UPLOAD_FOLDER, file.filename)
@@ -85,8 +85,8 @@ def updatePhoto(ci:int, file:FileStorage):
     return crudReturn(file.filename)
 
 @router.route('/patient', methods=['POST', 'DELETE']) # POST | DELETE /api/patient
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def patient(data:dict):
     if request.method == 'POST':
         result = userToReturn(Patient(**data).save(data))
@@ -96,8 +96,8 @@ def patient(data:dict):
     return crudReturn(result)
 
 @router.route('/medicalPersonnel', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalPersonnel
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def medicalPersonnel(data:dict):
     if request.method == 'POST':
         result = userToReturn(MedicalPersonnel(**data).save(data))
@@ -107,8 +107,8 @@ def medicalPersonnel(data:dict):
     return crudReturn(result)
 
 @router.route('/doctor', methods=['POST', 'DELETE']) # POST | DELETE /api/doctor
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def doctor(data:dict):
     if request.method == 'POST':
         result = userToReturn(Doctor(**data).save(data))
@@ -118,8 +118,8 @@ def doctor(data:dict):
     return crudReturn(result)
 
 @router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def medicalAssitant(data:dict):
     if request.method == 'POST':
         result = userToReturn(MedicalAssitant(**data).save(data))
@@ -129,8 +129,8 @@ def medicalAssitant(data:dict):
     return crudReturn(result)
 
 @router.route('/administrative', methods=['POST', 'DELETE']) # POST | DELETE /api/administrative
-@passJsonData
 @requiresRole('administrative')
+@passJsonData
 def administrative(data:dict):
     if request.method == 'POST':
         result = userToReturn(Administrative(**data).save(data))
@@ -145,20 +145,15 @@ def filterUser(data:dict):
     return crudReturn([userToReturn(u) for u in User.filter(data)])
 
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
-@passJsonData
-def userBySurname1(surname1:str=None, data:dict=None):
+def userBySurname1(surname1:str=None):
     result = User.filter({'surname1' : surname1})
     return crudReturn([userToReturn(u) for u in result])
 
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
-@passJsonData
-def userByName1nSurname1(name1:str=None,surname1:str=None, data:dict=None):
+def userByName1nSurname1(name1:str=None, surname1:str=None):
     result = User.filter({'name1' : name1, 'surname1' : surname1})
     return crudReturn([userToReturn(u) for u in result])
 
-@router.route('/phoneNumbers', methods=['POST', 'DELETE'])
-@router.get('/phoneNumbers/<ci>')
-@passJsonData
 def phoneNumbers(ci:int=None, data:dict=None):
     result = None
 
@@ -175,9 +170,22 @@ def phoneNumbers(ci:int=None, data:dict=None):
 
     return crudReturn(result)
 
-@router.route('/medicalPersonnel/mpHasSpec', methods=['POST', 'DELETE'])
-@router.get('/medicalPersonnel/mpHasSpec/<int:ciMp>')
+@router.get('/phoneNumbers/<int:ci>')
+def getPhoneNumbers(ci:int, data:dict):
+    return phoneNumbers(ci, data)
+
+@router.route('/phoneNumbers', methods=['POST', 'DELETE'])
+@requiresAuth
 @passJsonData
+def selfPhoneNumbers(ci:int, data:dict):
+    return phoneNumbers(ci, data)
+
+@router.route('/phoneNumbers/<int:ci>', methods=['POST', 'DELETE'])
+@requiresRole('administrative')
+@passJsonData
+def phoneNumbersAsAdmin(ci:int, data:dict):
+    return phoneNumbers(ci, data)
+
 def mpHasSpec(ciMp:int=None, data:dict=None):
     if request.method == 'GET':
         result = MpHasSpec.filter({'ciMp': ciMp})
@@ -202,6 +210,16 @@ def mpHasSpec(ciMp:int=None, data:dict=None):
                 result = MpHasSpec.delete(hsp)
 
     return crudReturn(result)
+
+@router.get('/medicalPersonnel/mpHasSpec/<int:ciMp>')
+def getSpOfMp(ciMp:int):
+    return mpHasSpec(ciMp=ciMp)
+
+@router.route('/medicalPersonnel/mpHasSpec', methods=['POST', 'DELETE'])
+@requiresRole('administrative') # only admin users can add or remove specialties of mp user
+@passJsonData
+def addOrDeleteMpHasSpec(data:dict):
+    return mpHasSpec(data=data)
 
 @router.get('/medicalPersonnel/<specialty>') # specialty title
 @passJsonData

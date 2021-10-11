@@ -33,3 +33,14 @@ def requiresRole(role:str): # the required role to execute the action
         return wrapper
 
     return decorator
+
+def getCurrentRole():
+    def decorator(f):
+        @requiresAuth
+        @wraps(f)
+        def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
+            currentRole = session['currentRole']
+            return f(*args, **kwargs, currentRole=currentRole, ci=ci)
+        return wrapper
+
+    return decorator

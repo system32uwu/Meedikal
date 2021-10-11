@@ -1,4 +1,4 @@
-from flask import Blueprint, session
+from flask import Blueprint, session, request
 from middleware.data import passJsonData
 from middleware.authGuard import requiresAuth, requiresRole
 from models.User import User, AuthUser
@@ -37,7 +37,10 @@ def updatePassword(ci:int,data:dict):
     res = User.updatePassword(ci,data['password'])
     return crudReturn(res)
 
-@router.post('/roleExample') # example of route protected by role
-@requiresRole('medicalPersonnel')
-def role():
-    return crudReturn("you have the correct role for this protected route!")
+@router.route('/currentRole', methods=['GET', 'POST'])
+@requiresRole(request.get_json()['role']) # to change to the desired role, the user should have it already
+def currentRole():
+    if request.method == 'POST':
+        session['currentRole'] = request.get_json()['role']
+    else:
+        return crudReturn(session['currentRole'])

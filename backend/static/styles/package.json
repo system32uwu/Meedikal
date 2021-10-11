@@ -1,13 +1,13 @@
 {
   "name": "meedikal-styles",
   "version": "1.0.0",
-  "description": "",
+  "description": "styling for meedikal frontend",
   "main": "tailwind.config.js",
   "scripts": {
-    "build:css": "postcss tailwind.css -o build/tailwind.css"
+    "build:css": "postcss tailwind.css -o tailwind-prod.css"
   },
   "keywords": [],
-  "author": "Mateo Carriqui",
+  "author": "Mateo Carriqui <mateocarriqui7@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "autoprefixer": "^10.3.7",

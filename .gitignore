@@ -8,9 +8,6 @@ frontend/.pnp
 # testing
 frontend/coverage
 
-# production
-build
-
 # misc
 frontend/.DS_Store
 frontend/.env.local
@@ -22,7 +19,6 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 backend/venv/
-backend/build
 __pycache__
 
 backend/config.py

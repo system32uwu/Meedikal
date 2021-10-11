@@ -35,3 +35,7 @@ backend/images
 .vscode
 .env
 .flaskenv
+
+node_modules
+
+backend/static/styles/node_modules

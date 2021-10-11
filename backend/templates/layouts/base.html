@@ -13,12 +13,12 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='styles/build/tailwind.css')}}"
+      href="{{ url_for('static', filename='styles/tailwind-prod.css' if ENV == 'production' else 'styles/tailwind.css')}}"
     />
     <link
       rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='styles/build/index.css')}}"
+      href="{{ url_for('static', filename='styles/index.css')}}"
     />
     <title>{% block title %}HCC{% endblock %}</title>
   </head>

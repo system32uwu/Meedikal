@@ -46,4 +46,5 @@ def globalVars():
     return dict(company_name=Config.company_name, 
     landing_pages=Config.landing_pages,
     central_data=Config.central_data,
-    plans=Config.plans)
+    plans=Config.plans,
+    ENV=os.environ.get('FLASK_ENV', 'production'))

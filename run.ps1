@@ -12,6 +12,7 @@ if ((-not $run) -or ($run -eq 0)) {
 
     Move-Item .example.env .env
     Move-Item config.example.py config.py
+    ./util/createDb.py && ./util/createAdmin.py
     $Env:MEEDIKAL_HAS_RUN_YET = 1
 }
 else {

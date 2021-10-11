@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from config import Config
 from flask import Blueprint, send_file, render_template
 from api.user import router as userRouter # handles /api/user

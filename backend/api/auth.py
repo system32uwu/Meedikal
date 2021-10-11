@@ -38,9 +38,11 @@ def updatePassword(ci:int,data:dict):
     return crudReturn(res)
 
 @router.route('/currentRole', methods=['GET', 'POST'])
-@requiresRole(request.get_json()['role']) # to change to the desired role, the user should have it already
 def currentRole():
-    if request.method == 'POST':
-        session['currentRole'] = request.get_json()['role']
-    else:
-        return crudReturn(session['currentRole'])
+    @requiresRole(request.get_json()['role']) # to change to the desired role, the user should have it already
+    def withinFlaskContext():
+        if request.method == 'POST':
+            session['currentRole'] = request.get_json()['role']
+        else:
+            return crudReturn(session['currentRole'])
+    return withinFlaskContext()

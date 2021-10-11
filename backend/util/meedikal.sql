@@ -1,5 +1,5 @@
 CREATE TABLE user (
-    ci integer PRIMARY KEY NOT NULL,
+    ci INTEGER PRIMARY KEY NOT NULL,
     name1 VARCHAR(32) NOT NULL,
     surname1 VARCHAR(32) NOT NULL,
     sex VARCHAR(1) NOT NULL,
@@ -16,32 +16,32 @@ CREATE TABLE user (
 ) WITHOUT ROWID;
 
 CREATE TABLE medicalPersonnel (
-    ci integer PRIMARY KEY NOT NULL,
+    ci INTEGER PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE doctor (
-    ci integer PRIMARY KEY NOT NULL,
+    ci INTEGER PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE medicalAssistant (
-    ci integer PRIMARY KEY NOT NULL,
+    ci INTEGER PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE administrative (
-    ci integer PRIMARY KEY NOT NULL,
+    ci INTEGER PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE patient (
-    ci integer PRIMARY KEY NOT NULL,
+    ci INTEGER PRIMARY KEY NOT NULL,
     FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE userPhone (
-    ci integer NOT NULL,
+    ci INTEGER NOT NULL,
     phone VARCHAR(32) NOT NULL,
 
     PRIMARY KEY(ci,phone),
@@ -50,13 +50,13 @@ CREATE TABLE userPhone (
 
 -- Nurses and Doctors might be specialized.
 CREATE TABLE specialty (
-    id integer PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     title VARCHAR(64) UNIQUE NOT NULL
 );
 
 CREATE TABLE mpHasSpec (
-    idSpec integer NOT NULL,
-    ciMp integer NOT NULL,
+    idSpec INTEGER NOT NULL,
+    ciMp INTEGER NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
 
@@ -66,28 +66,28 @@ CREATE TABLE mpHasSpec (
 ) WITHOUT ROWID;
 
 CREATE TABLE appointment (
-    id integer PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) NOT NULL,
     state VARCHAR(36) NOT NULL DEFAULT 'OK',
     date date NOT NULL,
     -- OPTIONAL FIELDS
     startsAt datetime,
     endsAt datetime,
-    etpp integer,
-    maxTurns integer
+    etpp INTEGER,
+    maxTurns INTEGER
 ); --etpp: estimated time per patient (tiempo estimado por turno de paciente en la consulta)
 
 -- Branch significa sucursal, una cita medica tomara lugar en alguna de las sucursales.
 CREATE TABLE branch (
-    id integer PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(64) UNIQUE NOT NULL,
     phoneNumber VARCHAR(64) NOT NULL,
     location VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE apTakesPlace (
-    idAp integer NOT NULL,
-    idBranch integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    idBranch INTEGER NOT NULL,
 
     PRIMARY KEY(idAp,idBranch),
     FOREIGN KEY(idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -95,8 +95,8 @@ CREATE TABLE apTakesPlace (
 ) WITHOUT ROWID;
 
 CREATE TABLE assignedTo (
-    idAp integer NOT NULL,
-    ciDoc integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    ciDoc INTEGER NOT NULL,
 
     PRIMARY KEY(idAp),
     FOREIGN KEY (ciDoc) REFERENCES doctor(ci) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -104,21 +104,32 @@ CREATE TABLE assignedTo (
 ) WITHOUT ROWID;
 
 CREATE TABLE attendsTo (
-    idAp integer NOT NULL,
-    ciPa integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    ciPa INTEGER NOT NULL,
     -- OPTIONAL FIELD
     motive VARCHAR(256),
-    number integer UNIQUE, --NULLABLE, but in case it's provided should be UNIQUE.
     time datetime UNIQUE, --NULLABLE, but in case it's provided should be UNIQUE.
-
-    PRIMARY KEY (idAp,ciPa),
+    number INTEGER, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
+    
+    UNIQUE (idAp, ciPa),
     FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE,
     FOREIGN KEY (ciPa) REFERENCES patient(ci) ON DELETE CASCADE
-) WITHOUT ROWID;
+);
+
+CREATE TRIGGER assign_number_to_attendsTo -- If a number is already picked, raise an error
+    BEFORE INSERT ON attendsTo
+BEGIN
+    SELECT CASE WHEN EXISTS(SELECT 1 FROM attendsTo WHERE number = new.number AND idAp = new.idAp)
+        THEN RAISE(ABORT, 'NUMBER IS ALREADY PICKED.')
+    END;
+    SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND new.number > 0 and new.number <= appointment.maxTurns) 
+        THEN RAISE(ABORT, 'NUMBER IS NOT IN THE RANGE OF 0 AND MAXTURNS')
+    END;
+END;
 
 CREATE TABLE assistsAp (
-    idAp integer NOT NULL,
-    ciMa integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    ciMa INTEGER NOT NULL,
     time datetime NOT NULL,
 
     FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -127,30 +138,30 @@ CREATE TABLE assistsAp (
 ) WITHOUT ROWID;
 
 CREATE TABLE clinicalSign (
-    id integer PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) UNIQUE NOT NULL,
     -- OPTIONAL FIELD
     description VARCHAR(512)
 );
 
 CREATE TABLE disease (
-    id integer PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) UNIQUE NOT NULL,
     -- OPTIONAL FIELD
     description VARCHAR(512)
 );
 
 CREATE TABLE symptom (
-    id integer PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) UNIQUE NOT NULL,
     -- OPTIONAL FIELD
     description VARCHAR(512)
 );
 
 CREATE TABLE registersCs (
-    idAp integer NOT NULL,
-    ciPa integer NOT NULL,
-    idCs integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    ciPa INTEGER NOT NULL,
+    idCs INTEGER NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
 
@@ -160,9 +171,9 @@ CREATE TABLE registersCs (
 ) WITHOUT ROWID;
 
 CREATE TABLE registersSy (
-    idAp integer NOT NULL,
-    ciPa integer NOT NULL,
-    idSy integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    ciPa INTEGER NOT NULL,
+    idSy INTEGER NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
     
@@ -172,9 +183,9 @@ CREATE TABLE registersSy (
 ) WITHOUT ROWID;
 
 CREATE TABLE diagnoses (
-    idAp integer NOT NULL,
-    ciPa integer NOT NULL,
-    idDis integer NOT NULL,
+    idAp INTEGER NOT NULL,
+    ciPa INTEGER NOT NULL,
+    idDis INTEGER NOT NULL,
     -- OPTIONAL FIELD
     detail VARCHAR(256),
 

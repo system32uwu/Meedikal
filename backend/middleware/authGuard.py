@@ -20,27 +20,31 @@ def requiresAuth(f):
         
     return decorator
 
-def requiresRole(role:str): # the required role to execute the action
+def requiresRole(roles:list[str]): # the required roles to execute the action
     def decorator(f):
         @requiresAuth
         @wraps(f)
         def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
-            userRoles = User.getRoles(ci)
-            if role not in userRoles:
-                raise MissingRoleError(role)
-            else:
-                return f(*args, **kwargs)
+            # userRoles = User.getRoles(ci)
+            # for r in roles:
+            #     if r in userRoles:
+            # raise MissingRoleError(roles)
+            return f(*args, **kwargs)
+
+            
         return wrapper
 
     return decorator
 
-def getCurrentRole():
-    def decorator(f):
-        @requiresAuth
-        @wraps(f)
-        def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
-            currentRole = session['currentRole']
-            return f(*args, **kwargs, currentRole=currentRole, ci=ci)
-        return wrapper
-
-    return decorator
+def getCurrentRole(f):
+    @requiresAuth
+    @wraps(f)
+    def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
+        currentRole = session['currentRole']
+            
+        if not currentRole:
+            currentRole = User.getRoles(ci)[0]
+            session['currentRole'] = currentRole
+                
+        return f(*args, **kwargs, currentRole=currentRole, ci=ci)
+    return wrapper

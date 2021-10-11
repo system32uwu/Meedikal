@@ -17,7 +17,6 @@ def getDb() -> Connection: # ensure that this connection will always check forei
 if __name__ == '__main__':
     
     schemaPath = f'{p}/meedikal.sql'
-    initialDataPath = f'{p}/initialData.sql'
 
     if os.path.exists(dbPath):
         os.remove(dbPath)

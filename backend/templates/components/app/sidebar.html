@@ -83,30 +83,31 @@
       </button>
       <div class="flex flex-col justify-between flex">
         <nav class="text">
-          {% for page in app_pages%} {% if currentRole in page.accessibleBy and
-          page.name != "Profile"%}
-          <a
-            href="{{page.route}}"
-            class="
-              block
-              text-hard-blue
-              font-bold
-              py-2
-              flex
-              items-start
-              py-2
-              mt-4
-              rounded-md
-              hover:text-gray-700 hover:bg-gray-200
-              transition-colors
-              transform
-              w-full
-              focus:outline-none
-            "
-          >
-            <span class="mx-4 font-medium">{{page.name}}</span>
-          </a>
-          {% endif %} {% endfor %}
+          {% for page in app_pages%} 
+            {% if currentRole in page.accessibleBy and page.name != "Profile"%}
+            <a
+              href="{{page.route}}"
+              class="
+                block
+                text-hard-blue
+                font-bold
+                py-2
+                flex
+                items-start
+                py-2
+                mt-4
+                rounded-md
+                hover:text-gray-700 hover:bg-gray-200
+                transition-colors
+                transform
+                w-full
+                focus:outline-none
+              "
+            >
+              <span class="mx-4 font-medium">{{page.name}}</span>
+            </a>
+            {% endif %}
+          {% endfor %}
           <hr class="my-2" />
           <a
             href="/app/settings"

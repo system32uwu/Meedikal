@@ -14,6 +14,13 @@ class Page:
     route: str
     name: str
 
+class AppPage(Page):
+    accessibleBy: list[str]
+
+    def __init__(self, route:str, name:str, accessibleBy:list[str]=['user', 'patient', 'medicalPersonnel', 'doctor', 'medicalAssistant', 'administrative']):
+        super().__init__(route, name)
+        self.accessibleBy = accessibleBy
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -52,6 +59,18 @@ class Config(object):
         Page(route='/contact', name='Contact'), 
         Page(route='/plans', name='Plans')
         ]
+
+    app_pages = [
+        AppPage('/', 'Home'),
+        AppPage('/profile', 'Profile'),
+        AppPage('/appointments', 'Appointments'),
+        AppPage('/symptoms', 'Symptoms'),
+        AppPage('/clinical-signs', 'Clinical Signs'),
+        AppPage('/diseases', 'Diseases'),
+        AppPage('/Branches', 'Branches'),
+        AppPage('/patients', 'Patients', ['medicalPersonnel']),
+        AppPage('/users', 'Users', ['administrative']),
+    ]
 
     plans = [
         Plan(name='Plan 1',

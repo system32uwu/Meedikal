@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from config import Config
 from models.User import User
 from middleware.authGuard import getCurrentRole, requiresRole
 from api.user import userToReturn
@@ -8,7 +9,7 @@ appRouter = Blueprint('app', __name__, url_prefix='app') # handles /app
 @appRouter.get('')
 @appRouter.get('/')
 @getCurrentRole
-def home(currentRole:str, *args):
+def home(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/home.html')
 
 @appRouter.get('/profile')
@@ -19,27 +20,27 @@ def profile(currentRole:str, ci:int):
 
 @appRouter.get('/appointments')
 @getCurrentRole
-def appointments(currentRole:str, *args):
+def appointments(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/appointments.html')
 
 @appRouter.get('/symptoms')
 @getCurrentRole
-def symptoms(currentRole:str, *args):
+def symptoms(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/symptoms.html')
 
 @appRouter.get('/clinical-signs')
 @getCurrentRole
-def clinicalSigns(currentRole:str, *args):
+def clinicalSigns(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/clinical-signs.html')
 
 @appRouter.get('/diseases')
 @getCurrentRole
-def diseases(currentRole:str, *args):
+def diseases(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/diseases.html')
 
 @appRouter.get('/branches')
 @getCurrentRole
-def branches(currentRole:str, *args):
+def branches(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/branches.html')
 
 # mp specifics
@@ -58,3 +59,8 @@ def users():
 @requiresRole(['administrative'])
 def stats():
     return render_template(f'pages/app/administrative/stats.html')
+
+@appRouter.context_processor
+@getCurrentRole
+def appVars(currentRole:str, ci:int):
+    return dict(currentRole=currentRole, ci=ci, app_pages=Config.app_pages)

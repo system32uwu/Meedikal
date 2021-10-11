@@ -1,6 +1,6 @@
 from flask import Blueprint, session, request
 from middleware.data import passJsonData
-from middleware.authGuard import requiresAuth, requiresRole
+from middleware.authGuard import requiresAuth, requiresRole, getCurrentRole
 from models.User import User, AuthUser
 from .user import userToReturn
 from util.crud import crudReturn
@@ -17,11 +17,13 @@ def login(data:dict):
         return genericErrorReturn('incorrect CI or password')
     else:
         session['authToken'] = token
+        session['currentRole'] = User.getRoles(data['ci'])[0]
         return crudReturn('OK')
 
 @router.post('/logout') # POST /api/auth/logout
 def logout():
     session.pop('authToken', None)
+    session.pop('currentRole', None)
     return crudReturn('OK')
 
 @router.route('/me', methods=['POST', 'GET']) # POST /api/auth/me
@@ -37,12 +39,17 @@ def updatePassword(ci:int,data:dict):
     res = User.updatePassword(ci,data['password'])
     return crudReturn(res)
 
-@router.route('/currentRole', methods=['GET', 'POST'])
-def currentRole():
-    @requiresRole(request.get_json()['role']) # to change to the desired role, the user should have it already
+@router.get('/currentRole')
+@getCurrentRole
+def returnCurrentRole(currentRole:str, *args, **kwargs):
+    return crudReturn(currentRole)
+
+@router.post('/currentRole')
+@passJsonData
+def setCurrentRole(data:dict):
+    role = data['role']
+    @requiresRole([role]) # to change to the desired role, the user should have it already
     def withinFlaskContext():
-        if request.method == 'POST':
-            session['currentRole'] = request.get_json()['role']
-        else:
-            return crudReturn(session['currentRole'])
+        session['currentRole'] = role
+        return crudReturn(session['currentRole'])
     return withinFlaskContext()

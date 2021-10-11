@@ -8,7 +8,7 @@ def requiresAuth(f):
     def decorator(*args,**kwargs):
         token = None
         try:
-            session.get('authToken', None)
+            token = session.get('authToken', None)
         except: # flask out of context error (raises when starting the app)
             pass
 
@@ -25,13 +25,12 @@ def requiresRole(roles:list[str]): # the required roles to execute the action
         @requiresAuth
         @wraps(f)
         def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
-            # userRoles = User.getRoles(ci)
-            # for r in roles:
-            #     if r in userRoles:
-            # raise MissingRoleError(roles)
-            return f(*args, **kwargs)
+            userRoles = User.getRoles(ci)
+            for r in roles:
+                if r in userRoles:
+                    return f(*args, **kwargs)
+            raise MissingRoleError(roles)
 
-            
         return wrapper
 
     return decorator
@@ -40,7 +39,7 @@ def getCurrentRole(f):
     @requiresAuth
     @wraps(f)
     def wrapper(ci:int,*args, **kwargs): # ci comes from the previous deco: requiresAuth
-        currentRole = session['currentRole']
+        currentRole = session.get('currentRole', None)
             
         if not currentRole:
             currentRole = User.getRoles(ci)[0]

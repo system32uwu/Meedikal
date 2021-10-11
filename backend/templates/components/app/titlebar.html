@@ -1,0 +1,52 @@
+<div class="w-full bg-turqoise h-10 pt-2 flex flex-grow">
+  <div class="flex lg:ml-64 w-full">
+    <div class="flex flex-row w-full justify-center">
+      <p class="absolute text-center text-white font-bold subpixel-antialiased">
+        {{request.endpoint.split('.')[2].capitalize()}}
+      </p>
+      <div
+        class="
+          justify-end
+          float-right
+          right-0
+          px-2
+          flex flex-row
+          space-x-2
+          w-full
+        "
+      >
+        <button class="z-10 w-6 h-6 rounded-full bg-white p-0.5">
+          <img
+            src="{{url_for('static', filename='images/bell.svg')}}"
+            alt="notification bell"
+          />
+        </button>
+        <button class="z-10 w-6 h-6 rounded-full bg-white" id="profile">
+          <img
+            id="userPhoto"
+            src="{{url_for('static', filename='images/user.svg')}}"
+            class="object-cover p-1"
+            alt="user avatar"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  document.onload = function () {
+    fetch("/api/auth/me").then((res) => {
+      res.json().then((data) => {
+        if (res.ok) {
+          if (res.data.user.photoUrl) {
+            document.getElementById("userPhoto").src = res.data.user.photoUrl;
+          }
+        }
+      });
+    });
+  };
+
+  document.getElementById("profile").addEventListener("click", (e) => {
+    window.location.href = "/app/profile";
+  });
+</script>

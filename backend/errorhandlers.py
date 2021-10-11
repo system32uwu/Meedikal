@@ -20,7 +20,7 @@ def missingCookieError(e):
 
 @apiRouter.errorhandler(MissingRoleError)
 def missingRoleError(e: MissingRoleError):
-    return genericErrorReturn(f'Insufficient permissions to perfom action. It should be done by: {",".join(e.roles)}', code=403)
+    return genericErrorReturn(f'Insufficient permissions to perfom action. It should be done by: {",".join(e.roles)} users', code=403)
 
 @apiRouter.errorhandler(UpdatePasswordError)
 def updatePasswordError(e):

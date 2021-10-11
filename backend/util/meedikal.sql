@@ -116,7 +116,7 @@ CREATE TABLE attendsTo (
     FOREIGN KEY (ciPa) REFERENCES patient(ci) ON DELETE CASCADE
 );
 
-CREATE TRIGGER assign_number_to_attendsTo -- If a number is already picked, raise an error
+CREATE TRIGGER assign_number_to_attendsTo -- If a number is already picked, or is not in range of (0, maxTurns) raise an error
     BEFORE INSERT ON attendsTo
 BEGIN
     SELECT CASE WHEN EXISTS(SELECT 1 FROM attendsTo WHERE number = new.number AND idAp = new.idAp)

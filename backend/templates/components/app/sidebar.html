@@ -1,0 +1,162 @@
+<div class="z-10">
+  <div class="relative lg:hidden" id="sidebar-btn-outter">
+    <button
+      class="
+        absolute
+        text-white
+        top-2
+        left-2
+        focus:outline-none focus:text-gray-600
+        lg:hidden
+      "
+      aria-label="toggle menu"
+      onclick="toggleSidebar()"
+    >
+      <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
+        <path
+          fillRule="evenodd"
+          d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+        ></path>
+      </svg>
+    </button>
+  </div>
+  <div
+    id="sidebar"
+    class="transform transition-all duration-300 fixed top-0 lg:-left-0"
+  >
+    <div
+      class="
+        flex
+        h-screen
+        overflow-y-auto
+        flex-col
+        bg-white
+        w-64
+        px-4
+        py-8
+        border-r
+        min-h-screen
+        relative
+      "
+    >
+      <h2
+        class="
+          fixed
+          top-2
+          text-xl
+          font-semibold
+          text-gray-800 text-center
+          self-center
+          lg:mr-0
+          mr-4
+        "
+      >
+        Healthcare <span class="text-turqoise">Company</span>
+      </h2>
+      <button
+        onclick="toggleSidebar()"
+        class="
+          absolute
+          top-2
+          right-1
+          text-gray-600
+          w-8
+          h-8
+          rounded-full
+          flex
+          items-center
+          justify-center
+          active:bg-gray-300
+          focus:outline-none
+          hover:bg-gray-200 hover:text-gray-800
+          lg:hidden
+        "
+      >
+        <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
+          <path
+            fillRule="evenodd"
+            d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
+          ></path>
+        </svg>
+      </button>
+      <div class="flex flex-col justify-between flex">
+        <nav class="text">
+          {% for page in app_pages%} {% if currentRole in page.accessibleBy and
+          page.name != "Profile"%}
+          <a
+            href="{{page.route}}"
+            class="
+              block
+              text-hard-blue
+              font-bold
+              py-2
+              flex
+              items-start
+              py-2
+              mt-4
+              rounded-md
+              hover:text-gray-700 hover:bg-gray-200
+              transition-colors
+              transform
+              w-full
+              focus:outline-none
+            "
+          >
+            <span class="mx-4 font-medium">{{page.name}}</span>
+          </a>
+          {% endif %} {% endfor %}
+          <hr class="my-2" />
+          <a
+            href="/app/settings"
+            class="
+              block
+              text-hard-blue
+              font-bold
+              flex
+              items-start
+              py-2
+              mt-5
+              rounded-md
+              hover:text-gray-700 hover:bg-gray-200
+              transition-colors
+              transform
+              w-full
+              focus:outline-none
+            "
+          >
+            <span class="mx-4 font-medium">Settings</span>
+          </a>
+          <button
+            class="
+              block
+              text-hard-blue
+              font-bold
+              flex
+              items-start
+              py-2
+              mt-4
+              rounded-md
+              hover:text-gray-700 hover:bg-gray-200
+              transition-colors
+              transform
+              w-full
+              focus:outline-none
+            "
+            onclick="logout()"
+          >
+            <span class="mx-4 font-medium">Log out</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  let sidebar = document.getElementById("sidebar");
+  let buttonSidebarOutter = document.getElementById("sidebar-btn-outter");
+
+  const toggleSidebar = () => {
+    sidebar.classList.toggle("translate-x-0");
+    sidebar.classList.toggle("-translate-x-64");
+  };
+</script>

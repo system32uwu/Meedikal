@@ -65,15 +65,15 @@ class Config(object):
         ]
 
     app_pages = [
-        AppPage('/', 'Home', icon='icons/home.svg'),
-        AppPage('/profile', 'Profile'),
-        AppPage('/appointments', 'Appointments'),
-        AppPage('/symptoms', 'Symptoms'),
-        AppPage('/clinical-signs', 'Clinical Signs'),
-        AppPage('/diseases', 'Diseases'),
-        AppPage('/Branches', 'Branches'),
-        AppPage('/patients', 'Patients', ['medicalPersonnel']),
-        AppPage('/users', 'Users', ['administrative']),
+        AppPage('/app', 'Home', icon='icons/home.svg'),
+        AppPage('/app/users', 'Users', ['administrative'], icon='icons/users.svg'),
+        AppPage('/app/appointments', 'Appointments', icon='icons/appointments.svg'),
+        AppPage('/app/patients', 'Patients', ['medicalPersonnel'], icon='icons/users.svg'),
+        AppPage('/app/symptoms', 'Symptoms',  icon='icons/symptoms.svg'),
+        AppPage('/app/diseases', 'Diseases', icon='icons/diseases.svg'),
+        AppPage('/app/clinical-signs', 'Clinical Signs', icon='icons/clinical_signs.svg'),
+        AppPage('/app/Branches', 'Branches', icon='icons/branches.svg'),
+        AppPage('/app/profile', 'Profile'),
     ]
 
     plans = [

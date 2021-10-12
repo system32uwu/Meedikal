@@ -1,6 +1,6 @@
 module.exports = {
   purge: {
-    enabled: true,
+    enabled: false,
     content: ["../../**/*.html"],
   },
   darkMode: "class", // false, 'media' or 'class'
@@ -8,7 +8,8 @@ module.exports = {
     extend: {
       colors: {
         turqoise: "#00C4BA",
-        "pastel-skyblue": "#B2E1F4",
+        skyblue: "#B2E1F4",
+        "darker-skyblue": '#A2D3E7',
         "hard-blue": "#1786A3",   
       },
       fontFamily: {

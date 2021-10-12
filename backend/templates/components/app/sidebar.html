@@ -48,8 +48,10 @@
         relative
       "
     >
-      <h2
+      <a
+        href="/"
         class="
+          z-100
           fixed
           top-2
           text-xl
@@ -61,7 +63,7 @@
         "
       >
         Healthcare <span class="text-turqoise">Company</span>
-      </h2>
+      </a>
       <button
         onclick="toggleSidebar()"
         class="
@@ -122,56 +124,53 @@
           <hr class="my-2" />
           <div class="bottom-0">
             <a
-            href="/app/settings"
-            class="
-              flex
-              items-end
-              px-4
-              py-2
-              mt-4
-              text-hard-blue
-              hover:bg-gray-200 hover:text-gray-700
-              transition-colors
-              duration-200
-              transform
-              rounded-md
-            "
-          >
-            <img
-              src="{{url_for('static', filename='icons/settings.svg')}}"
-              height="25"
-              width="25"
-            />
-            <p class="align-middle font-bold leading-none mx-4">
-              Settings
-            </p>
-          </a>
-            
+              href="/app/settings"
+              class="
+                flex
+                items-end
+                px-4
+                py-2
+                mt-4
+                text-hard-blue
+                hover:bg-gray-200 hover:text-gray-700
+                transition-colors
+                duration-200
+                transform
+                rounded-md
+              "
+            >
+              <img
+                src="{{url_for('static', filename='icons/settings.svg')}}"
+                height="25"
+                width="25"
+              />
+              <p class="align-middle font-bold leading-none mx-4">Settings</p>
+            </a>
+
             <button
-            class="
-              flex
-              items-end
-              px-4
-              py-2
-              mt-4
-              text-hard-blue
-              hover:bg-gray-200 hover:text-gray-700
-              transition-colors
-              duration-200
-              transform
-              rounded-md
-            "
-            onclick="logout()"
-          >
-            <img
-              src="{{url_for('static', filename='icons/logout.svg')}}"
-              height="25"
-              width="25"
-            />
-            <p class="align-middle font-bold leading-none mx-4">
-              Logout
-            </p>
-          </button>
+              class="
+                flex
+                items-end
+                px-4
+                py-2
+                mt-4
+                text-hard-blue
+                hover:bg-gray-200 hover:text-gray-700
+                transition-colors
+                duration-200
+                transform
+                rounded-md
+                w-full
+              "
+              onclick="logout()"
+            >
+              <img
+                src="{{url_for('static', filename='icons/logout.svg')}}"
+                height="25"
+                width="25"
+              />
+              <p class="align-middle font-bold leading-none mx-4">Logout</p>
+            </button>
           </div>
         </nav>
       </div>

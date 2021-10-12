@@ -1,6 +1,8 @@
 # rename to config.py
 from dataclasses import dataclass
 
+from flask.helpers import url_for
+
 @dataclass
 class Plan:
     name: str
@@ -15,11 +17,13 @@ class Page:
     name: str
 
 class AppPage(Page):
-    accessibleBy: list[str]
+    accessibleBy:list[str]
+    icon:str
 
-    def __init__(self, route:str, name:str, accessibleBy:list[str]=['user', 'patient', 'medicalPersonnel', 'doctor', 'medicalAssistant', 'administrative']):
+    def __init__(self, route:str, name:str, accessibleBy:list[str]=['user', 'patient', 'medicalPersonnel', 'doctor', 'medicalAssistant', 'administrative'], icon=None):
         super().__init__(route, name)
         self.accessibleBy = accessibleBy
+        self.icon = icon
 
 class Config(object):
     DEBUG = False
@@ -61,7 +65,7 @@ class Config(object):
         ]
 
     app_pages = [
-        AppPage('/', 'Home'),
+        AppPage('/', 'Home', icon='icons/home.svg'),
         AppPage('/profile', 'Profile'),
         AppPage('/appointments', 'Appointments'),
         AppPage('/symptoms', 'Symptoms'),

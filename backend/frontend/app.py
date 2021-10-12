@@ -43,6 +43,12 @@ def diseases(currentRole:str, *args, **kwargs):
 def branches(currentRole:str, *args, **kwargs):
     return render_template(f'pages/app/{currentRole}/branches.html')
 
+
+@appRouter.get('/settings')
+@getCurrentRole
+def settings(*args, **kwargs):
+    return render_template('pages/app/public/index.html')
+
 # mp specifics
 @appRouter.get('/patients')
 @requiresRole(['medicalPersonnel'])

@@ -76,6 +76,15 @@ class Config(object):
         AppPage('/app/profile', 'Profile'),
     ]
 
+    role_colors = {
+        'user': 'bg-gray-300',
+        'administrative': 'bg-red-500',
+        'patient': 'bg-turqoise',
+        'medicalPersonnel': 'bg-skyblue',
+        'doctor': 'bg-darker-skyblue',
+        'medicalAssistant': 'bg-skyblue',
+    }
+
     plans = [
         Plan(name='Plan 1',
             price=100,

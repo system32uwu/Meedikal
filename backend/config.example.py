@@ -1,8 +1,6 @@
 # rename to config.py
 from dataclasses import dataclass
 
-from flask.helpers import url_for
-
 @dataclass
 class Plan:
     name: str
@@ -27,7 +25,7 @@ class AppPage(Page):
             self.icon = icon
         else:
             self.icon = 'icons/home.svg'
-            
+
 class Config(object):
     DEBUG = False
     TESTING = False

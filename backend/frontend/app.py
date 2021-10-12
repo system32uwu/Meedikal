@@ -69,4 +69,5 @@ def stats():
 @appRouter.context_processor
 @getCurrentRole
 def appVars(currentRole:str, ci:int):
-    return dict(currentRole=currentRole, ci=ci, app_pages=Config.app_pages)
+    return dict(currentRole=currentRole, ci=ci, 
+    app_pages=Config.app_pages, role_colors=Config.role_colors)

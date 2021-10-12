@@ -1,0 +1,26 @@
+{% macro chip(text, textColor, bold, bgColor, btn, icon) %}
+<div
+  class="inline-flex items-center rounded-full border border-gray-200 px-1 py-1 {{bgColor}}"
+>
+  <span
+    class="
+      px-1
+      text-sm text-center
+      w-full
+      text-white
+      text-${textColor}
+      {{'font-bold' if bold else ''}}
+    "
+  >
+    {{text}}
+  </span>
+  {% if btn %}
+  <button
+    type="button"
+    class="h-6 w-6 p-1 rounded-full bg-opacity-25 focus:outline-none"
+  >
+    <img src="{{icon}}" />
+  </button>
+  {% endif %}
+</div>
+{% endmacro %}

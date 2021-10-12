@@ -1,0 +1,54 @@
+{% macro user_field(name, value, readOnly) %}
+<div class="flex">
+  <span
+    class="
+      text-sm
+      border
+      bg-blue-50
+      font-bold
+      uppercase
+      border-2
+      rounded-l
+      px-4
+      py-2
+      bg-gray-50
+      whitespace-no-wrap
+      w-2/6
+    "
+  >
+    {{name}}
+  </span>
+  {% if readOnly%}
+  <input
+    class="
+      px-4
+      border-l-0
+      focus:outline-none focus:ring-1
+      ring-turqoise
+      rounded-md
+      shadow-sm
+      w-4/6
+    "
+    readonly
+    type="text"
+    value={{value}}
+    id={{name}}
+  />
+  {% else %}
+  <input
+    class="
+      px-4
+      border-l-0
+      focus:outline-none focus:ring-1
+      ring-turqoise
+      rounded-md
+      shadow-sm
+      w-4/6
+    "
+    type="text"
+    value='{{value}}'
+    id={{name}}
+  />
+  {% endif %}
+</div>
+{% endmacro %}

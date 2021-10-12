@@ -17,14 +17,17 @@ class Page:
     name: str
 
 class AppPage(Page):
-    accessibleBy:list[str]
-    icon:str
+    accessibleBy: list[str]
+    icon: str
 
-    def __init__(self, route:str, name:str, accessibleBy:list[str]=['user', 'patient', 'medicalPersonnel', 'doctor', 'medicalAssistant', 'administrative'], icon=None):
+    def __init__(self, route:str, name:str, accessibleBy:list[str]=['user', 'patient', 'medicalPersonnel', 'doctor', 'medicalAssistant', 'administrative'], icon:str=None):
         super().__init__(route, name)
         self.accessibleBy = accessibleBy
-        self.icon = icon
-
+        if icon is not None:
+            self.icon = icon
+        else:
+            self.icon = 'icons/home.svg'
+            
 class Config(object):
     DEBUG = False
     TESTING = False

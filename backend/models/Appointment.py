@@ -58,12 +58,16 @@ class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appo
     ciPa: int
 
     motive: Optional[str] = None
-    number: Optional[int] = None
     time: Optional[datetime] = None
+    number: Optional[int] = None
 
-    def __init__(self,idAp:int,ciPa:int,motive:str=None,number:int=None,time:str=None):
+    def __init__(self,idAp:int,ciPa:int,motive:str=None,time:str=None, number:int=None):
         self.idAp = idAp
         self.ciPa = ciPa
         self.motive = motive
-        self.number = number
-        self.time = datetime.fromisoformat(time) if time is not None else None
+        try:
+            self.time = datetime.fromisoformat(time)
+        except:
+            self.time = None
+            
+        self.number = number 

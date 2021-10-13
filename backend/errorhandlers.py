@@ -43,18 +43,22 @@ def keyError(e:KeyError):
 @apiRouter.errorhandler(IntegrityError)
 def integrityError(e:IntegrityError):
     err = repr(e)
+    print(err)
     getDb().rollback()
 
     if 'FOREIGN KEY' in err:
         return genericErrorReturn(f"foreign key error: one of the values you are referring to was deleted or never existed")
     else:       
-        errData = err.split(": ")
-        attrs = errData[1].split("')")[0]
+        if 'UNIQUE' in err or 'NOT NULL' in err:
+            errData = err.split(": ")
+            attrs = errData[1].split("')")[0]
 
-        if 'UNIQUE' in err:
-            return recordAlreadyExists(extraMessage=attrs)
-        elif 'NOT NULL' in err:
-            return provideData(f'missing required fields: {attrs}')
+            if 'UNIQUE' in err:
+                return recordAlreadyExists(extraMessage=attrs)
+            elif 'NOT NULL' in err:
+                return provideData(f'missing required fields: {attrs}')
+        else:
+            return provideData(str(e))
 
 @apiRouter.errorhandler(Exception) # any other exception
 def handle_exception(e:Exception):

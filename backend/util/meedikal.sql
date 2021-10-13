@@ -108,7 +108,7 @@ CREATE TABLE attendsTo (
     ciPa INTEGER NOT NULL,
     -- OPTIONAL FIELD
     motive VARCHAR(256),
-    time datetime UNIQUE, --NULLABLE, but in case it's provided should be UNIQUE.
+    time DATETIME, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
     number INTEGER, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
     
     UNIQUE (idAp, ciPa),
@@ -116,15 +116,41 @@ CREATE TABLE attendsTo (
     FOREIGN KEY (ciPa) REFERENCES patient(ci) ON DELETE CASCADE
 );
 
-CREATE TRIGGER assign_number_to_attendsTo -- If a number is already picked, or is not in range of (0, maxTurns) raise an error
+-- If a number is already picked, or is not in range of (0, maxTurns) raise an error
+-- If a time is already picked, or is not in range of (startsAt, endsAt) raise an error
+-- If the appointment does not have maxTurns, but a number for a turn is trying to be inserted in attendsTo, raise an error 
+-- If the appointment does not have startsAt and endsAt setted, but a time for a turn is trying to be inserted in attendsTo, raise an error
+CREATE TRIGGER assign_to_attendsTo 
     BEFORE INSERT ON attendsTo
 BEGIN
-    SELECT CASE WHEN EXISTS(SELECT 1 FROM attendsTo WHERE number = new.number AND idAp = new.idAp)
-        THEN RAISE(ABORT, 'NUMBER IS ALREADY PICKED.')
+    SELECT CASE WHEN new.number IS NOT NULL THEN
+        CASE
+            WHEN NOT EXISTS (SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND appointment.maxTurns IS NOT NULL)
+                THEN RAISE(ABORT, 'number of turns is not setted yet')
+
+            WHEN EXISTS(SELECT 1 FROM attendsTo WHERE number = new.number AND idAp = new.idAp)
+                THEN RAISE(ABORT, 'number is already picked')
+            
+            WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (new.number > 0 and new.number <= appointment.maxTurns)) 
+                THEN RAISE(ABORT, 'number is not in the range of 0 and maximum turns')
+        
+        END
     END;
-    SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND new.number > 0 and new.number <= appointment.maxTurns) 
-        THEN RAISE(ABORT, 'NUMBER IS NOT IN THE RANGE OF 0 AND MAXTURNS')
+
+    SELECT CASE WHEN new.time IS NOT NULL THEN
+        CASE
+            WHEN EXISTS (SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (appointment.startsAt IS NULL OR appointment.startsAt IS NULL))
+                THEN RAISE(ABORT, 'start and end time for this appointment are not setted yet')
+
+            WHEN EXISTS(SELECT 1 FROM attendsTo WHERE time = new.time AND idAp = new.idAp)
+                THEN RAISE(ABORT, 'time is already picked')
+            
+            WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (new.time >= appointment.startsAt AND new.time <= appointment.endsAt)) 
+                THEN RAISE(ABORT, 'time is not in the range of start and end time for this appointment')
+        
+        END
     END;
+    
 END;
 
 CREATE TABLE assistsAp (

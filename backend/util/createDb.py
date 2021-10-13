@@ -10,8 +10,9 @@ p = os.path.join(os.path.dirname(__file__))
 dbPath = f'{p}/../{Config.DATABASE}'
 
 def getDb() -> Connection: # ensure that this connection will always check foreign keys
-    con = sqlite3.connect(dbPath, check_same_thread=False)
+    con = sqlite3.connect(dbPath, check_same_thread=False, )
     con.execute("PRAGMA FOREIGN_KEYS=ON")
+    con.set_trace_callback(print)
     return con
 
 if __name__ == '__main__':

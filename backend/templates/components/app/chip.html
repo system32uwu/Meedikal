@@ -1,26 +1,30 @@
-{% macro chip(text, textColor, bold, bgColor, btn, icon) %}
+{% macro chip(text, textColor, bold, bgColor, extra) %}
 <div
-  class="inline-flex items-center rounded-full border border-gray-200 px-1 py-1 {{bgColor}}"
+  id="{{text}}"
+  class="{{'inline-flex items-center' if not extra else ''}} rounded-full border border-gray-200 px-1 py-2 {{bgColor}}"
 >
   <span
     class="
       px-1
-      text-sm text-center
       w-full
+      leading-none
       text-white
-      text-${textColor}
+      text-center
+      {{textColor}}
       {{'font-bold' if bold else ''}}
     "
   >
     {{text}}
   </span>
-  {% if btn %}
-  <button
-    type="button"
-    class="h-6 w-6 p-1 rounded-full bg-opacity-25 focus:outline-none"
-  >
-    <img src="{{icon}}" />
-  </button>
-  {% endif %}
+  {{extra}}
 </div>
+{% endmacro %} 
+
+{% macro chip_action(value, fn, icon) %}
+<button
+  onclick="{{fn}}('{{value}}')"
+  class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none"
+>
+  <img src="{{url_for('static', filename=icon)}}" width="16" height="16"  />
+</button>
 {% endmacro %}

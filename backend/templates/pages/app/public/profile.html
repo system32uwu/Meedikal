@@ -1,7 +1,9 @@
-{% from "components/app/chip.html" import chip with context %} {% from
-"components/app/user-field.html" import user_field with context %} {% extends
-'layouts/app-base.html' %} {% block title %}Home{% endblock %} {%block
-page_content %}
+{% from "components/app/chip.html" import chip, chip_action with context %} 
+{% from "components/app/user-field.html" import user_field with context %} 
+{% extends 'layouts/app-base.html' %} 
+
+{% block title %}Profile{% endblock %}
+{%block page_content %}
 <div>
   <div class="bg-white rounded-xl flex flex-col">
     <div class="w-64 lg:w-96 self-center">
@@ -12,8 +14,9 @@ page_content %}
             class="w-full h-full md:w-44 md:h-44 m-auto px-2 md:px-0"
             alt="user profile pic"
           />
-          {% for r in user['roles'] %} {{chip(r, "white", bold,
-          role_colors[r])}} {% endfor %}
+          {% for r in user['roles'] %} 
+            {{chip(r, "white", bold, role_colors[r])}} 
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -47,12 +50,17 @@ page_content %}
         >
           Phone Numbers
         </span>
-        <div class="flex flex-wrap justify-start">
-          {% for p in user['phoneNumbers'] %} {{chip(p.phone, "white", bold,
-          role_colors[r])}} {% endfor %}
+        <div class="flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
+          {% for p in user['phoneNumbers'] %} 
+            {{chip(p.phone, "white", True, 'bg-turqoise', chip_action(p.phone, 'deletePhone', 'icons/delete.svg'))}}
+          {% endfor %}
         </div>
       </div>
     </div>
+    <div id="error-box" class="hidden">
+      <p class="text-red-500 font-semibold"></p>
+    </div>
+    </p>
     <div class="mb-4 mt-4 flex justify-between">
       <button
         onclick="window.location.href=window.location.href;"
@@ -84,6 +92,12 @@ page_content %}
   </div>
 </div>
 <script type="text/javascript">
+
+  errorBox = document.getElementById("error-box");
+  errorText = errorBox.getElementsByTagName("p")[0];
+
+  const id = "{{user['user']['ci']|safe}}"
+
   let idField = document.getElementById("ID");
   let name1Field = document.getElementById("1st Name");
   let name2Field = document.getElementById("2nd Name");
@@ -118,5 +132,34 @@ page_content %}
       //TODO: show popup / modal saying OK
     });
   };
+
+  const deletePhone = (phone) => {
+    fetch("/api/user/phoneNumbers", {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userPhone: [
+          {
+            ci: parseInt(id),
+            phone: phone,
+          },
+        ],
+      }),
+    }).then((res) => {
+      res.json().then((data) => {
+        if (res.status == 200){
+          //TODO: show popup / modal saying OK
+          errorBox.classList.add("hidden");
+          document.getElementById(phone).remove()
+        }else{
+          errorText.textContent = data.error;
+          errorBox.classList.remove("hidden");
+        }
+      });
+    });
+  }
 </script>
 {% endblock %}

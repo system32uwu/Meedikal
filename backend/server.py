@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from config import DevelopmentConfig, ProductionConfig
 from routers import apiRouter, frontendRouter, imagesRouter
 from util.JSONEncoder import JsonExtendEncoder
-# import errorhandlers
+import errorhandlers
 
 load_dotenv() # load .env file
 

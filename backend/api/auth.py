@@ -1,4 +1,5 @@
-from flask import Blueprint, session, request
+from flask import Blueprint, session
+
 from middleware.data import passJsonData
 from middleware.authGuard import requiresAuth, requiresRole, getCurrentRole
 from models.User import User, AuthUser

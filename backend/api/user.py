@@ -1,15 +1,13 @@
 import os
 from flask import Blueprint, request
 from dataclasses import asdict
+from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
 
 from util.crud import crudReturn
 from util.requestParsers import parseRole
 from middleware.authGuard import requiresAuth, requiresRole
-
 from middleware.data import passJsonData, passFile, paginated
-from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
-
 from models.Specialty import *
 from models.User import *
 

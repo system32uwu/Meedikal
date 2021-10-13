@@ -2,29 +2,37 @@ from flask import Blueprint, request
 
 from models.Branch import *
 from util.crud import *
-from middleware.authGuard import requiresRole
-from middleware.data import passJsonData
+from middleware.authGuard import requiresRole, requiresAuth
+from middleware.data import passJsonData, paginated
 
 router = Blueprint('branch', __name__, url_prefix='/branch')
 
 @router.get('/<int:id>') # GET /api/branch/<id>
-def getBranchById(id:int):
+@requiresAuth
+def getBranchById(id:int, **kwargs):
     return crudReturn(Branch.getById(id))
 
-@router.get('/<name>') # GET /api/branch/<name>
-def getBranchByName(name:str=None):
-    branches = Branch.filter({'name': name})
+@router.get('/<string:name>') # GET /api/branch/<name>
+@requiresAuth
+@paginated()
+def getBranchByName(name:str, offset:int, limit:int, **kwargs):
+    branches = Branch.filter({'name': {'value': name, 'operator': 'LIKE'}}, offset=offset, limit=limit)
     return crudReturn(branches)
 
 @router.get('/filter') # GET /api/branch/filter
+@requiresAuth
 @passJsonData
-def getBranchByFilters(data:dict=None):
-    branches = Branch.filter(data)
+@paginated()
+def getBranchByFilters(data:dict, offset:int, limit:int, **kwargs):
+    branches = Branch.filter(data, offset=offset, limit=limit)
     return crudReturn(branches)
 
 @router.get('/all') # GET /api/branch/all
-def getAllBranches():
-    return crudReturn(Branch.query())
+@requiresAuth
+@passJsonData
+@paginated()
+def getAllBranches(offset:int, limit:int, data:dict=None):
+    return crudReturn(Branch.filter(data, offset=offset, limit=limit))
 
 @router.post('') # POST /api/branch
 @passJsonData

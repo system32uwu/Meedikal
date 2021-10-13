@@ -5,7 +5,7 @@ from util.createDb import getDb
 
 db = getDb()
 
-def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple'):
+def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple', offset:int=0, limit:int=10):
     extraTables = []
     conditionList = []
     values = []
@@ -74,6 +74,9 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         statement += "," if len(extraTables) > 0 else ''
         statement += ', '.join(extraTables)
 
+        if offset is not None and limit is not None:
+            statement += f"\nLIMIT {limit} OFFSET {offset}" 
+
     elif command == 'INSERT':
         statement += '\nINTO '
         statement += f'''\n{cls.__tablename__} 
@@ -133,13 +136,17 @@ class BaseModel:
         return cls(*args)
 
     @classmethod
-    def query(cls):
-        return [cls(*row) for row in 
-        db.execute(f"SELECT * FROM {cls.__tablename__}")]
+    def query(cls, offset:int=None, limit:int=None):
+        statement = f"""SELECT * FROM {cls.__tablename__} 
+                        {f'LIMIT {offset}, {limit}' 
+                        if offset is not None and limit is not None
+                        else ''}"""
+
+        return [cls(*row) for row in db.execute(statement)]
     
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
-        return buildQueryComponents(cls, conditions, logicalOperator, 'SELECT', returns)
+    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all', offset:int=None, limit:int=None):
+        return buildQueryComponents(cls, conditions, logicalOperator, 'SELECT', returns, offset, limit)
 
     @classmethod
     def save(cls, conditions: dict= {}, returns='one') -> 'BaseModel':

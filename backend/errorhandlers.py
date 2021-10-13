@@ -67,8 +67,16 @@ def valueError(e: ValueError):
     else:
         return genericErrorReturn(e)
 
+@apiRouter.errorhandler(ExtensionNotAllowedError)
+def extensionNotAllowed(e: ExtensionNotAllowedError):
+    return genericErrorReturn(f'extension {e.deniedExt} not allowed.', f'allowed extensions: {", ".join(e.allowed)}')
+
+@apiRouter.errorhandler(PaginationError)
+def extensionNotAllowed(e: PaginationError):
+    return genericErrorReturn(f'Missing pagination query parameters (offset and limit)')
+
 @apiRouter.errorhandler(Exception) # any other exception
-def handle_exception(e:Exception):
+def handleException(e:Exception):
     err = repr(e)
     print(err)
     getDb().rollback()

@@ -6,7 +6,7 @@ from util.crud import crudReturn
 from util.requestParsers import parseRole
 from middleware.authGuard import requiresAuth, requiresRole
 
-from middleware.data import passJsonData, passFile
+from middleware.data import passJsonData, passFile, paginated
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
@@ -36,13 +36,16 @@ def userToReturn(user: User, role=None):
 
     return obj
 
-@router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
+@router.get('/all') # GET /api/user/all
+@requiresAuth
 @passJsonData
-def allUsers(data:dict=None):
-    return crudReturn([userToReturn(u) for u in User.filter(data)])
+@paginated()
+def allUsers(offset:int, limit: int, data:dict={}, **kwargs):
+    return crudReturn([userToReturn(u) for u in User.filter(data, offset=offset, limit=limit)])
 
-@router.get('/<int:ci>') # GET /api/user/<ci>
-def getUserByCi(ci:int=None):
+@router.get('/<int:ciUser>') # GET /api/user/<ci>
+@requiresAuth
+def getUserByCi(ci:int=None, **kwargs):
     return crudReturn(userToReturn(User.getByCi(ci)))
 
 @router.post('') # POST /api/user
@@ -134,19 +137,18 @@ def administrative(data:dict):
 
     return crudReturn(result)
 
-@router.get('/filter') # GET /api/user/filter filter with anything passed to the body of the request.
-@passJsonData
-def filterUser(data:dict):
-    return crudReturn([userToReturn(u) for u in User.filter(data)])
-
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
-def userBySurname1(surname1:str=None):
-    result = User.filter({'surname1' : surname1})
+@requiresAuth
+@paginated()
+def userBySurname1(offset:int, limit: int, surname1:str=None):
+    result = User.filter({'surname1' : surname1}, offset=offset, limit=limit)
     return crudReturn([userToReturn(u) for u in result])
 
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
-def userByName1nSurname1(name1:str=None, surname1:str=None):
-    result = User.filter({'name1' : name1, 'surname1' : surname1})
+@requiresAuth
+@paginated()
+def userByName1nSurname1(offset:int, limit: int, name1:str=None, surname1:str=None):
+    result = User.filter({'name1' : name1, 'surname1' : surname1}, offset=offset, limit=limit)
     return crudReturn([userToReturn(u) for u in result])
 
 def phoneNumbers(ci:int=None, data:dict=None):
@@ -165,9 +167,10 @@ def phoneNumbers(ci:int=None, data:dict=None):
 
     return crudReturn(result)
 
-@router.get('/phoneNumbers/<int:ci>')
-def getPhoneNumbers(ci:int, data:dict):
-    return phoneNumbers(ci, data)
+@router.get('/phoneNumbers/<int:ciUser>')
+@requiresAuth
+def getPhoneNumbers(ciUser:int, data:dict, **kwargs):
+    return phoneNumbers(ciUser, data)
 
 @router.route('/phoneNumbers', methods=['POST', 'DELETE'])
 @requiresAuth
@@ -217,8 +220,10 @@ def addOrDeleteMpHasSpec(data:dict):
     return mpHasSpec(data=data)
 
 @router.get('/medicalPersonnel/<specialty>') # specialty title
+@requiresAuth
 @passJsonData
-def filterMpUsersBySpecialty(specialty:str=None, data:dict=None):
+@paginated()
+def filterMpUsersBySpecialty(offset:int, limit: int, specialty:str=None, data:dict=None, **kwargs):
     users = []
     baseConditions = {'specialty.title': specialty,
                       'mpHasSpec.ciMp': {
@@ -228,12 +233,13 @@ def filterMpUsersBySpecialty(specialty:str=None, data:dict=None):
                           'value': 'specialty.id',
                           'joins': True
                      }}
-
-    if request.method == 'POST':
-        mps:list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions | data)
+    if data:
+        data = baseConditions | data
     else:
-        mps:list[MedicalPersonnel] = MedicalPersonnel.filter(baseConditions)
-    
+        data = baseConditions
+
+    mps:list[MedicalPersonnel] = MedicalPersonnel.filter(data, offset=offset, limit=limit)
+
     users = [User.getByCi(mp.ci) for mp in mps]
             
     return crudReturn([userToReturn(u, 'medicalPersonnel') for u in users])

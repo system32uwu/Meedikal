@@ -21,11 +21,10 @@ def login(data:dict):
         return crudReturn('OK')
 
 @router.post('/logout') # POST /api/auth/logout
-def logout():
-    print(session)
+@requiresAuth
+def logout(**kwargs):
     session.pop('authToken', None)
     session.pop('currentRole', None)
-    print(session)
     return crudReturn('OK')
 
 @router.route('/me', methods=['POST', 'GET']) # POST /api/auth/me

@@ -74,6 +74,7 @@ class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appo
         self.idAp = idAp
         self.ciPa = ciPa
         self.motive = motive
+        
         try:
             self.time = datetime.fromisoformat(time)
         except:

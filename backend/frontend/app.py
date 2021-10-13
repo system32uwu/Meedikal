@@ -1,73 +1,92 @@
 from flask import Blueprint, render_template
 from config import Config
 from models.User import User
-from middleware.authGuard import getCurrentRole, requiresRole
+from models.Appointment import Appointment, AssignedTo
+from middleware.authGuard import getCurrentRole, requiresRole, requiresAuth
 from api.user import userToReturn
 
 appRouter = Blueprint('app', __name__, url_prefix='app') # handles /app
 
+baseDir = 'pages'
+baseDirApp = f'{baseDir}/app'
+
 @appRouter.get('')
 @appRouter.get('/')
-@getCurrentRole
-def home(currentRole:str, *args, **kwargs):
-    return render_template(f'pages/app/{currentRole}/home.html')
+@requiresAuth
+def home(**any):
+    return render_template(f'{baseDirApp}/home.html')
 
 @appRouter.get('/profile')
 @getCurrentRole
-def profile(currentRole:str, ci:int):
+def profile(ci:int, currentRole:str):
     user = userToReturn(User.getByCi(ci), currentRole)
-    return render_template(f'pages/app/{currentRole}/profile.html', user=user)
+    return render_template(f'{baseDirApp}/profile.html', user=user)
+
+@appRouter.get('/profile/<int:ciUser>')
+@appRouter.get('/profile/<int:ciUser>/<string:asRole>')
+@requiresAuth
+def profileById(ciUser:int, asRole:str=None, *args, **kwargs):
+    user = userToReturn(User.getByCi(ciUser), asRole)
+    return render_template(f'{baseDirApp}/profile.html', user=user)
 
 @appRouter.get('/appointments')
-@getCurrentRole
-def appointments(currentRole:str, *args, **kwargs):
-    return render_template(f'pages/app/{currentRole}/appointments.html')
+@requiresAuth
+def appointments(**any):
+    return render_template(f'{baseDirApp}/appointments.html')
+
+@appRouter.get('/appointment/<int:id>')
+@requiresAuth
+def appointmentById(id:int, **any):
+    ap = Appointment.getById(id)
+    ciDoc = AssignedTo.filter({'idAp': ap.id}, 'one')
+    
+    doctor = userToReturn(User.getByCi(ciDoc))
+    
+    return render_template(f'{baseDirApp}/appointment.html', appointment=ap, doctor=doctor)
 
 @appRouter.get('/symptoms')
-@getCurrentRole
-def symptoms(currentRole:str, *args, **kwargs):
-    return render_template(f'pages/app/{currentRole}/symptoms.html')
+@requiresAuth
+def symptoms(**any):
+    return render_template(f'{baseDirApp}/symptoms.html')
 
 @appRouter.get('/clinical-signs')
-@getCurrentRole
-def clinicalSigns(currentRole:str, *args, **kwargs):
-    return render_template(f'pages/app/{currentRole}/clinical-signs.html')
+@requiresAuth
+def clinicalSigns(**any):
+    return render_template(f'{baseDirApp}/clinical-signs.html')
 
 @appRouter.get('/diseases')
-@getCurrentRole
-def diseases(currentRole:str, *args, **kwargs):
-    return render_template(f'pages/app/{currentRole}/diseases.html')
+@requiresAuth
+def diseases(**any):
+    return render_template(f'{baseDirApp}/diseases.html')
 
 @appRouter.get('/branches')
-@getCurrentRole
-def branches(currentRole:str, *args, **kwargs):
-    return render_template(f'pages/app/{currentRole}/branches.html')
-
+def branches():
+    return render_template(f'{baseDir}/branches.html')
 
 @appRouter.get('/settings')
-@getCurrentRole
-def settings(*args, **kwargs):
-    return render_template('pages/app/public/index.html')
+@requiresAuth
+def settings(**any):
+    return render_template(f'{baseDirApp}/settings.html')
 
 # mp specifics
 @appRouter.get('/patients')
 @requiresRole(['medicalPersonnel'])
 def patients():
-    return render_template(f'pages/app/mp/patients.html')
+    return render_template(f'{baseDirApp}/mp/patients.html')
 
 # admin specifics
 @appRouter.get('/users')
 @requiresRole(['administrative'])
 def users():
-    return render_template(f'pages/app/administrative/users.html')
+    return render_template(f'{baseDirApp}/administrative/users.html')
 
 @appRouter.get('/stats')
 @requiresRole(['administrative'])
 def stats():
-    return render_template(f'pages/app/administrative/stats.html')
+    return render_template(f'{baseDirApp}/administrative/stats.html')
 
 @appRouter.context_processor
 @getCurrentRole
-def appVars(currentRole:str, ci:int):
+def appVars(ci:int, currentRole:str):
     return dict(currentRole=currentRole, ci=ci, 
     app_pages=Config.app_pages, role_colors=Config.role_colors)

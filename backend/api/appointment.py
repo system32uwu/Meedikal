@@ -7,19 +7,22 @@ from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy
 from util.crud import *
 from util.returnMessages import *
-from middleware.authGuard import requiresRole
-from middleware.data import passJsonData
+from middleware.authGuard import requiresRole, requiresAuth
+from middleware.data import passJsonData, paginated
 
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
+@router.get('/all')
+@requiresAuth
+@passJsonData
+@paginated()
+def all(offset:int, limit:int, data:dict=None, **kwargs):
+    return crudReturn(Appointment.filter(data, offset=offset, limit=limit))
+
 @router.get('/<int:id>') # GET /api/appointment/<id>
+@requiresAuth
 def getAppointmentById(id:int):
     return crudReturn(Appointment.getById(id))
-
-@router.get('/filter') # GET /api/appointment/filter filter  with anything passed to the body of the request.
-@passJsonData
-def filterAppointments(data:dict):
-    return crudReturn(Appointment.filter(data))
 
 @router.post('') # POST /api/appointment
 @requiresRole(['administrative'])
@@ -65,8 +68,9 @@ def operateAssignedTo(data:dict):
 
 @router.get('/assignedTo/<int:idAp>')
 @router.get('/assignedTo/ciDoc/<int:ciDoc>')
-@passJsonData
-def getAssignedTo(idAp:int=None, ciDoc:int=None): # a [doctor] is <assigned to> an [appointment]
+@requiresAuth
+@paginated()
+def getAssignedTo(idAp:int=None, ciDoc:int=None, **kwargs): # a [doctor] is <assigned to> an [appointment]
     return getUserAppointment(AssignedTo, idAp, ciDoc, 'ciDoc')
 
 @router.route('/assistsAp', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assistsAp
@@ -77,7 +81,9 @@ def operateAssistsAp(data:dict):
 
 @router.get('/assistsAp/<int:idAp>')
 @router.get('/assistsAp/ciMa/<int:ciMa>')
-def getAssistsAp(idAp:int=None,ciMa:int=None): # a [medicalAssistant] <assists an> an [appointment]
+@requiresAuth
+@paginated()
+def getAssistsAp(idAp:int=None, ciMa:int=None, **kwargs): # a [medicalAssistant] <assists an> an [appointment]
     return getUserAppointment(AssistsAp, idAp, ciMa, 'ciMa')
         
 @router.route('/attendsTo', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/attendsTo
@@ -85,12 +91,13 @@ def getAssistsAp(idAp:int=None,ciMa:int=None): # a [medicalAssistant] <assists a
 @passJsonData
 def operateAttendsTo(data:dict):
     # TODO: -1: if it's patient making the appointment, ensure that the ci provided body is equal to the logged in patient
-    # TODO: -2: validate the number and/or the time (number shouldn't be present in any other row that has the same idAp) 
     return operateUserAppointment(AttendsTo, data)
 
 @router.get('/attendsTo/<int:idAp>')
 @router.get('/attendsTo/ciPa/<int:ciPa>')
-def getAttendsTo(idAp:int=None,ciPa:int=None): # a [patient] <attends to> an [appointment] 
+@requiresAuth
+@paginated()
+def getAttendsTo(idAp:int=None, ciPa:int=None, **kwargs): # a [patient] <attends to> an [appointment] 
     return getUserAppointment(AttendsTo, idAp, ciPa, 'ciPa')
         
 # # -- DATA INPUTTED WHEN A PATIENT IS BEING INTERVIEWED IN AN APPOINTMENT
@@ -127,7 +134,8 @@ def operateDiagnose(data:dict):
     return operateSufferingOfAp(Disease, Diagnoses, data, 'idDis')
 
 @router.get('/diagnoses/<int:idAp>/<int:ciPa>') # GET /api/appointment/diagnoses/<idAp>
-def getDiagnosed(idAp:int=None, ciPa:int=None): # input diagnosed diseases
+@requiresAuth
+def getDiagnosed(idAp:int=None, ciPa:int=None, **kwargs): # get diagnosed diseases
     return getSufferingOfAp(Disease, Diagnoses, idAp, ciPa, 'idDis')
 
 @router.route('/registersSy', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersSy
@@ -137,7 +145,8 @@ def operateRegistersSy(data:dict):
     return operateSufferingOfAp(Symptom, RegistersSy, data, 'idSy')
 
 @router.get('/registersSy/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersSy/<idAp>
-def getRegisteredSy(idAp:int=None,ciPa:int=None, data:dict=None): # input registered symptoms
+@requiresAuth
+def getRegisteredSy(idAp:int=None,ciPa:int=None, **kwargs): # get registered symptoms
     return getSufferingOfAp(Symptom, RegistersSy, idAp, ciPa, 'idSy')
 
 @router.route('/registersCs', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersCs
@@ -147,5 +156,6 @@ def operateRegistersCs(data:dict):
     return operateSufferingOfAp(ClinicalSign, RegistersCs, data, 'idCs')
 
 @router.get('/registersCs/<int:idAp>/<int:ciPa>') # GET /api/appointment/registersCs/<idAp>
-def getRegisteredCs(idAp:int=None, ciPa:int=None): # input registered clinical signs
+@requiresAuth
+def getRegisteredCs(idAp:int=None, ciPa:int=None, **kwargs): # input registered clinical signs
     return getSufferingOfAp(ClinicalSign, RegistersCs, idAp, ciPa, 'idCs')

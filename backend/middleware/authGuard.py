@@ -1,6 +1,6 @@
 from util.errors import MissingCookieError, MissingRoleError
-from flask import session, request
-from models.User import User,AuthUser
+from flask import session
+from models.User import User, AuthUser
 from functools import wraps
 
 def requiresAuth(f):
@@ -13,7 +13,7 @@ def requiresAuth(f):
             pass
 
         if token is None:
-            raise MissingCookieError
+            raise MissingCookieError()
         else:
             ci = AuthUser.verifyToken(token)
             return f(*args, **kwargs, ci=ci)

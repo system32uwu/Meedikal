@@ -42,12 +42,7 @@ def allUsers(data:dict=None):
     return crudReturn([userToReturn(u) for u in User.filter(data)])
 
 @router.get('/<int:ci>') # GET /api/user/<ci>
-@router.post('/ci') # POST /api/user/ci
-@passJsonData
-def getUserByCi(ci:int=None, data:dict=None):
-    if request.method == 'POST':
-        ci = data['ci']
-
+def getUserByCi(ci:int=None):
     return crudReturn(userToReturn(User.getByCi(ci)))
 
 @router.post('') # POST /api/user

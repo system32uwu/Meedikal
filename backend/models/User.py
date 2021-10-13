@@ -37,6 +37,21 @@ class User(SharedUserMethods):
     active:Optional[bool] = True
     photoUrl:Optional[str] = None
 
+    def __init__(self, ci:int, name1:str, surname1:str, sex:str, birthdate:datetime, location:str, email:str, password:str, name2:str=None, surname2:str=None, genre:str=None, active:bool=None, photoUrl:str=None):
+        self.ci = ci
+        self.name1 = name1
+        self.surname1 = surname1
+        self.sex = sex
+        self.birthdate = datetime.fromisoformat(birthdate)
+        self.location = location
+        self.email = email
+        self.password = password
+        self.name2 = name2
+        self.surname2 = surname2
+        self.genre = genre
+        self.active = active
+        self.photoUrl = photoUrl
+        
     @classmethod
     def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
         try:
@@ -59,6 +74,11 @@ class User(SharedUserMethods):
     def update(cls, conditions: dict= {}, logicalOperator='AND'):
         if conditions.get('password', None) is not None:
             raise UpdatePasswordError
+
+        birthdate = conditions.get('birthdate', None)
+
+        if birthdate is not None:
+            conditions['birthdate'] = datetime.fromisoformat(birthdate)
         
         return super().update(conditions, logicalOperator, 'all')
 
@@ -113,6 +133,11 @@ class User(SharedUserMethods):
 
     @classmethod
     def updateByCi(cls, ci:int, data: dict) -> int:
+        birthdate = data.get('birthdate', None)
+
+        if birthdate is not None:
+            data['birthdate'] = datetime.fromisoformat(birthdate)
+
         sets = [f'{k} = ?' for k in data.keys()]
 
         statement = f"""

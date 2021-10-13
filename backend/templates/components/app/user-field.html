@@ -1,3 +1,5 @@
+{% from "components/app/chip.html" import chip, chip_action with context %} 
+
 {% macro user_field(name, value, readOnly) %}
 <div class="flex">
   <span
@@ -50,5 +52,39 @@
     id='{{name}}'
   />
   {% endif %}
+</div>
+{% endmacro %}
+
+{% macro user_field_chips(name, values, display_attr, fn, icon='icons/delete.svg') %}
+<div class="flex">
+  <span
+    class="
+      text-sm
+      border
+      bg-blue-50
+      font-bold
+      uppercase
+      border-2
+      rounded-l
+      px-4
+      py-2
+      bg-gray-50
+      whitespace-no-wrap
+      w-2/6
+    "
+  >
+    {{name}}
+  </span>
+  <div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
+    {% if fn %}
+      {% for v in values %} 
+        {{chip(v[display_attr], "white", True, 'bg-turqoise', chip_action(v, fn, icon))}}
+      {% endfor %}
+    {% else %}
+      {% for v in values %} 
+        {{chip(v[display_attr], "white", True, 'bg-turqoise')}}
+      {% endfor %}
+    {% endif %}
+  </div>
 </div>
 {% endmacro %}

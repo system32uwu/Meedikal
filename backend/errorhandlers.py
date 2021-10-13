@@ -43,7 +43,6 @@ def keyError(e:KeyError):
 @apiRouter.errorhandler(IntegrityError)
 def integrityError(e:IntegrityError):
     err = repr(e)
-    print(err)
     getDb().rollback()
 
     if 'FOREIGN KEY' in err:
@@ -59,6 +58,14 @@ def integrityError(e:IntegrityError):
                 return provideData(f'missing required fields: {attrs}')
         else:
             return provideData(str(e))
+
+@apiRouter.errorhandler(ValueError)
+def valueError(e: ValueError):
+    e = str(e)
+    if ('isoformat' in e):
+        return provideData('invalid date')
+    else:
+        return genericErrorReturn(e)
 
 @apiRouter.errorhandler(Exception) # any other exception
 def handle_exception(e:Exception):

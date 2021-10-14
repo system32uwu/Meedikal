@@ -53,7 +53,7 @@ class User(SharedUserMethods):
         self.photoUrl = photoUrl
         
     @classmethod
-    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all', offset:int=None, limit:int=None):
+    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all', offset:int=None, limit:int=None,  paginationOnly:bool=False):
         try:
             extraFilters:dict = conditions.get('extraFilters', None)
             if extraFilters is not None:
@@ -63,7 +63,7 @@ class User(SharedUserMethods):
             conditions.pop('extraFilters', None)
             conditions.pop('password', None) # doesn't make sense to filter by password
         finally:
-            return super().filter(conditions,logicalOperator,returns, offset, limit)
+            return super().filter(conditions,logicalOperator,returns, offset, limit, paginationOnly)
     
     @classmethod
     def save(cls, conditions: dict= {}, returns='one') -> 'User':

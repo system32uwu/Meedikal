@@ -80,6 +80,16 @@ def patients():
 def users():
     return render_template(f'{baseDirApp}/administrative/users.html')
 
+@appRouter.get('/create-user')
+@requiresRole(['administrative'])
+def createUser():
+    return render_template(f'{baseDirApp}/administrative/operate-user.html')
+
+@appRouter.get('/update-user/<int:ci>')
+@requiresRole(['administrative'])
+def updateUser(ci:int):
+    return render_template(f'{baseDirApp}/administrative/operate-user.html', ci=ci)
+
 @appRouter.get('/stats')
 @requiresRole(['administrative'])
 def stats():

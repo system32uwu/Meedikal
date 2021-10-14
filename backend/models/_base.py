@@ -5,7 +5,7 @@ from util.createDb import getDb
 
 db = getDb()
 
-def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple', offset:int=0, limit:int=10):
+def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple', offset:int=0, limit:int=10, paginationOnly:bool=False):
     extraTables = []
     conditionList = []
     values = []
@@ -66,7 +66,10 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         statement += f' {cls.__tablename__}'
 
     if command == 'SELECT':
-        statement += f' {cls.__tablename__}.*'
+        if paginationOnly:
+            statement += ' COUNT(*) '
+        else:
+            statement += f' {cls.__tablename__}.*'
     
     if command == 'SELECT' or command == 'DELETE':
         
@@ -95,13 +98,16 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
     
     if command == 'SELECT':
         result = db.execute(statement, values)
-        if returns == 'all':
-            return [cls(*data) for data in result.fetchall()]
+        if paginationOnly:
+            return result.fetchone()[0]
         else:
-            try:
-                return cls(*result.fetchone())
-            except:
-                return None
+            if returns == 'all':
+                return [cls(*data) for data in result.fetchall()]
+            else:
+                try:
+                    return cls(*result.fetchone())
+                except:
+                    return None
     else:
         cursor = db.cursor()
         cursor.execute(statement, values)
@@ -145,8 +151,8 @@ class BaseModel:
         return [cls(*row) for row in db.execute(statement)]
     
     @classmethod # dict shape: {'key': 'value'} || {'key': {'value': 'v', 'operator': '='}}
-    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all', offset:int=None, limit:int=None):
-        return buildQueryComponents(cls, conditions, logicalOperator, 'SELECT', returns, offset, limit)
+    def filter(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all', offset:int=None, limit:int=None, paginationOnly:bool=False):
+        return buildQueryComponents(cls, conditions, logicalOperator, 'SELECT', returns, offset, limit, paginationOnly)
 
     @classmethod
     def save(cls, conditions: dict= {}, returns='one') -> 'BaseModel':

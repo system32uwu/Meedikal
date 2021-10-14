@@ -5,6 +5,7 @@ from api.user import router as userRouter # handles /api/user
 from api.appointment import router as appointmentRouter # handles /api/appointment
 from api.branch import router as branchRouter # handles /api/branch
 from api.auth import router as authRouter # handles /api/auth
+from api.pagination import router as paginationRouter # handles /api/pagination
 
 from frontend.app import appRouter # handles /app
 # modular routing, instead of having all the routes in this file, I'm making multiple routers that handle each table of the database. 
@@ -15,6 +16,7 @@ apiRouter.register_blueprint(authRouter)
 apiRouter.register_blueprint(userRouter)
 apiRouter.register_blueprint(appointmentRouter) 
 apiRouter.register_blueprint(branchRouter)
+apiRouter.register_blueprint(paginationRouter)
 
 imagesRouter = Blueprint('images', __name__, url_prefix='/images') # handles /images
 @imagesRouter.get('/<resource>')

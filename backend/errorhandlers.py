@@ -75,6 +75,14 @@ def extensionNotAllowed(e: ExtensionNotAllowedError):
 def extensionNotAllowed(e: PaginationError):
     return genericErrorReturn(f'Missing pagination query parameters (offset and limit)')
 
+@apiRouter.errorhandler(AttributeError)
+def attributeError(e: AttributeError):
+    err = str(e)
+    if 'models' in err:
+        return genericErrorReturn(f'Resource does not exist')
+    else:
+        return genericErrorReturn(e)
+
 @apiRouter.errorhandler(Exception) # any other exception
 def handleException(e:Exception):
     err = repr(e)

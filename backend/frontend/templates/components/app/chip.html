@@ -22,6 +22,7 @@
 
 {% macro chip_action(value, fn, icon) %}
 <button
+  id='{{"action-" + value}}'
   onclick="{{fn}}('{{value}}')"
   class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none"
 >

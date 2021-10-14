@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from flask import Blueprint, render_template
 from config import Config
 from models.User import User

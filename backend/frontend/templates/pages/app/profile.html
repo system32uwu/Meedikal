@@ -1,99 +1,11 @@
-{% from "components/app/chip.html" import chip, chip_action with context %} 
-{% from "components/app/user-field.html" import user_field, user_field_chips with context %} 
+{% from "components/app/profile.html" import profile with context %} 
 {% extends 'layouts/app-base.html' %} 
 
 {% block title %}Profile{% endblock %}
+
 {% block page_content %}
-<div class="w-full lg:px-10 mt-2">
-  <div class="bg-white rounded-xl flex flex-col w-full">
-    <div class="w-64 lg:w-96 self-center">
-      <div class="flex flex-col justify-between h-full w-full">
-        <div class="shadow-xl flex flex-col w-full py-1 space-y-1">
-          <img
-            src="{{url_for('static', filename= user['user']['photoUrl'] or 'images/user-placeholder.png')}}"
-            class="w-full h-full md:w-44 md:h-44 m-auto px-2 md:px-0"
-            alt="user profile pic"
-          />
-          {% for r in user['roles'] %} 
-            {% if currentRole == r %}
-             {{chip(r, "white", True, role_colors[r])}}
-            {% else %}
-              {{chip(r, "white", True, role_colors[r], chip_action(r, 'swapRole', 'icons/swap.svg'))}} 
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-    <div class="shadow-xl p-4 space-y-2">
-      {{user_field("ID", user['user']['ci'], True)}} 
-      {{user_field("1st Name", user['user']['name1'])}} 
-      {{user_field("2nd Name", user['user']['name2'])}}
-      {{user_field("1st Surname", user['user']['surname1'])}} 
-      {{user_field("2nd Surname", user['user']['surname2'])}} 
-      {{user_field("Sex", user['user']['sex'])}} 
-      {{user_field("Genre", user['user']['genre'])}}
-      {{user_field("Birthdate", user['user']['birthdate'])}}
-      {{user_field("Email", user['user']['email'])}} 
-      {{user_field("Location", user['user']['location'])}}
-      {{user_field("Status", "active" if user['user']['active'] else "inactive")}}
-      
-      {% if currentRole in ['doctor', 'medicalAssistant', 'medicalPersonnel'] %}
-        {{user_field_chips('Specialties', user['specialties'], 'title')}}  
-      {% endif %}
-      {{user_field_chips('Phone Numbers', user['phoneNumbers'], 'phone', 'deletePhone')}}  
-    </div>
-    <div id="error-box" class="hidden">
-      <p class="text-red-500 font-semibold"></p>
-    </div>
-    </p>
-    <div class="mb-4 mt-4 flex justify-between w-full space-x-10">
-      <button
-        onclick="window.location.href=window.location.href;"
-        class="
-          bg-red-500
-          w-full
-          font-bold
-          text-white text-center text-sm
-          rounded-full
-          py-2
-        "
-      >
-        Cancel
-      </button>
-      <button
-        onclick="updateUser()"
-        class="
-          bg-turqoise
-          w-full
-          font-bold
-          text-white text-center text-sm
-          rounded-full
-          py-2
-        "
-      >
-        Save
-      </button>
-    </div>
-  </div>
-</div>
+{{profile(user, currentRole)}}
 <script type="text/javascript">
-
-  errorBox = document.getElementById("error-box");
-  errorText = errorBox.getElementsByTagName("p")[0];
-
-  const id = "{{user['user']['ci']|safe}}"
-
-  let idField = document.getElementById("ID");
-  let name1Field = document.getElementById("1st Name");
-  let name2Field = document.getElementById("2nd Name");
-  let surname1Field = document.getElementById("1st Surname");
-  let surname2Field = document.getElementById("2nd Surname");
-  let sexField = document.getElementById("Sex");
-  let genreField = document.getElementById("Genre");
-  let birthdateField = document.getElementById("Birthdate");
-  let emailField = document.getElementById("Email");
-  let locationField = document.getElementById("Location");
-
   const updateUser = () => {
     fetch("/api/user", {
       method: "PUT",

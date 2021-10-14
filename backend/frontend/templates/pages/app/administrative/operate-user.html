@@ -4,5 +4,5 @@
 {% block title %}Create User{% endblock %} 
 
 {% block page_content %}
-{{profile({}, None)}}
+{{profile({'roles': ['patient', 'administrative', 'doctor', 'medicalAssistant']}, None, 'toggleRole', 'icons/add.svg')}}
 {% endblock %}

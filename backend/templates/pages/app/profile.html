@@ -10,7 +10,7 @@
       <div class="flex flex-col justify-between h-full w-full">
         <div class="shadow-xl flex flex-col w-full py-1 space-y-1">
           <img
-            src="{{user['user']['photoUrl'] or 'https://res.cloudinary.com/dboafhu31/image/upload/v1625318266/imagen_2021-07-03_091743_vtbkf8.png'}}"
+            src="{{url_for('static', filename= user['user']['photoUrl'] or 'images/user-placeholder.png')}}"
             class="w-full h-full md:w-44 md:h-44 m-auto px-2 md:px-0"
             alt="user profile pic"
           />
@@ -35,6 +35,7 @@
       {{user_field("Birthdate", user['user']['birthdate'])}}
       {{user_field("Email", user['user']['email'])}} 
       {{user_field("Location", user['user']['location'])}}
+      {{user_field("Status", "active" if user['user']['active'] else "inactive")}}
       
       {% if currentRole in ['doctor', 'medicalAssistant', 'medicalPersonnel'] %}
         {{user_field_chips('Specialties', user['specialties'], 'title')}}  

@@ -78,7 +78,8 @@ def patients():
 @appRouter.get('/users')
 @requiresRole(['administrative'])
 def users():
-    return render_template(f'{baseDirApp}/administrative/users.html')
+    _users = [userToReturn(u) for u in User.filter(offset=0,limit=10)]
+    return render_template(f'{baseDirApp}/administrative/users.html', users=_users)
 
 @appRouter.get('/create-user')
 @requiresRole(['administrative'])

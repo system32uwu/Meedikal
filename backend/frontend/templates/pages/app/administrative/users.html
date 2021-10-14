@@ -3,9 +3,9 @@
 
 {% block page_content %}
 <div class="w-full h-full">
-  <div class="h-1/4" id="filters"></div>
+  <div class="h-1/5" id="filters"></div>
 
-  <div class="h-2/4">
+  <div class="h-3/5">
     <div class="overflow-x-auto lg:overflow-x-hidden">
       <div class="py-2" id="users-table-container"></div>
     </div>
@@ -22,6 +22,24 @@
 <script type="text/javascript">
   let tableContainer = document.getElementById("users-table-container");
   let paginationContainer = document.getElementById("pagination-info");
+
+  const nameCell = (name, photoUrl) => `
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="flex items-center">
+      <div class="flex-shrink-0 h-10 w-10">
+        <img
+          class="h-10 w-10 rounded-full"
+          src="${photoUrl || "{{url_for('static', filename='images/user-placeholder.png')}}"}"
+        />
+      </div>
+      <div class="ml-4">
+        <div class="text-sm font-medium text-gray-900">
+          ${name}
+        </div>
+      </div>
+    </div>
+  </td>
+  `
 
   tableContainer.innerHTML = generateTable(
     "users-table",
@@ -46,11 +64,11 @@
           
           for (let obj of _data){
             let cells = [
-            generateCell(`${obj['user']['name1']} ${obj['user']['surname1']}`),
+            nameCell(`${obj['user']['name1']} ${obj['user']['surname1']}`, obj['user']['photoUrl']),
             generateCell(obj['user']['ci']),
             generateCell(obj['user']['sex']),
             generateCell(obj['user']['birthdate'].split('T')[0]),
-            generateCell(obj['user']['active'] === 1 ? 'Active' : 'Inactive'),
+            generateCell(obj['user']['active'] === 1 ? 'Active' : 'Inactive')
             ]
             rows.push(generateRow(cells));
           }
@@ -71,7 +89,7 @@
 
   loadUsers(offset).then(() => {
     setPagination('user', offset, limit, paginationContainer, 'loadUsers');
-  })
+  });
 
 </script>
 {% endblock page_content %}

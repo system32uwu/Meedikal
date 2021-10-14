@@ -1,6 +1,7 @@
 from util.errors import ExtensionNotAllowedError
 from flask import request
 from functools import wraps
+from models import getTotal
 
 def passJsonData(f):
     @wraps(f)
@@ -25,10 +26,16 @@ def passFile(allowedExtensions:list[str]):
 
     return decorator
 
-def paginated(offset:int=0, limit:int=10, max:int=10):
+def paginated(offset:int=0, limit:int=10, max:int=10, tablename:str=None):
     def decorator(f):
+        @passJsonData
         @wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(data:dict=None, *args, **kwargs):
+            total = max
+
+            if tablename is not None:
+                total = getTotal(tablename, data)
+
             _offset = offset
             _limit = limit
 
@@ -43,13 +50,13 @@ def paginated(offset:int=0, limit:int=10, max:int=10):
             if _offset < 0:
                 _offset = 0
 
-            if _limit > max:
-                _limit = max
+            if _limit > total:
+                _limit = total
 
             if _offset > _limit:
                 _offset = _limit - 1
 
-            return f(*args, **kwargs, offset=_offset, limit=_limit)
+            return f(*args, **kwargs, offset=_offset, limit=_limit, total=total, data=data)
         
         return wrapper
     return decorator

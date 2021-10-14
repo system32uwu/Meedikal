@@ -74,12 +74,10 @@ def settings(**any):
 def patients():
     return render_template(f'{baseDirApp}/mp/patients.html')
 
-# admin specifics
 @appRouter.get('/users')
 @requiresRole(['administrative'])
 def users():
-    _users = [userToReturn(u) for u in User.filter(offset=0,limit=10)]
-    return render_template(f'{baseDirApp}/administrative/users.html', users=_users)
+    return render_template(f'{baseDirApp}/administrative/users.html')
 
 @appRouter.get('/create-user')
 @requiresRole(['administrative'])

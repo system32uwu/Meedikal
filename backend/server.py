@@ -6,11 +6,13 @@ from config import DevelopmentConfig, ProductionConfig
 from routers import apiRouter, frontendRouter, imagesRouter
 from util.JSONEncoder import JsonExtendEncoder
 import errorhandlers
+import mimetypes 
 
 load_dotenv() # load .env file
 
 def create_app():
-    app = Flask(__name__)
+
+    app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
     CORS(app, supports_credentials=True) # apply CORS to flask app
 
     if os.environ.get('FLASK_ENV', None) == 'development':
@@ -31,6 +33,10 @@ def create_app():
         os.makedirs(DevelopmentConfig.UPLOAD_FOLDER)
     except:
         pass
+
+    # solve mime type bugs when using javascript files in templates
+    mimetypes.add_type('application/javascript', '.js')
+    mimetypes.add_type('text/javascript', '.js')
     
     return app
 

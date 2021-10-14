@@ -4,7 +4,7 @@ from .returnMessages import zeroRowReturn
 from flask.json import jsonify
 from flask import request
 
-def crudReturn(result=None):
+def crudReturn(result=None, paginationInfo=None):
     if request.method == 'PUT' or request.method == 'PATCH' or request.method == 'DELETE':
         if isinstance(result,list):
             result = sum(result)
@@ -36,4 +36,9 @@ def crudReturn(result=None):
             if result < 1:
                 zeroRowReturn()
 
-        return jsonify({"result": result}), 200
+        data:dict = {"result": result}
+
+        if paginationInfo:
+            data['paginationInfo'] = paginationInfo
+
+        return jsonify(data), 200

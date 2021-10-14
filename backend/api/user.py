@@ -36,9 +36,8 @@ def userToReturn(user: User, role=None):
 
 @router.get('/all') # GET /api/user/all
 @requiresAuth
-@passJsonData
 @paginated()
-def allUsers(offset:int, limit: int, data:dict={}, **kwargs):
+def allUsers(offset:int, limit: int, data:dict=None, **kwargs):
     return crudReturn([userToReturn(u) for u in User.filter(data, offset=offset, limit=limit)])
 
 @router.get('/<int:ciUser>') # GET /api/user/<ci>
@@ -138,14 +137,14 @@ def administrative(data:dict):
 @router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
 @requiresAuth
 @paginated()
-def userBySurname1(offset:int, limit: int, surname1:str=None):
+def userBySurname1(offset:int, limit: int, surname1:str=None, **kwargs):
     result = User.filter({'surname1' : surname1}, offset=offset, limit=limit)
     return crudReturn([userToReturn(u) for u in result])
 
 @router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
 @requiresAuth
 @paginated()
-def userByName1nSurname1(offset:int, limit: int, name1:str=None, surname1:str=None):
+def userByName1nSurname1(offset:int, limit: int, name1:str=None, surname1:str=None, **kwargs):
     result = User.filter({'name1' : name1, 'surname1' : surname1}, offset=offset, limit=limit)
     return crudReturn([userToReturn(u) for u in result])
 
@@ -208,7 +207,8 @@ def mpHasSpec(ciMp:int=None, data:dict=None):
     return crudReturn(result)
 
 @router.get('/medicalPersonnel/mpHasSpec/<int:ciMp>')
-def getSpOfMp(ciMp:int):
+@requiresAuth
+def getSpOfMp(ciMp:int, **kwargs):
     return mpHasSpec(ciMp=ciMp)
 
 @router.route('/medicalPersonnel/mpHasSpec', methods=['POST', 'DELETE'])
@@ -219,7 +219,6 @@ def addOrDeleteMpHasSpec(data:dict):
 
 @router.get('/medicalPersonnel/<specialty>') # specialty title
 @requiresAuth
-@passJsonData
 @paginated()
 def filterMpUsersBySpecialty(offset:int, limit: int, specialty:str=None, data:dict=None, **kwargs):
     users = []

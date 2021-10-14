@@ -1,0 +1,57 @@
+{% extends 'layouts/app-base.html' %} 
+{% block title %}Users{% endblock %} 
+
+{% block page_content %}
+<div class="w-full h-full">
+  <div class="h-1/4" id="filters"></div>
+
+  <div class="h-2/4">
+    <div class="overflow-x-auto lg:overflow-x-hidden">
+      <div class="py-2" id="users-table-container"></div>
+    </div>
+    <div></div>
+  </div>
+  <div class="w-full flex items-center justify-center mt-4">
+    <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12">
+      New User
+    </button>
+  </div>
+</div>
+<script type="text/javascript">
+  tableContainer = document.getElementById("users-table-container");
+
+  tableContainer.innerHTML = generateTable(
+    "users-table",
+    ["Name", "ID", "Sex", "Birthdate", "Status"], []
+  );
+
+  fetch('/api/user/all').then(res => {
+    
+    res.json().then(data => {
+      if (res.status == 200){
+        _data = data.result;
+        rows = Array(data.length);
+
+        for (obj of _data){
+          console.log(obj)
+          cells = [
+          generateCell(`${obj['user']['name1']} ${obj['user']['surname1']}`),
+          generateCell(obj['user']['ci']),
+          generateCell(obj['user']['sex']),
+          generateCell(obj['user']['birthdate'].split('T')[0]),
+          generateCell(obj['user']['active'] === 1 ? 'Active' : 'Inactive'),
+          ]
+          rows.push(generateRow(cells))
+        }
+
+        tableContainer.innerHTML = generateTable(
+          "users-table",
+          ["Name", "ID", "Sex", "Birthdate", "Status"],
+          rows
+        );
+      }
+    })
+  })
+
+</script>
+{% endblock page_content %}

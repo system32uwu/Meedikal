@@ -5,6 +5,13 @@ from util.createDb import getDb
 
 db = getDb()
 
+def getTotal(tablename:str, data:dict=None) -> int:
+    _module = __import__('models')
+    _class:'BaseModel' = getattr(_module, tablename.capitalize())
+        
+    total = _class.filter(data, paginationOnly=True)
+    return total
+
 def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple', offset:int=0, limit:int=10, paginationOnly:bool=False):
     extraTables = []
     conditionList = []

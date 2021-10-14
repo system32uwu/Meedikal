@@ -19,17 +19,8 @@ def getBranchByName(name:str, offset:int, limit:int, **kwargs):
     branches = Branch.filter({'name': {'value': name, 'operator': 'LIKE'}}, offset=offset, limit=limit)
     return crudReturn(branches)
 
-@router.get('/filter') # GET /api/branch/filter
-@requiresAuth
-@passJsonData
-@paginated()
-def getBranchByFilters(data:dict, offset:int, limit:int, **kwargs):
-    branches = Branch.filter(data, offset=offset, limit=limit)
-    return crudReturn(branches)
-
 @router.get('/all') # GET /api/branch/all
 @requiresAuth
-@passJsonData
 @paginated()
 def getAllBranches(offset:int, limit:int, data:dict=None):
     return crudReturn(Branch.filter(data, offset=offset, limit=limit))
@@ -64,5 +55,6 @@ def apTakesPlace(data:dict=None):
         return crudReturn(ApTakesPlace.delete(data))
 
 @router.get('/apTakesPlace/<int:idAp>') # GET /api/branch/apTakesPlace/<idAp>
+@requiresAuth
 def getApTakesPlace(idAp:int):
     return crudReturn(ApTakesPlace.filter({'idAp': idAp}))

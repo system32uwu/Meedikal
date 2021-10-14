@@ -1,0 +1,13 @@
+{% extends "layouts/base.html" %} 
+
+{% block content %}
+<div class="flex-1">
+  {% include 'components/app/sidebar.html' %}
+  <div class="flex flex-col w-full h-screen">
+    {% include 'components/app/titlebar.html' %}
+    <div class="lg:ml-64 h-full">
+        {% block page_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

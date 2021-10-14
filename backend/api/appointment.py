@@ -14,7 +14,6 @@ router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
 @router.get('/all')
 @requiresAuth
-@passJsonData
 @paginated()
 def all(offset:int, limit:int, data:dict=None, **kwargs):
     return crudReturn(Appointment.filter(data, offset=offset, limit=limit))

@@ -39,21 +39,19 @@ def paginated(offset:int=0, limit:int=10, max:int=10, tablename:str=None):
             _offset = offset
             _limit = limit
 
-            data = request.args
+            _data = request.args
 
-            if 'offset' in data:
-                _offset = int(data['offset'])
+            if 'offset' in _data:
+                _offset = int(_data['offset'])
 
-            if 'limit' in data:
-                _limit = int(data['limit'])
+            if 'limit' in _data:
+                _limit = int(_data['limit'])
 
             if _offset < 0:
                 _offset = 0
 
             if _limit > total:
                 _limit = total
-
-            if _offset > _limit:
                 _offset = _limit - 1
 
             return f(*args, **kwargs, offset=_offset, limit=_limit, total=total, data=data)

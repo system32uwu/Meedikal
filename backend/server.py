@@ -10,7 +10,7 @@ import mimetypes
 
 load_dotenv() # load .env file
 
-def create_app():
+def create_app() -> Flask:
 
     app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
     CORS(app, supports_credentials=True) # apply CORS to flask app
@@ -41,4 +41,4 @@ def create_app():
     return app
 
 if __name__ == '__main__':
-    create_app.run()
+    create_app().run()

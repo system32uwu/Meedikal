@@ -6,6 +6,7 @@
   {% for page in app_pages %} {% if currentRole in page.accessibleBy and
   page.name != "Profile" and page.name != "Home"%}
   <button
+    onclick="window.location.href = '{{page.route}}'"
     class="
       bg-skyblue
       text-hard-blue

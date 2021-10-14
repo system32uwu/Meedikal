@@ -41,3 +41,36 @@ const generateTable = (tableId, colNames, rows) => {
     </div>
     `;
 }
+
+const setPagination = (tablename, offset, limit, paginationContainer, fn) => {
+    fetch(`/api/pagination/total/${tablename}`).then((res) => {
+      if (res.status === 200){
+        res.json().then(data => {
+          total = data.result;
+  
+          if (total < limit){
+            limit = total;
+          }
+
+          let itemsPerPage = limit - offset;
+  
+          let pageCount = total/itemsPerPage;
+  
+          let btns = Array(pageCount);
+          
+          for (let i = 0; i < pageCount; i++){
+            btns.push(`
+              <button 
+              class="rounded-xl bg-turqoise text-white font-bold px-2 text-center"
+              onclick="${fn}(${itemsPerPage*i})">
+              ${i + 1}
+              </button>
+            `)
+          }
+          paginationContainer.innerHTML = btns.join('\n')
+          //show pagination
+          Promise.resolve('OK')
+        })
+      }
+    });
+  }

@@ -4,7 +4,7 @@
 {% block title %}Create User{% endblock %} 
 
 {% block page_content %}
-{{profile({'roles': ['patient', 'administrative', 'doctor', 'medicalAssistant']}, None, 'toggleRole', 'icons/add.svg')}}
+{{profile({'roles': ['patient', 'administrative', 'doctor', 'medicalAssistant']}, None, 'toggleRole', 'icons/add.svg', 'saveUser')}}
 
 <script type="text/javascript">
     let selectedUserRoles = [];
@@ -20,6 +20,10 @@
             img.src = "{{url_for('static', filename='icons/add.svg')}}";
         }
 
+    }
+
+    const saveUser = () =>{
+        console.log('saving user');
     }
 
 </script>

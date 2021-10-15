@@ -21,7 +21,7 @@
           </div>
         </div>
       </div>
-      <div class="shadow-xl p-4 space-y-2">
+      <div class="shadow-xl p-4 space-y-2" id="user-fields">
         {{user_field("ID", user.get('user', {}).get('ci', ''), True if user.get('user') is not none else False)}} 
         {{user_field("1st Name", user.get('user', {}).get('name1', '')) }} 
         {{user_field("2nd Name", user.get('user', {}).get('name2', '')) }}
@@ -37,12 +37,12 @@
         {% if currentRole in ['doctor', 'medicalAssistant', 'medicalPersonnel'] %}
           {{user_field_chips('Specialties', user.get('user', {}).get('specialties', []), 'title') }}  
         {% endif %}
+
         {{user_field_chips('Phone Numbers', user.get('user', {}).get('phoneNumbers', []), 'phone', 'deletePhone')}}  
       </div>
       <div id="error-box" class="hidden">
         <p class="text-red-500 font-semibold"></p>
       </div>
-      </p>
       <div class="mb-4 mt-4 flex justify-between w-full space-x-10">
         <button
           onclick="window.location.href=window.location.href;"

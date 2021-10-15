@@ -7,7 +7,52 @@
 {{profile({'roles': ['patient', 'administrative', 'doctor', 'medicalAssistant']}, None, 'toggleRole', 'icons/add.svg', 'saveUser')}}
 
 <script type="text/javascript">
+
+    let userFields = document.getElementById('user-fields');
+    
+    let specialties = [];
     let selectedUserRoles = [];
+    
+    const generateSpecialtiesField = (chips) => `
+    <div class="flex hidden" id="Specialties">
+        <span class="text-sm border bg-blue-50 font-bold uppercase border-2 rounded-l px-4 py-2 bg-gray-50 whitespace-no-wrap w-2/6">
+            Specialties
+        </span>
+        <div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
+            ${chips}
+            <div>
+                (+)
+            </div>
+        </div>
+    </div>
+    `
+    
+    const generateSpecialtyChip = (value) => `
+    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
+        <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+            ${value}
+        </span>
+        <button onclick="removeSpecialty(${value})" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+            <img src="/static/icons/remove.svg" width="16" height="16" />
+        </button>
+    </div>
+    `
+
+    userFields.innerHTML += generateSpecialtiesField('');
+    let specialtiesContainer = document.getElementById('Specialties');
+
+    const removeSpecialty = (value) => {
+        specialties = specialties.find(el => el !== value);
+        document.getElementById(value).remove();
+    }
+
+    const addSpecialty = (value) => {
+        if (!specialties.contains(value)){
+            specialties.push(value);
+            specialtiesContainer.innerHTML += generateSpecialtyChip(value);
+        }
+        //clear input
+    }
 
     const toggleRole = (role) => {
         img = document.getElementById(`icon-${role}`);
@@ -20,11 +65,16 @@
             img.src = "{{url_for('static', filename='icons/add.svg')}}";
         }
 
+        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalAssistant')){
+            //show specialties field    
+            document.getElementById('Specialties').classList.remove('hidden');
+        }else{
+            document.getElementById('Specialties').classList.add('hidden');
+        }        
+
     }
 
     const saveUser = async() =>{
-        console.log('saving user');
-        //TODO!
         let saveUserBody = {
             ci: parseInt(idField.value),
             name1: name1Field.value,
@@ -50,15 +100,12 @@
         });
 
         const createdUser = await createUserRes.json();
-        console.log('created user: ', createdUser);
 
-        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalAssistant')){
-            // push medicalPersonnel to be the first item of the list.  
-            selectedUserRoles.unshift('medicalPersonnel');
+        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalAssistant')){  
+            selectedUserRoles.unshift('medicalPersonnel'); // push medicalPersonnel to be the first item of the list.
         }
 
         for (let role of selectedUserRoles){
-            console.log('adding role ', role, ' to user', createdUser.result.user.ci)
             let res = await fetch(`/api/user/${role}`, {
                 method: 'POST',
                 headers: {
@@ -70,10 +117,7 @@
                 })
             }); //is this worth checking if it was succesfull?
             data = await res.json();
-            console.log('role added', data);
         }
-
-        console.log('finished adding user roles');
 
         //TODO: phone numbers and specialties.
 

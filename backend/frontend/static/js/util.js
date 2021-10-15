@@ -75,7 +75,6 @@ const setPagination = async (
             `);
     }
     paginationContainer.innerHTML = btns.join("\n");
-    //show pagination
     return total;
   } else {
     Promise.reject(res.data);

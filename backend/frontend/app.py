@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from flask import Blueprint, render_template
 from config import Config
 from models.User import User
@@ -21,7 +20,7 @@ def home(**any):
 @getCurrentRole
 def profile(ci:int, currentRole:str):
     user = userToReturn(User.getByCi(ci), currentRole)
-    return render_template(f'{baseDirApp}/profile.html', user=user)
+    return render_template(f'{baseDirApp}/profile.html', me=user)
 
 @appRouter.get('/profile/<int:ciUser>')
 @appRouter.get('/profile/<int:ciUser>/<string:asRole>')
@@ -88,7 +87,8 @@ def createUser():
 @appRouter.get('/update-user/<int:ci>')
 @requiresRole(['administrative'])
 def updateUser(ci:int):
-    return render_template(f'{baseDirApp}/administrative/operate-user.html', ci=ci)
+    user = User.getByCi(ci)
+    return render_template(f'{baseDirApp}/administrative/operate-user.html', user=user)
 
 @appRouter.get('/stats')
 @requiresRole(['administrative'])
@@ -98,5 +98,5 @@ def stats():
 @appRouter.context_processor
 @getCurrentRole
 def appVars(ci:int, currentRole:str):
-    return dict(currentRole=currentRole, ci=ci, 
+    return dict(myRole=currentRole, ci=ci, 
     app_pages=Config.app_pages, role_colors=Config.role_colors)

@@ -84,6 +84,7 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         statement += "," if len(extraTables) > 0 else ''
         statement += ', '.join(extraTables)
 
+    if command == 'SELECT':
         if offset is not None and limit is not None:
             statement += f"\nLIMIT {limit} OFFSET {offset}" 
 

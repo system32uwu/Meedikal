@@ -63,7 +63,7 @@ const setPagination = async (
 
     let pageCount = total / itemsPerPage;
 
-    let btns = Array(pageCount);
+    let btns = Array(Math.ceil(pageCount)); //round up
 
     for (let i = 0; i < pageCount; i++) {
       btns.push(`

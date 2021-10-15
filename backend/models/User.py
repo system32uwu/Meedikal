@@ -101,7 +101,10 @@ class User(SharedUserMethods):
             
             if MedicalAssitant.filter({'ci': ci}, returns='one') is not None:
                 types.append(MedicalAssitant.__tablename__)
-                types.remove(MedicalPersonnel.__tablename__)
+                try:
+                    types.remove(MedicalPersonnel.__tablename__)
+                except: # element not in list, raises when user also has the doctor role, but medicalPersonnel was already removed in that check.
+                    pass
 
         if len(types) > 1:
             types.remove(User.__tablename__)
@@ -199,21 +202,21 @@ class MedicalPersonnel(BaseModel):
     
     @classmethod
     def getBySpecialty(cls, returns:str='all', request:Request=None, title:str=None):
-        userType = 'medicalPersonnel'
+        role = 'medicalPersonnel'
         
         if title is None:
             try:
                 conditions = json.loads(request.data)
                 title = conditions['title']
-                userType = conditions['extraFilters']['userType']
+                role = conditions['extraFilters']['role']
             except:
-                userType = 'medicalPersonnel'
+                role = 'medicalPersonnel'
 
         statement = f"""
                 SELECT user.* 
-                FROM {userType}, user, mpHasSpec, specialty
-                WHERE {userType}.ci = mpHasSpec.ciMp
-                AND {userType}.ci == {User.__tablename__}.ci
+                FROM {role}, user, mpHasSpec, specialty
+                WHERE {role}.ci = mpHasSpec.ciMp
+                AND {role}.ci == {User.__tablename__}.ci
                 AND specialty.title = ?
                 AND mpHasSpec.idSpec = specialty.id
                 """

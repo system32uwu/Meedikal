@@ -22,8 +22,61 @@
 
     }
 
-    const saveUser = () =>{
+    const saveUser = async() =>{
         console.log('saving user');
+        //TODO!
+        let saveUserBody = {
+            ci: parseInt(idField.value),
+            name1: name1Field.value,
+            name2: name2Field.value,
+            surname1: surname1Field.value,
+            surname2: surname2Field.value,
+            sex: sexField.value,
+            genre: genreField.value,
+            birthdate: birthdateField.value,
+            email: emailField.value,
+            location: locationField.value,
+            active: activeField.value === "active" ? true : false,
+            password: idField.value
+        }
+
+        let createUserRes = await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(saveUserBody)
+        });
+
+        const createdUser = await createUserRes.json();
+        console.log('created user: ', createdUser);
+
+        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalAssistant')){
+            // push medicalPersonnel to be the first item of the list.  
+            selectedUserRoles.unshift('medicalPersonnel');
+        }
+
+        for (let role of selectedUserRoles){
+            console.log('adding role ', role, ' to user', createdUser.result.user.ci)
+            let res = await fetch(`/api/user/${role}`, {
+                method: 'POST',
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ci: createdUser.result.user.ci
+                })
+            }); //is this worth checking if it was succesfull?
+            data = await res.json();
+            console.log('role added', data);
+        }
+
+        console.log('finished adding user roles');
+
+        //TODO: phone numbers and specialties.
+
     }
 
 </script>

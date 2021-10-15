@@ -42,8 +42,8 @@ def allUsers(offset:int, limit: int, data:dict=None, **kwargs):
 
 @router.get('/<int:ciUser>') # GET /api/user/<ci>
 @requiresAuth
-def getUserByCi(ci:int=None, **kwargs):
-    return crudReturn(userToReturn(User.getByCi(ci)))
+def getUserByCi(ciUser:int=None, **kwargs):
+    return crudReturn(userToReturn(User.getByCi(ciUser)))
 
 @router.post('') # POST /api/user
 @requiresRole(['administrative'])
@@ -57,11 +57,11 @@ def createUser(data:dict):
 def updateUser(data:dict, ci:int):
     return crudReturn(User.updateByCi(ci, data))
 
-@router.route('/<int:ci>', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
+@router.route('/<int:ciUser>', methods=['PUT', 'PATCH']) # PUT | PATCH /api/user
 @requiresRole(['administrative'])
 @passJsonData
-def updateUserAsAdmin(data:dict):
-    return crudReturn(User.updateByCi(data['ci'], data))
+def updateUserAsAdmin(data:dict, ciUser:int):
+    return crudReturn(User.updateByCi(ciUser, data))
 
 @router.delete('') # DELETE /api/user
 @requiresRole(['administrative'])

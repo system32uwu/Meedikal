@@ -1,0 +1,18 @@
+{% extends 'layouts/app-base.html' %} 
+{% from "components/app/profile.html" import profile with context %} 
+
+{% block title %}Create User{% endblock %} 
+
+{% block page_content %}
+    {{profile(user, None, 'toggleRole', 'icons/remove.svg', 'updateUser')}}
+<script type="text/javascript">
+    let user = "{{user}}";
+
+    let selectedUserRoles = user.roles;
+    // get all the roles chips
+    // add the remaining available roles with the add icon
+    // ['administrative', 'patient', 'doctor', 'medicalAssistant']
+    // check that there's at least one one checked.
+
+</script>
+{% endblock %}

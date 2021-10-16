@@ -87,8 +87,8 @@ def createUser():
 @appRouter.get('/update-user/<int:ciUser>')
 @requiresRole(['administrative'])
 def updateUser(ciUser:int):
-    user = User.getByCi(ciUser)
-    return render_template(f'{baseDirApp}/administrative/operate-user.html', user=user)
+    user = userToReturn(User.getByCi(ciUser))
+    return render_template(f'{baseDirApp}/administrative/update-user.html', user=user)
 
 @appRouter.get('/stats')
 @requiresRole(['administrative'])

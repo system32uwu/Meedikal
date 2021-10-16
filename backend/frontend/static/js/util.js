@@ -1,31 +1,24 @@
 const phoneRegex = /^[\+]?[0-9]*/;
 
-const generateColumn = (colName) => {
-  return `
+const generateColumn = (colName) =>`
     <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
       ${colName}
     </th>`;
-};
 
-const generateCell = (value) => {
-  return `
+const generateCell = (value) => `
     <td class="px-6 py-4 whitespace-nowrap">
       <div class="text-sm text-gray-900 text-center">
           ${value}
       </div>
-    </td>`;
-}; //generic cell generator
+    </td>`; //generic cell generator
 
-const generateRow = (cells) => {
-  return `
+const generateRow = (cells) => `
     <tr>
         ${cells.join("\n")}
     </tr>
     `;
-};
 
-const generateTable = (tableId, colNames, rows) => {
-  return `
+const generateTable = (tableId, colNames, rows) => `
     <div class="border-b border-gray-200 sm:rounded-lg overflow-y-auto h-full">
         <table class="divide-y divide-gray-200 w-full h-full" id="${tableId}">
             <thead class="bg-gray-50">
@@ -39,7 +32,6 @@ const generateTable = (tableId, colNames, rows) => {
         </table>
     </div>
     `;
-};
 
 const setPagination = async (
   tablename,

@@ -23,6 +23,10 @@
   let tableContainer = document.getElementById("users-table-container");
   let paginationContainer = document.getElementById("pagination-info");
 
+  const toggleActive = (userId, value) => {
+    // set the active column of the user table to 0 or 1
+  }
+
   const nameCell = (name, photoUrl) => `
   <td class="px-6 py-4 whitespace-nowrap">
     <div class="flex items-center">
@@ -40,6 +44,15 @@
     </div>
   </td>
   `
+
+  const generateActiveCell = (userId, value) => `
+    <td class="px-6 py-4 whitespace-nowrap">
+      <div class="text-sm text-gray-900 text-center">
+        <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value ? 'bg-green-100' : 'bg-red-100'} text-green-800" onclick="toggleActive(${userId}, ${value})">
+          ${value ? "Active" : "Inactive"}
+        </span>    
+      </div>
+    </td>`;  
 
   tableContainer.innerHTML = generateTable(
     "users-table",
@@ -64,12 +77,14 @@
       let rows = Array(data.length);
         
       for (let obj of _data){
+        let userId = obj['user']['ci'];
+
         let cells = [
         nameCell(`${obj['user']['name1']} ${obj['user']['surname1']}`, obj['user']['photoUrl']),
-        generateCell(obj['user']['ci']),
+        generateCell(userId),
         generateCell(obj['user']['sex']),
         generateCell(obj['user']['birthdate'].split('T')[0]),
-        generateCell(obj['user']['active'] === 1 ? 'Active' : 'Inactive')
+        generateActiveCell(userId, obj['user']['active'])
         ]
         rows.push(generateRow(cells));
       }

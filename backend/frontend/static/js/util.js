@@ -141,4 +141,34 @@ const generateSpecialtyChip = (value) => `
     </div>
     `;
 
-    
+
+const toggleLoadingModal = (forceHide=false, forceShow=false) => {
+  
+  const loadingModal = document.getElementById('loading-modal');
+  if (forceHide){
+    loadingModal.classList.add('hidden');
+  }
+  else if (forceShow){
+    loadingModal.classList.remove('hidden');
+  } else{
+    loadingModal.classList.toggle('hidden');
+  }
+};
+
+const delay = (time) => {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
+const showOkModal = async(title='Operation Successful', body='You may keep operating now') => {
+  toggleLoadingModal(true);
+  const okModal = document.getElementById('ok-modal');
+
+  document.getElementById('ok-modal-title').textContent = title;
+  document.getElementById('ok-modal-body').textContent = body;
+  okModal.classList.remove('hidden');
+
+  delay(500).then(() => {
+    window.location.href = window.location.href; //force reload on page
+  })
+
+};

@@ -9,17 +9,6 @@
 
   let phonesContainer = document.getElementById('container-Phones');
 
-  const generatePhoneChip = (value) => `
-    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
-        <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
-            ${value}
-        </span>
-        <button onclick="deletePhone(${value})" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
-            <img src="/static/icons/delete.svg" width="16" height="16" />
-        </button>
-    </div>
-    `
-
   const updateUser = () => {
     fetch("/api/user", {
       method: "PUT",
@@ -66,7 +55,7 @@
       body: JSON.stringify({
         userPhone: [
           {
-            ci: parseInt(id),
+            ci: parseInt("{{ci}}"),
             phone: phone,
           },
         ],
@@ -97,7 +86,7 @@
       body: JSON.stringify({
         userPhone: [
           {
-            ci: parseInt(id),
+            ci: parseInt("{{ci}}"),
             phone: phone,
           },
         ],

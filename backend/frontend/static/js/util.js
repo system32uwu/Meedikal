@@ -1,4 +1,4 @@
-const phoneRegex = /^[\+]?[0-9]*/
+const phoneRegex = /^[\+]?[0-9]*/;
 
 const generateColumn = (colName) => {
   return `
@@ -82,3 +82,63 @@ const setPagination = async (
     Promise.reject(res.data);
   }
 };
+
+const generatePhoneChip = (value) => `
+    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
+        <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+            ${value}
+        </span>
+        <button onclick="deletePhone(${value})" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+            <img src="/static/icons/delete.svg" width="16" height="16" />
+        </button>
+    </div>
+    `;
+
+const generateSpecialtiesField = (chips) => `
+<div class="flex h-full">
+<span
+  class="
+    text-sm
+    border
+    bg-blue-50
+    font-bold
+    uppercase
+    border-2
+    rounded-l
+    px-4
+    py-2
+    bg-gray-50
+    whitespace-no-wrap
+    w-2/6
+  "
+>
+  Specialties
+</span>
+<div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
+  <div class="flex flex-row w-full" id="container-Specialties">
+  ${chips}
+  </div>
+  <div class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 h-8">
+    <div>
+      <input id='new-Specialties' type="text" class="px-1 w-full text-black text-center focus:outline-none" value=""/> 
+    </div>
+    <button onclick="addSpecialty()" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+      <img src="/static/icons/add.svg" width="16" height="16" class="-mx-1"/>
+    </button>
+  </div>  
+</div>
+</div>
+    `;
+
+const generateSpecialtyChip = (value) => `
+    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
+    <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+        ${value}
+    </span>
+    <button onclick="deleteSpecialty('${value}')" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+        <img src="/static/icons/delete.svg" width="16" height="16" />
+    </button>
+    </div>
+    `;
+
+    

@@ -75,11 +75,9 @@
 </div>
 <script type="text/javascript">
 
-  errorBox = document.getElementById("error-box");
-  errorText = errorBox.getElementsByTagName("p")[0];
+  let errorBox = document.getElementById("error-box");
+  let errorText = errorBox.getElementsByTagName("p")[0];
 
-  const id = "{{user.get('user', {}).get('ci', none)|safe}}"
-  
   let idField = document.getElementById("ID");
   let name1Field = document.getElementById("1st Name");
   let name2Field = document.getElementById("2nd Name");

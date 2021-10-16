@@ -175,11 +175,11 @@ def getPhoneNumbers(ciUser:int, data:dict, **kwargs):
 def selfPhoneNumbers(ci:int, data:dict):
     return phoneNumbers(ci, data)
 
-@router.route('/phoneNumbers/<int:ci>', methods=['POST', 'DELETE'])
+@router.route('/phoneNumbers/<int:ciUser>', methods=['POST', 'DELETE'])
 @requiresRole(['administrative'])
 @passJsonData
-def phoneNumbersAsAdmin(ci:int, data:dict):
-    return phoneNumbers(ci, data)
+def phoneNumbersAsAdmin(ciUser:int, data:dict):
+    return phoneNumbers(ciUser, data)
 
 def mpHasSpec(ciMp:int=None, data:dict=None):
     if request.method == 'GET':

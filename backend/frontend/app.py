@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 from config import Config
 from models.User import User
 from models.Appointment import Appointment, AssignedTo
@@ -98,5 +98,13 @@ def stats():
 @appRouter.context_processor
 @getCurrentRole
 def appVars(ci:int, currentRole:str):
+    url = request.url.split('/app')[1]
+    if url == '/':
+        url = 'home'
+    else:
+        url = url.split('/')[1]
+        url = url.replace('-', ' ')
+
     return dict(myRole=currentRole, ci=ci, 
-    app_pages=Config.app_pages, role_colors=Config.role_colors)
+    appPages=Config.app_pages, roleColors=Config.role_colors,
+    currentPage=url.capitalize())

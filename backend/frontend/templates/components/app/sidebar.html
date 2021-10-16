@@ -93,34 +93,35 @@
       </button>
       <div class="flex flex-col justify-between flex-1">
         <nav>
-          {% for page in app_pages%} {% if myRole in page.accessibleBy and
-          page.name != "Profile"%}
-          <a
-            href="{{page.route}}"
-            class="
-              flex
-              items-end
-              px-4
-              py-2
-              mt-4
-              text-hard-blue
-              hover:bg-gray-200 hover:text-gray-700
-              transition-colors
-              duration-200
-              transform
-              rounded-md
-            "
-          >
-            <img
-              src="{{url_for('static', filename=page.icon)}}"
-              height="25"
-              width="25"
-            />
-            <p class="align-middle font-bold leading-none mx-4">
-              {{page.name}}
-            </p>
-          </a>
-          {% endif %} {% endfor %}
+          {% for page in appPages%} 
+            {% if myRole in page.accessibleBy and page.name != "Profile"%}
+              <a
+                href="{{page.route}}"
+                class="
+                  flex
+                  items-end
+                  px-4
+                  py-2
+                  mt-4
+                  text-hard-blue
+                  hover:bg-gray-200 hover:text-gray-700
+                  transition-colors
+                  duration-200
+                  transform
+                  rounded-md
+                "
+              >
+                <img
+                  src="{{url_for('static', filename=page.icon)}}"
+                  height="25"
+                  width="25"
+                />
+                <p class="align-middle font-bold leading-none mx-4">
+                  {{page.name}}
+                </p>
+              </a>
+            {% endif %} 
+          {% endfor %}
           <hr class="my-2" />
           <div class="bottom-0">
             <a

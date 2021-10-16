@@ -13,9 +13,9 @@
             />
             {% for r in user.get('roles', []) %} 
               {% if currentRole == r %}
-               {{chip(r, "white", True, role_colors[r])}}
+               {{chip(r, "white", True, roleColors[r])}}
               {% else %}
-                {{chip(r, "white", True, role_colors[r], chip_action(r, roleActionFn, roleActionIcon))}} 
+                {{chip(r, "white", True, roleColors[r], chip_action(r, roleActionFn, roleActionIcon))}} 
               {% endif %}
             {% endfor %}
           </div>

@@ -2,7 +2,7 @@
   <div class="flex lg:ml-64 w-full">
     <div class="flex flex-row w-full justify-center">
       <p class="absolute text-center text-white font-bold subpixel-antialiased">
-        {{request.endpoint.split('.')[2].capitalize()}}
+        {{currentPage}}
       </p>
       <div
         class="
@@ -27,7 +27,7 @@
             id="userPhoto"
             src="{{url_for('static', filename='icons/user.svg')}}"
             class="object-cover p-1"
-            alt="user avatar"
+            onclick="window.location.href = '/app/profile'"
           />
         </button>
       </div>
@@ -46,8 +46,4 @@
       });
     });
   };
-
-  document.getElementById("profile").addEventListener("click", (e) => {
-    window.location.href = "/app/profile";
-  });
 </script>

@@ -3,7 +3,7 @@
 
 {%block page_content %}
 <div class="w-full h-full flex flex-wrap place-content-around">
-  {% for page in app_pages %} 
+  {% for page in appPages %} 
   
     {% if myRole in page.accessibleBy and page.name != "Profile" and page.name != "Home"%}
     <button

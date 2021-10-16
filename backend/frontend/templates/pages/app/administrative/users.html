@@ -1,7 +1,5 @@
-{% extends 'layouts/app-base.html' %} 
-{% block title %}Users{% endblock %} 
-
-{% block page_content %}
+{% extends 'layouts/app-base.html' %} {% block title %}Users{% endblock %} {%
+block page_content %}
 <div class="w-full h-full">
   <div class="h-1/5" id="filters"></div>
 
@@ -9,12 +7,16 @@
     <div class="overflow-x-auto lg:overflow-x-hidden">
       <div class="py-2" id="users-table-container"></div>
     </div>
-    <div id="pagination-info" class="border w-full flex items-center justify-center py-1 space-x-2">
-
-    </div>
+    <div
+      id="pagination-info"
+      class="border w-full flex items-center justify-center py-1 space-x-2"
+    ></div>
   </div>
   <div class="w-full flex items-center justify-center mt-4">
-    <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="window.location.href ='/app/create-user'">
+    <button
+      class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12"
+      onclick="window.location.href ='/app/create-user'"
+    >
       New User
     </button>
   </div>
@@ -23,9 +25,26 @@
   let tableContainer = document.getElementById("users-table-container");
   let paginationContainer = document.getElementById("pagination-info");
 
-  const toggleActive = (userId, value) => {
-    // set the active column of the user table to 0 or 1
-  }
+  const toggleActive = async (userId) => {
+    const activeField = document.getElementById(`active-${userId}`);
+    activeField.classList.remove("bg-red-100");
+    activeField.classList.remove("bg-green-100");
+
+    const active = activeField.textContent.trim() === "Active" ? 0 : 1;
+    const res = await fetch(`/api/user/${userId}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        active: active
+      })
+    });
+
+    activeField.textContent = active ? "Active" : "Inactive";
+    activeField.classList.toggle(active ? "bg-green-100" : "bg-red-100");
+  };
 
   const nameCell = (name, photoUrl) => `
   <td class="px-6 py-4 whitespace-nowrap">
@@ -33,7 +52,10 @@
       <div class="flex-shrink-0 h-10 w-10">
         <img
           class="h-10 w-10 rounded-full"
-          src="${photoUrl || "{{url_for('static', filename='images/user-placeholder.png')}}"}"
+          src="${
+            photoUrl ||
+            "{{url_for('static', filename='images/user-placeholder.png')}}"
+          }"
         />
       </div>
       <div class="ml-4">
@@ -43,49 +65,56 @@
       </div>
     </div>
   </td>
-  `
+  `;
 
   const generateActiveCell = (userId, value) => `
     <td class="px-6 py-4 whitespace-nowrap">
       <div class="text-sm text-gray-900 text-center">
-        <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value ? 'bg-green-100' : 'bg-red-100'} text-green-800" onclick="toggleActive(${userId}, ${value})">
-          ${value ? "Active" : "Inactive"}
-        </span>    
+        <button onclick="toggleActive(${userId})">
+          <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+    value ? "bg-green-100" : "bg-red-100"
+  } text-green-800">
+            ${value ? "Active" : "Inactive"}
+          </span> 
+        </button>
       </div>
-    </td>`;  
+    </td>`;
 
   tableContainer.innerHTML = generateTable(
     "users-table",
-    ["Name", "ID", "Sex", "Birthdate", "Status"], []
+    ["Name", "ID", "Sex", "Birthdate", "Status"],
+    []
   );
 
   let total = 0;
   let offset = 0;
   let limit = 3;
 
-  const loadUsers = async(offset) => {
-    if (offset < 0){
+  const loadUsers = async (offset) => {
+    if (offset < 0) {
       return;
     }
 
-    let res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`)
+    let res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`);
     let data = await res.json();
-      
-    if (res.status == 200){
-          
+
+    if (res.status == 200) {
       let _data = data.result;
       let rows = Array(data.length);
-        
-      for (let obj of _data){
-        let userId = obj['user']['ci'];
+
+      for (let obj of _data) {
+        let userId = obj["user"]["ci"];
 
         let cells = [
-        nameCell(`${obj['user']['name1']} ${obj['user']['surname1']}`, obj['user']['photoUrl']),
-        generateCell(userId),
-        generateCell(obj['user']['sex']),
-        generateCell(obj['user']['birthdate'].split('T')[0]),
-        generateActiveCell(userId, obj['user']['active'])
-        ]
+          nameCell(
+            `${obj["user"]["name1"]} ${obj["user"]["surname1"]}`,
+            obj["user"]["photoUrl"]
+          ),
+          generateCell(userId),
+          generateCell(obj["user"]["sex"]),
+          generateCell(obj["user"]["birthdate"].split("T")[0]),
+          generateActiveCell(userId, obj["user"]["active"]),
+        ];
         rows.push(generateRow(cells));
       }
 
@@ -94,17 +123,22 @@
         ["Name", "ID", "Sex", "Birthdate", "Status"],
         rows
       );
-        
-      return Promise.resolve('users loaded');
-    }else{
-        Promise.reject(res.data); //error object {error: "", extraMessage: ""}
+
+      return Promise.resolve("users loaded");
+    } else {
+      Promise.reject(res.data); //error object {error: "", extraMessage: ""}
     }
-  }
+  };
 
-  (async function(){
+  (async function () {
     await loadUsers(offset);
-    total = await setPagination('user', offset, limit, paginationContainer, 'loadUsers');
+    total = await setPagination(
+      "user",
+      offset,
+      limit,
+      paginationContainer,
+      "loadUsers"
+    );
   })();
-
 </script>
 {% endblock page_content %}

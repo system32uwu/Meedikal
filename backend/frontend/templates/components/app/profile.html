@@ -38,7 +38,7 @@
           {{user_field_chips('Specialties', user.get('user', {}).get('specialties', []), 'title') }}  
         {% endif %}
 
-        {{user_field_chips('Phone Numbers', user.get('user', {}).get('phoneNumbers', []), 'phone', 'deletePhone')}}  
+        {{user_field_chips('Phones', user.get('phoneNumbers', []), 'phone', 'deletePhone', canAdd=true, addFn='addPhone')}}  
       </div>
       <div id="error-box" class="hidden">
         <p class="text-red-500 font-semibold"></p>

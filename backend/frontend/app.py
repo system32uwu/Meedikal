@@ -82,7 +82,7 @@ def users():
 @appRouter.get('/create-user')
 @requiresRole(['administrative'])
 def createUser():
-    return render_template(f'{baseDirApp}/administrative/operate-user.html')
+    return render_template(f'{baseDirApp}/administrative/create-user.html')
 
 @appRouter.get('/update-user/<int:ci>')
 @requiresRole(['administrative'])

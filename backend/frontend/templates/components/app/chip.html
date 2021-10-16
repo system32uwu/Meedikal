@@ -22,10 +22,9 @@
 
 {% macro chip_action(value, fn, icon) %}
 <button
-  id='{{"action-" + value}}'
   onclick="{{fn}}('{{value}}')"
   class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none"
 >
-  <img id='{{"icon-" + value}}' src="{{url_for('static', filename=icon)}}" width="16" height="16" />
+  <img src="{{url_for('static', filename=icon)}}" width="16" height="16" />
 </button>
 {% endmacro %}

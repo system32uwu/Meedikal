@@ -1,3 +1,5 @@
+const phoneRegex = /^[\+]?[0-9]*/
+
 const generateColumn = (colName) => {
   return `
     <th

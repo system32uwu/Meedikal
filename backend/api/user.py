@@ -157,7 +157,7 @@ def phoneNumbers(ci:int=None, data:dict=None):
         data = data['userPhone']
         for phone in data:
             if request.method == 'POST':
-                UserPhone(**phone).saveOrGet(phone)
+                UserPhone(**phone).save(phone)
             elif request.method == 'DELETE':
                 rows = UserPhone.delete(phone)
         result = data if request.method == 'POST' else rows

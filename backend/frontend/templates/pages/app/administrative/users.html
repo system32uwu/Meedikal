@@ -46,40 +46,6 @@ block page_content %}
     activeField.classList.toggle(active ? "bg-green-100" : "bg-red-100");
   };
 
-  const nameCell = (name, photoUrl) => `
-  <td class="px-6 py-4 whitespace-nowrap">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 h-10 w-10">
-        <img
-          class="h-10 w-10 rounded-full"
-          src="${
-            photoUrl ||
-            "{{url_for('static', filename='images/user-placeholder.png')}}"
-          }"
-        />
-      </div>
-      <div class="ml-4">
-        <div class="text-sm font-medium text-gray-900">
-          ${name}
-        </div>
-      </div>
-    </div>
-  </td>
-  `;
-
-  const generateActiveCell = (userId, value) => `
-    <td class="px-6 py-4 whitespace-nowrap">
-      <div class="text-sm text-gray-900 text-center">
-        <button onclick="toggleActive(${userId})">
-          <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-    value ? "bg-green-100" : "bg-red-100"
-  } text-green-800">
-            ${value ? "Active" : "Inactive"}
-          </span> 
-        </button>
-      </div>
-    </td>`;
-
   tableContainer.innerHTML = generateTable(
     "users-table",
     ["Name", "ID", "Sex", "Birthdate", "Status"],
@@ -113,7 +79,7 @@ block page_content %}
           generateCell(userId),
           generateCell(obj["user"]["sex"]),
           generateCell(obj["user"]["birthdate"].split("T")[0]),
-          generateActiveCell(userId, obj["user"]["active"]),
+          generateActiveCell(userId, obj["user"]["active"], 'toggleActive'),
         ];
         rows.push(generateRow(cells));
       }

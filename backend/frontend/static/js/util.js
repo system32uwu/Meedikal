@@ -1,16 +1,56 @@
 const phoneRegex = /^[\+]?[0-9]*/;
 
-const generateColumn = (colName) =>`
-    <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-      ${colName}
-    </th>`;
-
-const generateCell = (value) => `
+const nameCell = (name, photoUrl) => `
     <td class="px-6 py-4 whitespace-nowrap">
-      <div class="text-sm text-gray-900 text-center">
-          ${value}
+      <div class="flex items-center">
+        <div class="flex-shrink-0 h-10 w-10">
+          <img
+            class="h-10 w-10 rounded-full"
+            src="${
+              photoUrl ||
+              "{{url_for('static', filename='images/user-placeholder.png')}}"
+            }"
+          />
+        </div>
+        <div class="ml-4">
+          <div class="text-sm font-medium text-gray-900">
+            ${name}
+          </div>
+        </div>
       </div>
-    </td>`; //generic cell generator
+    </td>
+    `;
+  
+const generateActiveCell = (userId, value, fn) => `
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900 text-center">
+          ${
+            fn ? (`
+            <button onclick="${fn}(${userId})">
+              <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value ? "bg-green-100" : "bg-red-100"} text-green-800">
+                ${value ? "Active" : "Inactive"}
+              </span> 
+            </button>`) : (`
+            <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value ? "bg-green-100" : "bg-red-100"} text-green-800">
+              ${value ? "Active" : "Inactive"}
+            </span> 
+            `)
+          }
+        </div>
+      </td>`;
+
+
+const generateColumn = (colName) =>`
+      <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+        ${colName}
+      </th>`;
+  
+const generateCell = (value) => `
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm text-gray-900 text-center">
+            ${value}
+        </div>
+      </td>`; //generic cell generator
 
 const generateRow = (cells) => `
     <tr>

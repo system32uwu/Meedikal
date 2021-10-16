@@ -2,20 +2,17 @@ const phoneRegex = /^[\+]?[0-9]*/;
 
 const generateColumn = (colName) => {
   return `
-    <th
-    scope="col"
-    id="${colName}"
-    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-    ${colName}
+    <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+      ${colName}
     </th>`;
 };
 
 const generateCell = (value) => {
   return `
     <td class="px-6 py-4 whitespace-nowrap">
-    <div class="text-sm text-gray-900 text-center">
-        ${value}
-    </div>
+      <div class="text-sm text-gray-900 text-center">
+          ${value}
+      </div>
     </td>`;
 }; //generic cell generator
 
@@ -96,79 +93,63 @@ const generatePhoneChip = (value) => `
 
 const generateSpecialtiesField = (chips) => `
 <div class="flex h-full">
-<span
-  class="
-    text-sm
-    border
-    bg-blue-50
-    font-bold
-    uppercase
-    border-2
-    rounded-l
-    px-4
-    py-2
-    bg-gray-50
-    whitespace-no-wrap
-    w-2/6
-  "
->
-  Specialties
-</span>
-<div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
-  <div class="flex flex-row w-full" id="container-Specialties">
-  ${chips}
-  </div>
-  <div class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 h-8">
-    <div>
-      <input id='new-Specialties' type="text" class="px-1 w-full text-black text-center focus:outline-none" value=""/> 
+  <span class="text-sm border bg-blue-50 font-bold uppercase border-2 rounded-l px-4 py-2 bg-gray-50 whitespace-no-wrap w-2/6">
+    Specialties
+  </span>
+  <div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
+    <div class="flex flex-row w-full" id="container-Specialties">
+      ${chips}
     </div>
-    <button onclick="addSpecialty()" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
-      <img src="/static/icons/add.svg" width="16" height="16" class="-mx-1"/>
-    </button>
-  </div>  
-</div>
+    <div class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 h-8">
+      <div>
+        <input id='new-Specialties' type="text" class="px-1 w-full text-black text-center focus:outline-none" value=""/> 
+      </div>
+      <button onclick="addSpecialty()" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+        <img src="/static/icons/add.svg" width="16" height="16" class="-mx-1"/>
+      </button>
+    </div>  
+  </div>
 </div>
     `;
 
 const generateSpecialtyChip = (value) => `
     <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
-    <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
-        ${value}
-    </span>
-    <button onclick="deleteSpecialty('${value}')" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
-        <img src="/static/icons/delete.svg" width="16" height="16" />
-    </button>
+      <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+          ${value}
+      </span>
+      <button onclick="deleteSpecialty('${value}')" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+          <img src="/static/icons/delete.svg" width="16" height="16" />
+      </button>
     </div>
     `;
 
-
-const toggleLoadingModal = (forceHide=false, forceShow=false) => {
-  
-  const loadingModal = document.getElementById('loading-modal');
-  if (forceHide){
-    loadingModal.classList.add('hidden');
-  }
-  else if (forceShow){
-    loadingModal.classList.remove('hidden');
-  } else{
-    loadingModal.classList.toggle('hidden');
+const toggleLoadingModal = (forceHide = false, forceShow = false) => {
+  const loadingModal = document.getElementById("loading-modal");
+  if (forceHide) {
+    loadingModal.classList.add("hidden");
+  } else if (forceShow) {
+    loadingModal.classList.remove("hidden");
+  } else {
+    loadingModal.classList.toggle("hidden");
   }
 };
 
 const delay = (time) => {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
+  return new Promise((resolve) => setTimeout(resolve, time));
+};
 
-const showOkModal = async(title='Operation Successful', body='You may keep operating now') => {
+const showOkModal = async (
+  title = "Operation Successful",
+  body = "You may keep operating now"
+) => {
   toggleLoadingModal(true);
-  const okModal = document.getElementById('ok-modal');
+  const okModal = document.getElementById("ok-modal");
 
-  document.getElementById('ok-modal-title').textContent = title;
-  document.getElementById('ok-modal-body').textContent = body;
-  okModal.classList.remove('hidden');
+  document.getElementById("ok-modal-title").textContent = title;
+  document.getElementById("ok-modal-body").textContent = body;
+  okModal.classList.remove("hidden");
 
   delay(500).then(() => {
     window.location.href = window.location.href; //force reload on page
-  })
-
+  });
 };

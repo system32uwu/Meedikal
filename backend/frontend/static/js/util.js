@@ -7,8 +7,7 @@ const nameCell = (name, photoUrl) => `
           <img
             class="h-10 w-10 rounded-full"
             src="${
-              photoUrl ||
-              "{{url_for('static', filename='images/user-placeholder.png')}}"
+              photoUrl || '/static/images/user-placeholder.png'
             }"
           />
         </div>

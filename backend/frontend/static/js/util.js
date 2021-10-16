@@ -38,6 +38,18 @@ const generateActiveCell = (userId, value, fn) => `
         </div>
       </td>`;
 
+const generateActionsCell = (id, fnSuffix) => `
+    <td>
+      <div class="flex space-x-2 justify-center">
+        <button onclick="delete${fnSuffix}(${id})">
+          <img src="/static/icons/delete.svg" width="16"/>
+        </button>
+        <button onclick="update${fnSuffix}(${id})">
+          <img src="/static/icons/edit.svg" width="16"/>
+        </button>
+      </div>
+    </td
+`
 
 const generateColumn = (colName) =>`
       <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -51,8 +63,8 @@ const generateCell = (value) => `
         </div>
       </td>`; //generic cell generator
 
-const generateRow = (cells) => `
-    <tr>
+const generateRow = (cells, rowId) => `
+    <tr id="row-${rowId}">
         ${cells.join("\n")}
     </tr>
     `;

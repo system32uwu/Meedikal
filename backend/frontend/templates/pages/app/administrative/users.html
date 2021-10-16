@@ -46,9 +46,29 @@ block page_content %}
     activeField.classList.toggle(active ? "bg-green-100" : "bg-red-100");
   };
 
+  const updateUser = (id) => {
+    window.location.href = `/app/update-user/${id}`;
+  }
+
+  const deleteUser = async(id) => {
+    //TODO: Ask for confirmation
+    await fetch('/api/user', {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ci: id
+      })
+    })
+
+    document.getElementById(`row-${id}`).remove();
+  }
+
   tableContainer.innerHTML = generateTable(
     "users-table",
-    ["Name", "ID", "Sex", "Birthdate", "Status"],
+    ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
     []
   );
 
@@ -80,13 +100,14 @@ block page_content %}
           generateCell(obj["user"]["sex"]),
           generateCell(obj["user"]["birthdate"].split("T")[0]),
           generateActiveCell(userId, obj["user"]["active"], 'toggleActive'),
+          generateActionsCell(userId, "User"),
         ];
-        rows.push(generateRow(cells));
+        rows.push(generateRow(cells, userId));
       }
 
       tableContainer.innerHTML = generateTable(
         "users-table",
-        ["Name", "ID", "Sex", "Birthdate", "Status"],
+        ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
         rows
       );
 

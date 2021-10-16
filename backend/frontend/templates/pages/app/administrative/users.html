@@ -22,10 +22,15 @@ block page_content %}
   </div>
 </div>
 <script type="text/javascript">
+  let total = 0;
+  let offset = 0;
+  let limit = 3;
+
   let tableContainer = document.getElementById("users-table-container");
   let paginationContainer = document.getElementById("pagination-info");
-
+    
   const toggleActive = async (userId) => {
+
     const activeField = document.getElementById(`active-${userId}`);
     activeField.classList.remove("bg-red-100");
     activeField.classList.remove("bg-green-100");
@@ -64,6 +69,15 @@ block page_content %}
     })
 
     document.getElementById(`row-${id}`).remove();
+
+    await loadUsers(offset);
+    await setPagination(
+      "user",
+      offset,
+      limit,
+      paginationContainer,
+      "loadUsers"
+    );
   }
 
   tableContainer.innerHTML = generateTable(
@@ -71,10 +85,6 @@ block page_content %}
     ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
     []
   );
-
-  let total = 0;
-  let offset = 0;
-  let limit = 3;
 
   const loadUsers = async (offset) => {
     if (offset < 0) {
@@ -119,7 +129,7 @@ block page_content %}
 
   (async function () {
     await loadUsers(offset);
-    total = await setPagination(
+    await setPagination(
       "user",
       offset,
       limit,

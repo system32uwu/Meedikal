@@ -2,25 +2,22 @@
 block page_content %}
 <div class="w-full h-full px-6">
   <div class="pt-4 relative" id="filters">
-    <input type="text" id="search" placeholder="Filter by ID, Surname or Name + Surname" class="w-full bg-white rounded border border-gray-300 focus:border-turqoise focus:ring-2 focus:ring-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
-    <button id="search-btn" onclick="search()" class="absolute right-0 top-2 mt-3 mr-2 rounded-full px-2 py-2 hover:bg-gray-200">
-      <img src="/static/icons/search.svg" width="16"/>
+    <input type="text" id="search" placeholder="Filter by ID, Surname or Name + Surname"
+      class="w-full bg-white rounded border border-gray-300 focus:border-turqoise focus:ring-2 focus:ring-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+    <button id="search-btn" onclick="search()"
+      class="absolute right-0 top-2 mt-3 mr-2 rounded-full px-2 py-2 hover:bg-gray-200">
+      <img src="/static/icons/search.svg" width="16" />
     </button>
   </div>
-  <div class="h-3/5 pt-2">
-    <div class="overflow-x-auto lg:overflow-x-hidden">
+  <div class="z-0 relative h-3/5 pt-2">
+    <div class="lg:overflow-x-hidden">
       <div class="py-2" id="users-table-container"></div>
     </div>
-    <div
-      id="pagination-info"
-      class="border w-full flex items-center justify-center py-1 space-x-2"
-    ></div>
+    <div id="pagination-info" class="border w-full flex items-center justify-center py-1 space-x-2"></div>
   </div>
   <div class="w-full flex items-center justify-center mt-4">
-    <button
-      class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12"
-      onclick="window.location.href ='/app/create-user'"
-    >
+    <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12"
+      onclick="window.location.href ='/app/create-user'">
       New User
     </button>
   </div>
@@ -35,7 +32,7 @@ block page_content %}
 
   let tableContainer = document.getElementById("users-table-container");
   let paginationContainer = document.getElementById("pagination-info");
-    
+
   const toggleActive = async (userId) => {
 
     const activeField = document.getElementById(`active-${userId}`);
@@ -62,7 +59,7 @@ block page_content %}
     window.location.href = `/app/update-user/${id}`;
   }
 
-  const deleteUser = async(id) => {
+  const deleteUser = async (id) => {
     //TODO: Ask for confirmation
     await fetch('/api/user', {
       method: "DELETE",
@@ -93,13 +90,13 @@ block page_content %}
     []
   );
 
-  const loadUsers = async (offset, conditions=null) => {
+  const loadUsers = async (offset, conditions = null) => {
     if (offset < 0 && !id) {
       return;
     }
     let res;
 
-    if(conditions){
+    if (conditions) {
       res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`, {
         body: JSON.stringify(conditions),
         method: "POST",
@@ -108,7 +105,7 @@ block page_content %}
           "Content-Type": "application/json",
         }
       });
-    }else{
+    } else {
       res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`);
     }
 
@@ -117,7 +114,7 @@ block page_content %}
     if (res.status == 200) {
       let _data = data.result;
 
-      if (!Array.isArray(_data)){
+      if (!Array.isArray(_data)) {
         _data = Array(_data)
       }
 
@@ -164,27 +161,27 @@ block page_content %}
     );
   })();
 
-  const search = async() => {
+  const search = async () => {
     let value = _search.value;
 
-    if (parseInt(value)){
+    if (parseInt(value)) {
       //search by id
-      await loadUsers(0, {ci: parseInt(value)});
+      await loadUsers(0, { ci: parseInt(value) });
       await setPagination(
-      "user",
-      0,
-      1,
-      paginationContainer,
-      "loadUsers",
-      {ci: parseInt(value)}
-    );
-    }else{
+        "user",
+        0,
+        1,
+        paginationContainer,
+        "loadUsers",
+        { ci: parseInt(value) }
+      );
+    } else {
       //search by surname1 or name1 + surname1
     }
   }
 
-  _search.addEventListener('keyup', (e) =>{
-    if (e.keyCode === 13){
+  _search.addEventListener('keyup', (e) => {
+    if (e.keyCode === 13) {
       searchBtn.click();
     }
   })

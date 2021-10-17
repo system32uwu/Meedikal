@@ -84,32 +84,22 @@ class User(SharedUserMethods):
 
     @classmethod
     def getRoles(cls, ci:int) -> list[str]:
-        types = [User.__tablename__]
+        roles = []
 
         if Administrative.filter({'ci': ci}, returns='one') is not None:
-            types.append(Administrative.__tablename__)
+            roles.append(Administrative.__tablename__)
 
         if Patient.filter({'ci': ci}, returns='one') is not None:
-            types.append(Patient.__tablename__)
+            roles.append(Patient.__tablename__)
         
         if MedicalPersonnel.filter({'ci': ci}, returns='one') is not None:
-            types.append(MedicalPersonnel.__tablename__)
-
             if Doctor.filter({'ci': ci}, returns='one') is not None:
-                types.append(Doctor.__tablename__)
-                types.remove(MedicalPersonnel.__tablename__)
+                roles.append(Doctor.__tablename__)
             
             if MedicalAssitant.filter({'ci': ci}, returns='one') is not None:
-                types.append(MedicalAssitant.__tablename__)
-                try:
-                    types.remove(MedicalPersonnel.__tablename__)
-                except: # element not in list, raises when user also has the doctor role, but medicalPersonnel was already removed in that check.
-                    pass
+                roles.append(MedicalAssitant.__tablename__)
 
-        if len(types) > 1:
-            types.remove(User.__tablename__)
-
-        return types
+        return roles
 
     @classmethod
     def updatePassword(cls, ci, password):

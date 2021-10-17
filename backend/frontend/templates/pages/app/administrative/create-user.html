@@ -26,7 +26,7 @@
     }
 
     const addSpecialty = () => {
-        value = document.getElementById('new-Specialties').value;
+        let value = document.getElementById('new-Specialties').value;
         if (!specialties.includes(value)){
             specialties.push(value);
             document.getElementById('container-Specialties').innerHTML += generateSpecialtyChip(value);

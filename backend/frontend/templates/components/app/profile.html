@@ -5,7 +5,7 @@
     <div class="bg-white rounded-xl flex flex-col w-full">
       <div class="w-64 lg:w-96 self-center">
         <div class="flex flex-col justify-between h-full w-full">
-          <div class="shadow-xl flex flex-col w-full py-1 space-y-1">
+          <div class="shadow-xl flex flex-col w-full py-1 space-y-1" id="roles">
             <img
               src="{{url_for('static', filename= user.get('user', {}).get('photoUrl', none) or 'images/user-placeholder.png')}}"
               class="w-full h-full md:w-44 md:h-44 m-auto px-2 md:px-0"
@@ -23,15 +23,15 @@
       </div>
       <div class="shadow-xl p-4 space-y-2" id="user-fields">
         {{user_field("ID", user.get('user', {}).get('ci', ''), True if user.get('user') is not none else False)}} 
-        {{user_field("1st Name", user.get('user', {}).get('name1', '')) }} 
-        {{user_field("2nd Name", user.get('user', {}).get('name2', '')) }}
-        {{user_field("1st Surname", user.get('user', {}).get('surname1', '')) }} 
-        {{user_field("2nd Surname", user.get('user', {}).get('surname2', ''))}} 
-        {{user_field("Sex", user.get('user', {}).get('sex', ''))}} 
-        {{user_field("Genre", user.get('user', {}).get('genre', ''))}}
-        {{user_field("Birthdate", user.get('user', {}).get('birthdate', ''))}}
-        {{user_field("Email", user.get('user', {}).get('email', ''))}} 
-        {{user_field("Location", user.get('user', {}).get('location', ''))}}
+        {{user_field("1st Name", user.get('user', {}).get('name1', '') or '') }} 
+        {{user_field("2nd Name", user.get('user', {}).get('name2', '') or '')}}
+        {{user_field("1st Surname", user.get('user', {}).get('surname1', '') or '') }} 
+        {{user_field("2nd Surname", user.get('user', {}).get('surname2', '') or '')}} 
+        {{user_field("Sex", user.get('user', {}).get('sex', '') or '')}} 
+        {{user_field("Genre", user.get('user', {}).get('genre', '') or '')}}
+        {{user_field("Birthdate", user.get('user', {}).get('birthdate', '') or '')}}
+        {{user_field("Email", user.get('user', {}).get('email', '') or '')}} 
+        {{user_field("Location", user.get('user', {}).get('location', '') or '')}}
         {{user_field("Status", "active" if user.get('user', {}).get('active', True) else "inactive") }}
         
         {% if currentRole in ['doctor', 'medicalAssistant', 'medicalPersonnel'] %}

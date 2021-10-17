@@ -84,7 +84,7 @@ def updatePhoto(ci:int, file:FileStorage):
 @passJsonData
 def patient(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Patient(**data).save(data))
+        result = userToReturn(Patient(**data).saveOrGet(data))
     else:
         result = Patient.delete(data)
 
@@ -95,7 +95,7 @@ def patient(data:dict):
 @passJsonData
 def medicalPersonnel(data:dict):
     if request.method == 'POST':
-        result = userToReturn(MedicalPersonnel(**data).save(data))
+        result = userToReturn(MedicalPersonnel(**data).saveOrGet(data))
     else:
         result = MedicalPersonnel.delete(data)
 
@@ -106,7 +106,7 @@ def medicalPersonnel(data:dict):
 @passJsonData
 def doctor(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Doctor(**data).save(data))
+        result = userToReturn(Doctor(**data).saveOrGet(data))
     else:
         result = Doctor.delete(data)
 
@@ -117,7 +117,7 @@ def doctor(data:dict):
 @passJsonData
 def medicalAssitant(data:dict):
     if request.method == 'POST':
-        result = userToReturn(MedicalAssitant(**data).save(data))
+        result = userToReturn(MedicalAssitant(**data).saveOrGet(data))
     else:
         result = MedicalAssitant.delete(data)
 
@@ -128,7 +128,7 @@ def medicalAssitant(data:dict):
 @passJsonData
 def administrative(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Administrative(**data).save(data))
+        result = userToReturn(Administrative(**data).saveOrGet(data))
     else:
         result = Administrative.delete(data)
 

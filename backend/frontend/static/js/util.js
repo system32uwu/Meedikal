@@ -166,6 +166,17 @@ const generateSpecialtyChip = (value) => `
     </div>
     `;
 
+const generateRoleChip = (value, roleColor) => `
+    <div id="${value}" class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 ${roleColor} h-8">
+      <span class="px-1 w-full leading-none text-white text-center font-bold">
+        ${value}
+      </span>
+      <button onclick="toggleRole('${value}')" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+            <img id="icon-${value}" src="/static/icons/add.svg" width="16" height="16" />
+      </button>
+    </div>
+        `;
+
 const toggleLoadingModal = (forceHide = false, forceShow = false) => {
   const loadingModal = document.getElementById("loading-modal");
   if (forceHide) {

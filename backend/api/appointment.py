@@ -12,7 +12,7 @@ from middleware.data import passJsonData, paginated
 
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
-@router.get('/all')
+@router.route('/all', methods=['GET', 'POST'])
 @requiresAuth
 @paginated()
 def all(offset:int, limit:int, data:dict=None, **kwargs):
@@ -20,7 +20,7 @@ def all(offset:int, limit:int, data:dict=None, **kwargs):
 
 @router.get('/<int:id>') # GET /api/appointment/<id>
 @requiresAuth
-def getAppointmentById(id:int):
+def getAppointmentById(id:int, **kwargs):
     return crudReturn(Appointment.getById(id))
 
 @router.post('') # POST /api/appointment

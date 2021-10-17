@@ -6,9 +6,7 @@ const nameCell = (name, photoUrl) => `
         <div class="flex-shrink-0 h-10 w-10">
           <img
             class="h-10 w-10 rounded-full"
-            src="${
-              photoUrl || '/static/images/user-placeholder.png'
-            }"
+            src="${photoUrl || "/static/images/user-placeholder.png"}"
           />
         </div>
         <div class="ml-4">
@@ -19,21 +17,27 @@ const nameCell = (name, photoUrl) => `
       </div>
     </td>
     `;
-  
+
 const generateActiveCell = (userId, value, fn) => `
       <td class="px-6 py-4 whitespace-nowrap">
         <div class="text-sm text-gray-900 text-center">
           ${
-            fn ? (`
+            fn
+              ? `
             <button onclick="${fn}(${userId})">
-              <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value ? "bg-green-100" : "bg-red-100"} text-green-800">
+              <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  value ? "bg-green-100" : "bg-red-100"
+                } text-green-800">
                 ${value ? "Active" : "Inactive"}
               </span> 
-            </button>`) : (`
-            <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${value ? "bg-green-100" : "bg-red-100"} text-green-800">
+            </button>`
+              : `
+            <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  value ? "bg-green-100" : "bg-red-100"
+                } text-green-800">
               ${value ? "Active" : "Inactive"}
             </span> 
-            `)
+            `
           }
         </div>
       </td>`;
@@ -41,21 +45,21 @@ const generateActiveCell = (userId, value, fn) => `
 const generateActionsCell = (id, fnSuffix) => `
     <td>
       <div class="flex space-x-2 justify-center">
-        <button onclick="delete${fnSuffix}(${id})">
+        <button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="delete${fnSuffix}(${id})">
           <img src="/static/icons/delete.svg" width="16"/>
         </button>
-        <button onclick="update${fnSuffix}(${id})">
+        <button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="update${fnSuffix}(${id})">
           <img src="/static/icons/edit.svg" width="16"/>
         </button>
       </div>
     </td
-`
+`;
 
-const generateColumn = (colName) =>`
+const generateColumn = (colName) => `
       <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
         ${colName}
       </th>`;
-  
+
 const generateCell = (value) => `
       <td class="px-6 py-4 whitespace-nowrap">
         <div class="text-sm text-gray-900 text-center">
@@ -89,9 +93,27 @@ const setPagination = async (
   offset,
   limit,
   paginationContainer,
-  fn
+  fn,
+  conditions=null
 ) => {
-  res = await fetch(`/api/pagination/total/${tablename}`);
+  let options = {};
+
+  options.headers =  {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  }
+
+  if (conditions){
+    try{
+      options.body = JSON.stringify(conditions)
+      options.method = 'POST';
+    }catch(e){
+      options.body = {};
+    }
+  }
+
+  res = await fetch(`/api/pagination/total/${tablename}`, options);
+
   data = await res.json();
 
   if (res.status === 200) {
@@ -111,7 +133,7 @@ const setPagination = async (
       btns.push(`
               <button 
               class="rounded-xl bg-turqoise text-white font-bold px-2 text-center"
-              onclick="${fn}(${itemsPerPage * i})">
+              onclick='${fn}(${itemsPerPage * i} ${options.body ? ', ' + options.body : null})'>
               ${i + 1}
               </button>
             `);

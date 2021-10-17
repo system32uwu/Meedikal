@@ -5,7 +5,7 @@ from util.crud import crudReturn
 
 router = Blueprint('pagination', __name__, url_prefix='/pagination')
 
-@router.get('/total/<string:tablename>')
+@router.route('/total/<string:tablename>', methods=['GET', 'POST'])
 @passJsonData
 def totalOfTable(tablename:str, data:dict=None):
     return crudReturn(getTotal(tablename, data))

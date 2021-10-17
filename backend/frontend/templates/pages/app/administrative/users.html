@@ -1,9 +1,13 @@
 {% extends 'layouts/app-base.html' %} {% block title %}Users{% endblock %} {%
 block page_content %}
-<div class="w-full h-full">
-  <div class="h-1/5" id="filters"></div>
-
-  <div class="h-3/5">
+<div class="w-full h-full px-6">
+  <div class="pt-4 relative" id="filters">
+    <input type="text" id="search" placeholder="Filter by ID, Surname or Name + Surname" class="w-full bg-white rounded border border-gray-300 focus:border-turqoise focus:ring-2 focus:ring-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+    <button id="search-btn" onclick="search()" class="absolute right-0 top-2 mt-3 mr-2 rounded-full px-2 py-2 hover:bg-gray-200">
+      <img src="/static/icons/search.svg" width="16"/>
+    </button>
+  </div>
+  <div class="h-3/5 pt-2">
     <div class="overflow-x-auto lg:overflow-x-hidden">
       <div class="py-2" id="users-table-container"></div>
     </div>
@@ -22,6 +26,9 @@ block page_content %}
   </div>
 </div>
 <script type="text/javascript">
+  let _search = document.getElementById('search');
+  let searchBtn = document.getElementById('search-btn');
+
   let total = 0;
   let offset = 0;
   let limit = 3;
@@ -86,17 +93,35 @@ block page_content %}
     []
   );
 
-  const loadUsers = async (offset) => {
-    if (offset < 0) {
+  const loadUsers = async (offset, conditions=null) => {
+    if (offset < 0 && !id) {
       return;
     }
+    let res;
 
-    let res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`);
+    if(conditions){
+      res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`, {
+        body: JSON.stringify(conditions),
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        }
+      });
+    }else{
+      res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`);
+    }
+
     let data = await res.json();
 
     if (res.status == 200) {
       let _data = data.result;
-      let rows = Array(data.length);
+
+      if (!Array.isArray(_data)){
+        _data = Array(_data)
+      }
+
+      let rows = Array(_data.length);
 
       for (let obj of _data) {
         let userId = obj["user"]["ci"];
@@ -134,8 +159,34 @@ block page_content %}
       offset,
       limit,
       paginationContainer,
-      "loadUsers"
+      "loadUsers",
+      {}
     );
   })();
+
+  const search = async() => {
+    let value = _search.value;
+
+    if (parseInt(value)){
+      //search by id
+      await loadUsers(0, {ci: parseInt(value)});
+      await setPagination(
+      "user",
+      0,
+      1,
+      paginationContainer,
+      "loadUsers",
+      {ci: parseInt(value)}
+    );
+    }else{
+      //search by surname1 or name1 + surname1
+    }
+  }
+
+  _search.addEventListener('keyup', (e) =>{
+    if (e.keyCode === 13){
+      searchBtn.click();
+    }
+  })
 </script>
 {% endblock page_content %}

@@ -84,10 +84,6 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         statement += "," if len(extraTables) > 0 else ''
         statement += ', '.join(extraTables)
 
-    if command == 'SELECT':
-        if offset is not None and limit is not None:
-            statement += f"\nLIMIT {limit} OFFSET {offset}" 
-
     elif command == 'INSERT':
         statement += '\nINTO '
         statement += f'''\n{cls.__tablename__} 
@@ -101,10 +97,15 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
     if command != 'INSERT':
         statement += '\nWHERE ' + f' {logicalOperator} '.join(conditionList) if len(conditionList) > 0 else ''
 
+    if command == 'SELECT':
+        if offset is not None and limit is not None:
+            statement += f"\nLIMIT {limit} OFFSET {offset}" 
+
     if returns == 'tuple':
         return extraTables, conditionList, values, statement
     
     if command == 'SELECT':
+        print(statement,values)
         result = db.execute(statement, values)
         if paginationOnly:
             return result.fetchone()[0]

@@ -34,7 +34,7 @@ def userToReturn(user: User, role=None):
 
     return obj
 
-@router.get('/all') # GET /api/user/all
+@router.route('/all', methods=['GET', 'POST']) # GET | POST /api/user/all
 @requiresAuth
 @paginated()
 def allUsers(offset:int, limit: int, data:dict=None, **kwargs):
@@ -134,14 +134,14 @@ def administrative(data:dict):
 
     return crudReturn(result)
 
-@router.get('/<surname1>') # GET /api/user/<surname1> filter only by surname1
+@router.route('/<surname1>', methods=['GET', 'POST']) # GET /api/user/<surname1> filter only by surname1
 @requiresAuth
 @paginated()
 def userBySurname1(offset:int, limit: int, surname1:str=None, **kwargs):
     result = User.filter({'surname1' : surname1}, offset=offset, limit=limit)
     return crudReturn([userToReturn(u) for u in result])
 
-@router.get('/<name1>/<surname1>') # GET /api/user/<name1>/<surname1>
+@router.route('/<name1>/<surname1>', methods=['GET', 'POST']) # GET /api/user/<name1>/<surname1>
 @requiresAuth
 @paginated()
 def userByName1nSurname1(offset:int, limit: int, name1:str=None, surname1:str=None, **kwargs):
@@ -166,8 +166,8 @@ def phoneNumbers(ci:int=None, data:dict=None):
 
 @router.get('/phoneNumbers/<int:ciUser>')
 @requiresAuth
-def getPhoneNumbers(ciUser:int, data:dict, **kwargs):
-    return phoneNumbers(ciUser, data)
+def getPhoneNumbers(ciUser:int, **kwargs):
+    return phoneNumbers(ciUser)
 
 @router.route('/phoneNumbers', methods=['POST', 'DELETE'])
 @requiresAuth
@@ -217,7 +217,7 @@ def getSpOfMp(ciMp:int, **kwargs):
 def addOrDeleteMpHasSpec(data:dict):
     return mpHasSpec(data=data)
 
-@router.get('/medicalPersonnel/<specialty>') # specialty title
+@router.route('/medicalPersonnel/<specialty>', methods=['GET', 'POST']) # specialty title
 @requiresAuth
 @paginated()
 def filterMpUsersBySpecialty(offset:int, limit: int, specialty:str=None, data:dict=None, **kwargs):

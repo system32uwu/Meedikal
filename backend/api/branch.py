@@ -19,7 +19,7 @@ def getBranchByName(name:str, offset:int, limit:int, **kwargs):
     branches = Branch.filter({'name': {'value': name, 'operator': 'LIKE'}}, offset=offset, limit=limit)
     return crudReturn(branches)
 
-@router.get('/all') # GET /api/branch/all
+@router.route('/all', methods=['GET', 'POST']) # GET /api/branch/all
 @requiresAuth
 @paginated()
 def getAllBranches(offset:int, limit:int, data:dict=None):

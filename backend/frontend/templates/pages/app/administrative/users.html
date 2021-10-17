@@ -176,7 +176,36 @@ block page_content %}
         { ci: parseInt(value) }
       );
     } else {
-      //search by surname1 or name1 + surname1
+      let conditions = {};
+
+      if (value && value.trim()) {
+        let name1;
+        let surname1;
+
+        if (value.includes(' ')) {
+          name1 = value.split(' ')[0];
+          surname1 = value.split(' ')[1];
+          
+          name1 = `%${name1}%`;
+          surname1 = `%${surname1}%`;
+          
+          conditions = { 'name1': {'value': name1, operator: 'LIKE'}, 'surname1': {'value': surname1, 'operator': 'LIKE'} };
+        } else {
+          surname1 = `%${value}%`;
+          
+          conditions = { 'surname1': {'value': surname1, 'operator': 'LIKE'} };
+        }
+      }
+
+      await loadUsers(0, conditions);
+      await setPagination(
+        "user",
+        0,
+        limit,
+        paginationContainer,
+        "loadUsers",
+        conditions
+      );
     }
   }
 

@@ -117,7 +117,12 @@ const setPagination = async (
   data = await res.json();
 
   if (res.status === 200) {
-    total = data.result;
+
+    let total = data.result;
+    if (total < 1){
+      paginationContainer.innerHTML = '';
+      return 0;
+    }
 
     if (total < limit) {
       limit = total;

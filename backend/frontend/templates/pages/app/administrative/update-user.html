@@ -208,7 +208,7 @@
         });
     }
 
-    const addSpecialty = () => {
+    const addSpecialty = async() => {
         let specialty = document.getElementById('new-Specialties').value;
         if (!user.specialties){
             user.specialties = [];
@@ -230,7 +230,7 @@
 
     }
 
-    const deleteSpecialty = (sp) => {
+    const deleteSpecialty = async(sp) => {
         user['specialties'] = user['specialties'].filter(s => s !== sp);
         
         await fetch('/medicalPersonnel/mpHasSpec', {

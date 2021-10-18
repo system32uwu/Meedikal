@@ -50,6 +50,7 @@ block page_content %}
 <script type="text/javascript">
   let _search = document.getElementById('search');
   let searchBtn = document.getElementById('search-btn');
+  let _roles = document.getElementsByName('role');
 
   let total = 0;
   let offset = 0;
@@ -187,21 +188,36 @@ block page_content %}
   })();
 
   const search = async () => {
+
     let value = _search.value;
 
+    conditions = {};
+
     if (parseInt(value)) {
+      conditions.ci = parseInt(value);
       //search by id
-      await loadUsers(0, { ci: parseInt(value) });
+      await loadUsers(0, conditions);
       await setPagination(
         "user",
         0,
         1,
         paginationContainer,
         "loadUsers",
-        { ci: parseInt(value) }
+        conditions
       );
     } else {
-      let conditions = {};
+      let role;
+    
+      for (let i = 0; i < _roles.length; i++) {
+        if (_roles[i].checked) {
+          role = _roles[i].value;
+          break;
+        }
+      }
+
+      if (role && role !== "all"){
+        conditions.extraFilters = {role: role};
+      }
 
       if (value && value.trim()) {
         let name1;
@@ -214,11 +230,12 @@ block page_content %}
           name1 = `%${name1}%`;
           surname1 = `%${surname1}%`;
 
-          conditions = { 'name1': { 'value': name1, operator: 'LIKE' }, 'surname1': { 'value': surname1, 'operator': 'LIKE' } };
+          conditions.name1 = { 'value': name1, operator: 'LIKE' };
+          conditions.surname1 = { 'value': surname1, 'operator': 'LIKE' }; 
         } else {
           surname1 = `%${value}%`;
 
-          conditions = { 'surname1': { 'value': surname1, 'operator': 'LIKE' } };
+          conditions.surname1 = { 'value': surname1, 'operator': 'LIKE' };
         }
       }
 

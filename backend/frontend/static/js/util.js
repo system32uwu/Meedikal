@@ -24,7 +24,7 @@ const generateActiveCell = (userId, value, fn) => `
           ${
             fn
               ? `
-            <button onclick="${fn}(${userId})">
+            <button onclick="${fn}(${userId})" class="focus:outline-none">
               <span id="active-${userId}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                   value ? "bg-green-100" : "bg-red-100"
                 } text-green-800">

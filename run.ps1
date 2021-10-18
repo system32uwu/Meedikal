@@ -14,13 +14,14 @@ if ((-not $run) -or ($run -eq 0)) {
     Move-Item config.example.py config.py # replace config file #
     ./util/createDb.py && ./util/createAdmin.py # create db and admin #
     
-    Set-Location statc/styles 
+    Set-Location frontend/static/styles 
     npm install # install dependencies #
-    npm run build:css # build and minify tailwindcss file #
+    npm run build # build and minify tailwindcss file #
+    Set-Location ../../../
     $Env:MEEDIKAL_HAS_RUN_YET = 1
 }
 else {
     ./venv/Scripts/activate
 }
 
-flask run | Start-Process "http://localhost"
+waitress-serve --port=80 wsgi:app | Start-Process "http://127.0.0.1/"

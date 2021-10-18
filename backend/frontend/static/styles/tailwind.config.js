@@ -1,7 +1,22 @@
 module.exports = {
   purge: {
-    enabled: false,
-    content: ["../../**/*.html"],
+    content: [
+    "../js/*.js",
+    "../../templates/**/*.html",
+    "../../templates/components/**/*.html",
+    "../../templates/layouts/*.html",
+    "../../templates/pages/**/*.html"],
+    safelist: [
+      'bg-gray-300',
+      'bg-gray-50',
+      'bg-green-100',
+      'bg-red-100',
+      'bg-blue-50',
+      'bg-blue-50',
+      'bg-skyblue',
+      'bg-darker-skyblue',
+      'bg-hard-blue',
+    ]
   },
   darkMode: "class", // false, 'media' or 'class'
   theme: {

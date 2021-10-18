@@ -48,6 +48,30 @@ Once you've updated the values of the said object, run:
 python util/createAdmin.py
 ```
 
+## Generating tailwindcss styles
+
+The production styles are already generated, but if you change something you can re-build them using the following commands:
+
+Move to the frontend/static/styles directory, run:
+```sh
+yarn install
+```
+
+### export NODE_ENV variable to production
+
+### In windows (powershell):
+```powershell
+$Env:NODE_ENV="production"
+```
+
+### In linux:
+export NODE_ENV="production"
+
+### Build the styles:
+```sh
+yarn build
+```
+
 ## Enviroment variables
 
 The file _.example.env_ should be renamed to _.env_, set the FLASK_ENV variable to either development, testing or production.

@@ -30,7 +30,7 @@ def create_app() -> Flask:
     # --- MAIN ROUTERS
     
     try: # create the uploads folder if it doesn't exist
-        os.makedirs(DevelopmentConfig.UPLOAD_FOLDER)
+        os.makedirs(Config.UPLOAD_FOLDER)
     except:
         pass
 

@@ -73,7 +73,7 @@ class Config(object):
         AppPage('/app/symptoms', 'Symptoms',  icon='icons/symptoms.svg'),
         AppPage('/app/diseases', 'Diseases', icon='icons/diseases.svg'),
         AppPage('/app/clinical-signs', 'Clinical Signs', icon='icons/clinical_signs.svg'),
-        AppPage('/app/Branches', 'Branches', icon='icons/branches.svg'),
+        AppPage('/app/branches', 'Branches', icon='icons/branches.svg'),
         AppPage('/app/profile', 'Profile'),
     ]
 

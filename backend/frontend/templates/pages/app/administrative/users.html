@@ -2,12 +2,37 @@
 block page_content %}
 <div class="w-full h-full px-6">
   <div class="pt-4 relative" id="filters">
-    <input type="text" id="search" placeholder="Filter by ID, Surname or Name + Surname"
-      class="w-full bg-white rounded border border-gray-300 focus:border-turqoise focus:ring-2 focus:ring-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
-    <button id="search-btn" onclick="search()"
-      class="absolute right-0 top-2 mt-3 mr-2 rounded-full px-2 py-2 hover:bg-gray-200">
-      <img src="/static/icons/search.svg" width="16" />
-    </button>
+    <div>
+      <input type="text" id="search" placeholder="ID, Surname or Name + Surname"
+        class="w-full bg-white rounded-lg border focus:ring-2 focus:ring-turqoise border-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+      <button id="search-btn" onclick="search()" class="absolute right-0 py-2 my-1 mr-2 rounded-full px-2 hover:bg-gray-200">
+        <img src="/static/icons/search.svg" width="18" />
+      </button>
+    </div>
+    <div class="border border-turqoise rounded-lg mt-2 py-2">
+      <div class="lg:-mx-0 -mx-2 w-full flex flex-row space-x-4 justify-center items-center flex-wrap gap-1">
+        <div>
+          <input type="radio" value="all" name="role" checked />
+          <label for="all">All</label>
+        </div>
+        <div>
+          <input type="radio" value="patient" name="role" />
+          <label for="patient">Patient</label>
+        </div>
+        <div>
+          <input type="radio" value="doctor" name="role" />
+          <label for="doctor">Doctor</label>
+        </div>
+        <div>
+          <input type="radio" value="medicalAssistant" name="role" />
+          <label for="medicalAssistant">Medical Assistant</label>
+        </div>
+        <div>
+          <input type="radio" value="administrative" name="role" />
+          <label for="administrative">Administrative</label>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="z-0 relative h-3/5 pt-2">
     <div class="lg:overflow-x-hidden">
@@ -185,15 +210,15 @@ block page_content %}
         if (value.includes(' ')) {
           name1 = value.split(' ')[0];
           surname1 = value.split(' ')[1];
-          
+
           name1 = `%${name1}%`;
           surname1 = `%${surname1}%`;
-          
-          conditions = { 'name1': {'value': name1, operator: 'LIKE'}, 'surname1': {'value': surname1, 'operator': 'LIKE'} };
+
+          conditions = { 'name1': { 'value': name1, operator: 'LIKE' }, 'surname1': { 'value': surname1, 'operator': 'LIKE' } };
         } else {
           surname1 = `%${value}%`;
-          
-          conditions = { 'surname1': {'value': surname1, 'operator': 'LIKE'} };
+
+          conditions = { 'surname1': { 'value': surname1, 'operator': 'LIKE' } };
         }
       }
 

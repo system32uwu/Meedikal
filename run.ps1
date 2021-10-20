@@ -1,8 +1,9 @@
 $ErrorActionPreference= 'silentlycontinue'
 
-Set-Location backend
-
+$Env:NODE_ENV="production" 
 $run = $Env:MEEDIKAL_HAS_RUN_YET
+
+Set-Location backend
 
 if ((-not $run) -or ($run -eq 0)) {
     python -m venv venv # create virtual environment #
@@ -14,7 +15,7 @@ if ((-not $run) -or ($run -eq 0)) {
     Move-Item config.example.py config.py # replace config file #
     ./util/createDb.py && ./util/createAdmin.py # create db and admin #
     
-    Set-Location frontend/static/styles 
+    Set-Location frontend/static/styles
     npm install # install dependencies #
     npm run build # build and minify tailwindcss file #
     Set-Location ../../../

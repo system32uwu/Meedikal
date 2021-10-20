@@ -22,7 +22,6 @@ const generateCalendar = () => {
     container.innerHTML = generateDayChip(v);
     return container;
   });
-  console.log(selectedMonth, daysBtns)
   daysBtns[0].classList.add(`col-start-${firstWeekDayOfMonth()}`);
 
   calendar.innerHTML = `  
@@ -66,8 +65,9 @@ const generateDropDowns = (monthYearSelectors, monthSelect, yearSelect) => {
     _callback('MONTH', new Date(selectedYear, selectedMonth, selectedDay));
   };
 
-  document.getElementById(yearSelect).onchange = () => {
-    selectedYear = this.value;
+  document.getElementById(yearSelect).onchange = (ev) => {
+    selectedYear = parseInt(ev.target.value);
+    refreshCalendar();
     _callback('YEAR', new Date(selectedYear, selectedMonth, selectedDay));
   };
 };

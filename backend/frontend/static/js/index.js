@@ -218,8 +218,8 @@ const generateDropDown = (id, options) => `
         <select id='${id}' class="border border-gray-300 rounded-lg text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none">
           ${options.map((op) =>
             op.selected
-              ? `<option value=${op.value ? op.value : op} selected>${op.label ? op.label : op}</option>`
-              : `<option value=${op.value ? op.value : op}>${op.label ? op.label : op}</option>`
+              ? `<option value=${op.value !== undefined ? op.value : op} selected>${op.label ? op.label : op}</option>`
+              : `<option value=${op.value !== undefined ? op.value : op}>${op.label ? op.label : op}</option>`
           )}
         </select>
     </div>

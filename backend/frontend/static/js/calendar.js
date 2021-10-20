@@ -24,13 +24,13 @@ const generateCalendar = (calendarId) => {
   daysBtns[0].classList.add(`col-start-${firstWeekDayOfMonth()}`);
 
   calendar.innerHTML = `  
-                        <span class="px-2 w-8">Mon</span>
-                        <span class="px-2 w-8">Tue</span>
-                        <span class="px-2 w-8">Wed</span>
-                        <span class="px-2 w-8">Thu</span>
-                        <span class="px-2 w-8">Fri</span>
-                        <span class="px-2 w-8">Sat</span>
-                        <span class="px-2 w-8">Sun</span>`;
+                        <span class="px-2 w-8 font-semibold">Mon</span>
+                        <span class="px-2 w-8 font-semibold">Tue</span>
+                        <span class="px-2 w-8 font-semibold">Wed</span>
+                        <span class="px-2 w-8 font-semibold">Thu</span>
+                        <span class="px-2 w-8 font-semibold">Fri</span>
+                        <span class="px-2 w-8 font-semibold">Sat</span>
+                        <span class="px-2 w-8 font-semibold">Sun</span>`;
 
   daysBtns.map((d) => calendar.appendChild(d));
 };

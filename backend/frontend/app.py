@@ -4,7 +4,7 @@ from models.User import User
 from models.Appointment import Appointment, AssignedTo
 from middleware.authGuard import getCurrentRole, requiresRole, requiresAuth
 from api.user import userToReturn
-
+from datetime import date
 appRouter = Blueprint('app', __name__, url_prefix='app') # handles /app
 
 baseDir = 'pages'
@@ -98,7 +98,7 @@ def stats():
 @appRouter.context_processor
 @getCurrentRole
 def appVars(ci:int, currentRole:str):
-    url = request.url.split('/app')[1]
+    url = request.url.split('/app', 1)[1]
     if url == '/':
         url = 'home'
     else:
@@ -107,4 +107,4 @@ def appVars(ci:int, currentRole:str):
 
     return dict(myRole=currentRole, ci=ci, 
     appPages=Config.app_pages, roleColors=Config.role_colors,
-    currentPage=url.capitalize())
+    currentPage=url.capitalize(), currentDate = date.today())

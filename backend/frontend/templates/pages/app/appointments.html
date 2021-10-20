@@ -1,0 +1,27 @@
+{% extends 'layouts/app-base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block page_content %}
+<div class="w-full h-full px-6 lg:px-10 pt-4">
+    <div class="flex flex-col shadow-lg items-center justify-center">
+        <div id="month-year-selectors" class="flex space-x-14 md:space-x-16"></div>
+        <div id="calendar" class="pt-4 grid grid-cols-7 gap-2 grid-rows-auto justify-center align-center"></div>
+    </div>
+    <div id="aps-container">
+
+    </div>
+    <div id="action">
+
+    </div>
+</div>
+
+<script src="{{url_for('static', filename='js/calendar.js')}}" async id="calendar-script"></script>
+<script>
+
+    let script = document.getElementById("calendar-script");
+    script.addEventListener('load', () => {
+        initCalendar("month-year-selectors", "month-select", "year-select", "calendar", (day) => {
+            console.log('fetching... ' + day)
+        });
+    })
+</script>
+{% endblock %}

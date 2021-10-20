@@ -54,7 +54,7 @@ const YEARS = Array.from(Array(CURRENT_YEAR + 5 - RUNNING_SINCE), (_, i) => ({
 const MONTHS = Array.from(Array(12).keys()).map((v) => ({
     value: v,
     label: Date.prototype.getMonthName(v),
-    selected: v === CURRENT_MONTH ? true : false,
+    selected: v === CURRENT_MONTH,
 }));
 
 const nameCell = (name, photoUrl) => `

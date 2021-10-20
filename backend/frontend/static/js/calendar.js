@@ -10,17 +10,19 @@ let selectedYear = CURRENT_YEAR;
 let selectedDay = CURRENT_DAY;
 let previousSelectedDay;
 
+let _calendar;
+
 const firstWeekDayOfMonth = () =>
   new Date(selectedYear, selectedMonth).getDay();
 
-const generateCalendar = (calendarId) => {
-  let calendar = document.getElementById(calendarId);
+const generateCalendar = () => {
+  let calendar = document.getElementById(_calendar);
   let daysBtns = Date.prototype.getDaysList(selectedMonth).map((v) => {
     let container = document.createElement("div");
     container.innerHTML = generateDayChip(v);
     return container;
   });
-
+  console.log(selectedMonth, daysBtns)
   daysBtns[0].classList.add(`col-start-${firstWeekDayOfMonth()}`);
 
   calendar.innerHTML = `  
@@ -50,14 +52,30 @@ const fetchAppointments = async (day) => {
 
   previousSelectedDay = dayBtn;
 
-  _callback(day);
+  _callback('DAY', new Date(selectedYear, selectedMonth, selectedDay));
 };
 
 const generateDropDowns = (monthYearSelectors, monthSelect, yearSelect) => {
   let mySelectors = document.getElementById(monthYearSelectors);
-  mySelectors.innerHTML += generateDropDown(monthSelect, MONTHS);
+  mySelectors.innerHTML = generateDropDown(monthSelect, MONTHS);
   mySelectors.innerHTML += generateDropDown(yearSelect, YEARS);
+  
+  document.getElementById(monthSelect).onchange = (ev) => {
+    selectedMonth = parseInt(ev.target.value);
+    refreshCalendar();
+    _callback('MONTH', new Date(selectedYear, selectedMonth, selectedDay));
+  };
+
+  document.getElementById(yearSelect).onchange = () => {
+    selectedYear = this.value;
+    _callback('YEAR', new Date(selectedYear, selectedMonth, selectedDay));
+  };
 };
+
+const refreshCalendar = (calendar) => {
+  generateCalendar(calendar);
+  fetchAppointments(selectedDay);
+}
 
 const initCalendar = (
   monthYearSelectors,
@@ -67,7 +85,7 @@ const initCalendar = (
   callback
 ) => {
   _callback = callback;
+  _calendar = calendar;
   generateDropDowns(monthYearSelectors, monthSelect, yearSelect);
-  generateCalendar(calendar);
-  fetchAppointments(selectedDay, _callback);
+  refreshCalendar();
 };

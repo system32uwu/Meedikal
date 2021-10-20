@@ -2,26 +2,82 @@
 {% block title %}Appointments{% endblock %}
 {% block page_content %}
 <div class="w-full h-full px-6 lg:px-10 pt-4">
-    <div class="flex flex-col shadow-lg items-center justify-center">
+    <div class="flex flex-col shadow-lg items-center justify-center rounded-lg">
         <div id="month-year-selectors" class="flex space-x-8 md:space-x-16"></div>
-        <div id="calendar" class="pr-2 pt-4 pb-2 md:ml-12 md:pr-0 w-full grid grid-cols-7 gap-2 grid-rows-auto justify-center"></div>
+        <div id="calendar"
+            class="pr-2 pt-4 pb-2 md:ml-12 md:pr-0 w-full grid grid-cols-7 gap-2 grid-rows-auto justify-center"></div>
     </div>
-    <div id="aps-container">
+    <div class="h-3/5">
+        <div class="border-2 border-turqoise rounded-3xl h-full w-full mt-4">
+            <div id="ap-search-filters">
+                <div class="py-4 flex flex-col relative">
+                    <div class="px-4">
+                        <input type="text" id="search" placeholder="Doctor's surname or referential name of appointment (oftalmology, cardiology...)" class="w-full bg-white rounded-2xl border focus:ring-2 focus:ring-turqoise border-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+                        <button id="search-btn" onclick="search()" class="absolute right-0 py-2 my-1 mr-5 rounded-full px-2 hover:bg-gray-200">
+                            <img src="/static/icons/search.svg" width="18" />
+                        </button>
+                    </div>
+                    <div class="lg:-mx-0 -mx-2 w-full flex flex-row space-x-4 justify-center items-center flex-wrap gap-1 py-2">
+                        {% if myRole != 'administrative' %}
+                        <div>
+                            <input type="radio" value="mine" name="time-filter" checked/>
+                            <label for="all">Mine</label>
+                        </div>
+                        <div>
+                            <input id="day-radio" type="radio" value="day" name="time-filter" />
+                            <label for="day">Selected Day</label>
+                        </div>
+                        {% else %}
+                        <div>
+                            <input id="day-radio" type="radio" value="day" name="time-filter" checked />
+                            <label for="day">Selected Day</label>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <input type="radio" id="month-radio" value="selectedMonth" name="time-filter" />
+                            <label for="selectedMonth">Selected Month</label>
+                        </div>
+                        <div>
+                            <input type="radio" value="future" name="time-filter" />
+                            <label for="future">Future ones</label>
+                        </div>
+                        <div>
+                            <input type="radio" value="past" name="time-filter" />
+                            <label for="past">Past ones</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="aps-container">
 
+            </div>
+        </div>
     </div>
-    <div id="action">
-
+    {% if myRole == 'administrative' %}
+    <div class="w-full flex items-center justify-center mt-4 pb-4">
+        <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12"
+            onclick="window.location.href ='/app/create-appointment'">
+            New Appointment
+        </button>
     </div>
+    {% endif %}
 </div>
 
 <script src="{{url_for('static', filename='js/calendar.js')}}" async id="calendar-script"></script>
 <script>
-
     let script = document.getElementById("calendar-script");
     script.addEventListener('load', () => {
-        initCalendar("month-year-selectors", "month-select", "year-select", "calendar", (day) => {
-            console.log('fetching... ' + day)
+        initCalendar("month-year-selectors", "month-select", "year-select", "calendar", (filter, value) => {
+            console.log('filtering by: ', filter, 'value: ', value);
+            switch(filter){
+                case 'DAY':
+                break;
+                case 'MONTH':
+                break;
+                case 'YEAR':
+                break;
+            }
         });
-    })
+    });
 </script>
 {% endblock %}

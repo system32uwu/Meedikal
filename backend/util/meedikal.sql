@@ -82,7 +82,8 @@ CREATE TABLE branch (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(64) UNIQUE NOT NULL,
     phoneNumber VARCHAR(64) NOT NULL,
-    location VARCHAR(64) NOT NULL
+    location VARCHAR(64) NOT NULL,
+    googleMapsSrc TEXT
 );
 
 CREATE TABLE apTakesPlace (

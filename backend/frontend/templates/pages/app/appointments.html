@@ -4,8 +4,7 @@
 <div class="w-full h-full px-6 lg:px-10 pt-4">
     <div class="flex flex-col shadow-lg items-center justify-center rounded-lg">
         <div id="month-year-selectors" class="flex space-x-8 md:space-x-16"></div>
-        <div id="calendar"
-            class="pr-2 pt-4 pb-2 md:ml-12 md:pr-0 w-full grid grid-cols-7 gap-2 grid-rows-auto justify-center"></div>
+        <div id="calendar" class="pr-2 pt-4 pb-2 md:ml-12 md:pr-0 w-full grid grid-cols-7 gap-2 grid-rows-auto justify-center"></div>
     </div>
     <div class="h-3/5">
         <div class="border-2 border-turqoise rounded-3xl h-full w-full mt-4">
@@ -55,8 +54,7 @@
     </div>
     {% if myRole == 'administrative' %}
     <div class="w-full flex items-center justify-center mt-4 pb-4">
-        <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12"
-            onclick="window.location.href ='/app/create-appointment'">
+        <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="window.location.href ='/app/create-appointment'">
             New Appointment
         </button>
     </div>
@@ -65,10 +63,15 @@
 
 <script src="{{url_for('static', filename='js/calendar.js')}}" async id="calendar-script"></script>
 <script>
+    let apsContainer = document.getElementById('aps-container');
+    let filters = document.getElementsByName('time-filter');
+    let search = document.getElementsByName('search');
+
     let script = document.getElementById("calendar-script");
     script.addEventListener('load', () => {
         initCalendar("month-year-selectors", "month-select", "year-select", "calendar", (filter, value) => {
             console.log('filtering by: ', filter, 'value: ', value);
+
             switch(filter){
                 case 'DAY':
                 break;

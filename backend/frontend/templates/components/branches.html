@@ -1,0 +1,23 @@
+<div class="h-full w-full flex flex-row items-center justify-center self-start">
+    {% for branch in branches %}
+    <div class="flex flex-row flex-wrap md:flex-nowrap space-x-1 w-full md:justify-center md:items-center border border-turqoise rounded-xl px-2 py-2 self-start">
+        <div class="flex flex-col w-full space-y-2 lg:pr-4 items-center justify-center">
+            <div class="flex flex-row justify-between w-full">
+                <span class="text-turqoise font-bold w-full">Name:</span>
+                <span class="text-left w-full">{{branch.name}}</span>
+            </div>
+            <div class="flex flex-row justify-between w-full">
+                <span class="text-turqoise font-bold w-full">Phone:</span>
+                <span class="text-left w-full">{{branch.phoneNumber}}</span>
+            </div>
+            <div class="flex flex-row justify-between w-full">
+                <span class="text-turqoise font-bold w-full">Location:</span>
+                <span class="text-left w-full">{{branch.location}}</span>
+            </div>
+        </div>
+        <div class="flex md:relative md:top-0 md:mt-0">
+            <iframe src="{{branch.googleMapsSrc}}" width="300" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+    {% endfor %}
+</div>

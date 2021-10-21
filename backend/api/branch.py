@@ -19,33 +19,37 @@ def getBranchByName(name:str, offset:int, limit:int, **kwargs):
     branches = Branch.filter({'name': {'value': name, 'operator': 'LIKE'}}, offset=offset, limit=limit)
     return crudReturn(branches)
 
-@router.route('/all', methods=['GET', 'POST']) # GET /api/branch/all
+@router.get('/all') # GET /api/branch/all
+def getAllBranches():
+    return crudReturn(Branch.query())
+
+@router.post('/all') # POST /api/branch/all
 @requiresAuth
 @paginated()
-def getAllBranches(offset:int, limit:int, data:dict=None):
+def filterBranches(offset:int, limit:int, data:dict=None):
     return crudReturn(Branch.filter(data, offset=offset, limit=limit))
 
 @router.post('') # POST /api/branch
 @passJsonData
-@requiresRole('administrative')
+@requiresRole(['administrative'])
 def createBranch(data:dict):
     return crudReturn(Branch(**data).save(data))
 
 @router.route('', methods=['PUT', 'PATCH']) # PUT | PATCH /api/branch
 @passJsonData
-@requiresRole('administrative')
+@requiresRole(['administrative'])
 def updateBranch(data:dict):
     return crudReturn(Branch.update(data))
 
 @router.delete('') # DELETE /api/branch
 @passJsonData
-@requiresRole('administrative')
+@requiresRole(['administrative'])
 def deleteBranch(data:dict):
     return crudReturn(Branch.delete(data))
 
 @router.route('/apTakesPlace', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH DELETE /api/branch/apTakesPlace
 @passJsonData
-@requiresRole('administrative')
+@requiresRole(['administrative'])
 def apTakesPlace(data:dict=None):
     if request.method == 'POST':
         return crudReturn(ApTakesPlace(**data).save(data))

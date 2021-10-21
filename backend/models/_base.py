@@ -1,6 +1,8 @@
 from dataclasses import dataclass, fields
 import sqlite3
 
+from werkzeug.datastructures import ContentSecurityPolicy
+
 from util.createDb import getDb
 
 db = getDb()
@@ -105,13 +107,13 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         return extraTables, conditionList, values, statement
     
     if command == 'SELECT':
-        print(statement,values)
         result = db.execute(statement, values)
         if paginationOnly:
             return result.fetchone()[0]
         else:
             if returns == 'all':
-                return [cls(*data) for data in result.fetchall()]
+                all = result.fetchall()
+                return [cls(*data) for data in all]
             else:
                 try:
                     return cls(*result.fetchone())

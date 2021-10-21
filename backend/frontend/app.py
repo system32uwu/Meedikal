@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request
 from config import Config
 from models.User import User
+from models.Branch import Branch
 from models.Appointment import Appointment, AssignedTo
 from middleware.authGuard import getCurrentRole, requiresRole, requiresAuth
 from api.user import userToReturn
@@ -61,7 +62,7 @@ def diseases(**any):
 
 @appRouter.get('/branches')
 def branches():
-    return render_template(f'{baseDir}/branches.html')
+    return render_template(f'{baseDirApp}/branches.html', branches=Branch.query())
 
 @appRouter.get('/settings')
 @requiresAuth

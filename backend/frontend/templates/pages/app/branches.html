@@ -16,7 +16,7 @@
     }
 </script>
 <div class="w-full h-full px-6 lg:px-10 pt-4">
-    <div class="h-4/5 overflow-y-auto flex">
+    <div class="{{'h-4/5' if myRole == 'administrative' else 'h-full'}} overflow-y-auto flex">
         {% include 'components/branches.html' %}
     </div>
     {% if myRole == 'administrative' %}

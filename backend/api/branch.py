@@ -41,6 +41,12 @@ def createBranch(data:dict):
 def updateBranch(data:dict):
     return crudReturn(Branch.update(data))
 
+@router.route('/<int:id>', methods=['PUT', 'PATCH']) # PUT | PATCH /api/branch
+@passJsonData
+@requiresRole(['administrative'])
+def updateBranchById(id:int, data:dict):
+    return crudReturn(Branch.updateById(id, data))
+
 @router.delete('') # DELETE /api/branch
 @passJsonData
 @requiresRole(['administrative'])

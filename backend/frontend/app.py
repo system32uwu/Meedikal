@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from flask import Blueprint, render_template, request
 from config import Config
 from models.User import User
@@ -84,6 +85,17 @@ def users():
 @requiresRole(['administrative'])
 def createUser():
     return render_template(f'{baseDirApp}/administrative/create-user.html')
+
+@appRouter.get('/create-branch')
+@requiresRole(['administrative'])
+def createBranch():
+    return render_template(f'{baseDirApp}/administrative/branch.html', branch={})
+
+@appRouter.get('/update-branch/<int:id>')
+@requiresRole(['administrative'])
+def updateBranch(id:int):
+    branch = asdict(Branch.getById(id))
+    return render_template(f'{baseDirApp}/administrative/branch.html', branch=branch)
 
 @appRouter.get('/update-user/<int:ciUser>')
 @requiresRole(['administrative'])

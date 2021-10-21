@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
-from config import DevelopmentConfig, ProductionConfig
+from config import DevelopmentConfig, ProductionConfig, Config
 from routers import apiRouter, frontendRouter, imagesRouter
 from util.JSONEncoder import JsonExtendEncoder
 import errorhandlers

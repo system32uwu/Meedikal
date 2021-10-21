@@ -23,8 +23,8 @@
         }
     });
 
-    let userFields = document.getElementById("user-fields");
-    //workaround to mysterious bug that broke every other input value if trying to do userFields.innerHTML += generateSpecialtiesField('');
+    let formFields = document.getElementById("user-fields");
+    //workaround to mysterious bug that broke every other input value if trying to do formFields.innerHTML += generateSpecialtiesField('');
     let specialtiesContainer = document.createElement("div");
     specialtiesContainer.id = "Specialties";
     specialtiesContainer.classList.add("hidden");
@@ -42,7 +42,7 @@
         specialtiesContainer.innerHTML += generateSpecialtiesField("");
     }
 
-    userFields.appendChild(specialtiesContainer);
+    formFields.appendChild(specialtiesContainer);
 
     const toggleRole = async (role) => {
         img = document.getElementById(`icon-${role}`);

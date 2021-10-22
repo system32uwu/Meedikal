@@ -23,14 +23,14 @@ def home(**any):
 @getCurrentRole
 def profile(ci:int, currentRole:str):
     user = userToReturn(User.getByCi(ci), currentRole)
-    return render_template(f'{baseDirApp}/profile.html', me=user)
+    return render_template(f'{baseDirApp}/profile.html', me=user, readOnly=False)
 
 @appRouter.get('/profile/<int:ciUser>')
 @appRouter.get('/profile/<int:ciUser>/<string:asRole>')
 @requiresAuth
 def profileById(ciUser:int, asRole:str=None, *args, **kwargs):
     user = userToReturn(User.getByCi(ciUser), asRole)
-    return render_template(f'{baseDirApp}/profile.html', user=user)
+    return render_template(f'{baseDirApp}/profile.html', me=user, readOnly=True)
 
 @appRouter.get('/appointments')
 @requiresAuth
@@ -77,6 +77,8 @@ def settings(**any):
 def patients():
     return render_template(f'{baseDirApp}/mp/patients.html')
 
+# administrative specifics
+
 @appRouter.get('/users')
 @requiresRole(['administrative'])
 def users():
@@ -86,6 +88,12 @@ def users():
 @requiresRole(['administrative'])
 def createUser():
     return render_template(f'{baseDirApp}/administrative/create-user.html')
+
+@appRouter.get('/update-user/<int:ciUser>')
+@requiresRole(['administrative'])
+def updateUser(ciUser:int):
+    user = userToReturn(User.getByCi(ciUser))
+    return render_template(f'{baseDirApp}/administrative/update-user.html', user=user)
 
 @appRouter.get('/create-branch')
 @requiresRole(['administrative'])
@@ -97,12 +105,6 @@ def createBranch():
 def updateBranch(id:int):
     branch = asdict(Branch.getById(id))
     return render_template(f'{baseDirApp}/administrative/branch.html', branch=branch)
-
-@appRouter.get('/update-user/<int:ciUser>')
-@requiresRole(['administrative'])
-def updateUser(ciUser:int):
-    user = userToReturn(User.getByCi(ciUser))
-    return render_template(f'{baseDirApp}/administrative/update-user.html', user=user)
 
 @appRouter.get('/stats')
 @requiresRole(['administrative'])

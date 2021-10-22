@@ -77,7 +77,7 @@
   </span>
   <div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
     <div class="flex flex-row w-full" id="container-{{name}}">
-      {% if fn %}
+      {% if canAdd %}
         {% for v in values %} 
           {{chip(v[displayAttr], "white", True, 'bg-turqoise', chipAction(v[displayAttr], fn, icon))}}
         {% endfor %}

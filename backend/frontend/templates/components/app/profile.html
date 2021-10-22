@@ -1,7 +1,7 @@
 {% from "components/app/chip.html" import chip, chipAction with context %} 
 {% from "components/app/form-field.html" import formField, formFieldChips with context %} 
 {% macro profile(user, currentRole, roleActionFn='swapRole', roleActionIcon='icons/swap.svg', saveFn='updateUser') %}
-<div class="w-full lg:px-10 mt-2">
+<div class="w-full lg:px-10 mt-2 mb-4">
     <div class="bg-white rounded-xl flex flex-col w-full">
       <div class="w-64 lg:w-96 self-center">
         <div class="flex flex-col justify-between h-full w-full">
@@ -12,10 +12,14 @@
               alt="user profile pic"
             />
             {% for r in user.get('roles', []) %} 
-              {% if currentRole == r %}
-               {{chip(r, "white", True, roleColors[r])}}
-              {% else %}
-                {{chip(r, "white", True, roleColors[r], chipAction(r, roleActionFn, roleActionIcon))}} 
+              {% if readOnly %}
+                {{chip(r, "white", True, roleColors[r])}}
+                {% else %}
+                  {% if currentRole == r %}
+                    {{chip(r, "white", True, roleColors[r])}}
+                  {% else %}
+                    {{chip(r, "white", True, roleColors[r], chipAction(r, roleActionFn, roleActionIcon))}} 
+                  {% endif %}
               {% endif %}
             {% endfor %}
           </div>
@@ -23,26 +27,27 @@
       </div>
       <div class="shadow-xl p-4 space-y-2" id="user-fields">
         {{formField("ID", user.get('user', {}).get('ci', ''), True if user.get('user') is not none else False)}} 
-        {{formField("1st Name", user.get('user', {}).get('name1', '') or '') }} 
-        {{formField("2nd Name", user.get('user', {}).get('name2', '') or '')}}
-        {{formField("1st Surname", user.get('user', {}).get('surname1', '') or '') }} 
-        {{formField("2nd Surname", user.get('user', {}).get('surname2', '') or '')}} 
-        {{formField("Sex", user.get('user', {}).get('sex', '') or '')}} 
-        {{formField("Genre", user.get('user', {}).get('genre', '') or '')}}
-        {{formField("Birthdate", user.get('user', {}).get('birthdate', '') or '')}}
-        {{formField("Email", user.get('user', {}).get('email', '') or '')}} 
-        {{formField("Location", user.get('user', {}).get('location', '') or '')}}
-        {{formField("Status", "active" if user.get('user', {}).get('active', True) else "inactive") }}
+        {{formField("1st Name", user.get('user', {}).get('name1', '') or '', readOnly) }} 
+        {{formField("2nd Name", user.get('user', {}).get('name2', '') or '', readOnly)}}
+        {{formField("1st Surname", user.get('user', {}).get('surname1', '') or '', readOnly) }} 
+        {{formField("2nd Surname", user.get('user', {}).get('surname2', '') or '', readOnly)}} 
+        {{formField("Sex", user.get('user', {}).get('sex', '') or '', readOnly)}} 
+        {{formField("Genre", user.get('user', {}).get('genre', '') or '', readOnly)}}
+        {{formField("Birthdate", user.get('user', {}).get('birthdate', '') or '', readOnly)}}
+        {{formField("Email", user.get('user', {}).get('email', '') or '', readOnly)}} 
+        {{formField("Location", user.get('user', {}).get('location', '') or '', readOnly)}}
+        {{formField("Status", "active" if user.get('user', {}).get('active', True) else "inactive", readOnly) }}
         
         {% if currentRole in ['doctor', 'medicalAssistant', 'medicalPersonnel'] %}
           {{formFieldChips('Specialties', user.get('user', {}).get('specialties', []), 'title') }}  
         {% endif %}
 
-        {{formFieldChips('Phones', user.get('phoneNumbers', []), 'phone', 'deletePhone', canAdd=true, addFn='addPhone')}}  
+        {{formFieldChips('Phones', user.get('phoneNumbers', []), 'phone', 'deletePhone', canAdd=not readOnly, addFn='addPhone')}}  
       </div>
       <div id="error-box" class="hidden">
         <p class="text-red-500 font-semibold"></p>
       </div>
+      {% if not readOnly %}
       <div class="mb-4 mt-4 flex justify-between w-full space-x-10">
         <button
           onclick="window.location.href=window.location.href;"
@@ -71,6 +76,7 @@
           Save
         </button>
       </div>
+      {% endif %}
     </div>
 </div>
 <script type="text/javascript">

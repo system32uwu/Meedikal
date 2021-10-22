@@ -183,7 +183,7 @@ def phoneNumbersAsAdmin(ciUser:int, data:dict):
 
 def mpHasSpec(ciMp:int=None, data:dict=None):
     if request.method == 'GET':
-        result = MpHasSpec.filter({'ciMp': ciMp})
+        result = [asdict(hsp) for hsp in MpHasSpec.filter({'ciMp': ciMp})]
         for sp in result:
             sp['title'] = Specialty.getById(sp['idSpec']).title
     else:

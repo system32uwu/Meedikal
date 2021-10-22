@@ -29,18 +29,30 @@
     specialtiesContainer.id = "Specialties";
     specialtiesContainer.classList.add("hidden");
 
-    if (user.roles.includes('doctor') || user.roles.includes('medicalAssistant')) {
-        let chips = "";
+    (async function () {
+        if (user.roles.includes('doctor') || user.roles.includes('medicalAssistant')) {
+            let chips = "";
 
-        for (let sp of user.specialties) {
-            chips += generateSpecialtyChip(sp);
+            if (!user.specialties) {
+                let res = await fetch(`/api/user/medicalPersonnel/mpHasSpec/${user.user.ci}`, {
+                    headers: {
+                        Accept: "application/json",
+                    },
+                })
+                
+                user.specialties = (await res.json()).result.map(sp => sp.title) || [];
+            }
+
+            for (let sp of user.specialties) {
+                chips += generateSpecialtyChip(sp);
+            }
+
+            specialtiesContainer.innerHTML += generateSpecialtiesField(chips);
+            specialtiesContainer.classList.remove("hidden");
+        } else {
+            specialtiesContainer.innerHTML += generateSpecialtiesField("");
         }
-
-        specialtiesContainer.innerHTML += generateSpecialtiesField(chips);
-        specialtiesContainer.classList.remove("hidden");
-    } else {
-        specialtiesContainer.innerHTML += generateSpecialtiesField("");
-    }
+    })();
 
     formFields.appendChild(specialtiesContainer);
 
@@ -53,7 +65,7 @@
             if (role === "doctor" || role === "medicalAssistant") {
                 if (!user['roles'].includes('medicalPersonnel')) {
                     await fetch(`/api/user/medicalPersonnel`, {
-                        method: 'DELETE',
+                        method: 'POST',
                         headers: {
                             Accept: "application/json",
                             "Content-Type": "application/json",
@@ -208,13 +220,13 @@
         });
     }
 
-    const addSpecialty = async() => {
+    const addSpecialty = async () => {
         let specialty = document.getElementById('new-Specialties').value;
-        if (!user.specialties){
+        if (!user.specialties) {
             user.specialties = [];
         }
-        
-        if (!user.specialties.includes(value)){
+
+        if (!user.specialties.includes(value)) {
             user.specialties.push(value);
             document.getElementById('container-Specialties').innerHTML += generateSpecialtyChip(specialty);
         }
@@ -225,21 +237,21 @@
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ mpHasSpec: [{ ci: user.ci, title: specialty}] })
+            body: JSON.stringify({ mpHasSpec: [{ ci: user.ci, title: specialty }] })
         });
 
     }
 
-    const deleteSpecialty = async(sp) => {
+    const deleteSpecialty = async (sp) => {
         user['specialties'] = user['specialties'].filter(s => s !== sp);
-        
+
         await fetch('/medicalPersonnel/mpHasSpec', {
             method: 'DELETE',
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ mpHasSpec: [{ ci: user.ci, title: sp}] })
+            body: JSON.stringify({ mpHasSpec: [{ ci: user.ci, title: sp }] })
         });
 
         document.getElementById(sp).remove();

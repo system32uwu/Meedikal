@@ -39,7 +39,7 @@
         {{formField("Status", "active" if user.get('user', {}).get('active', True) else "inactive", readOnly) }}
         
         {% if currentRole in ['doctor', 'medicalAssistant', 'medicalPersonnel'] %}
-          {{formFieldChips('Specialties', user.get('user', {}).get('specialties', []), 'title') }}  
+          {{formFieldChips('Specialties', user.get('specialties', []), 'title') }}  
         {% endif %}
 
         {{formFieldChips('Phones', user.get('phoneNumbers', []), 'phone', 'deletePhone', canAdd=not readOnly, addFn='addPhone')}}  

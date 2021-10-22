@@ -7,6 +7,7 @@ from models.Appointment import Appointment, AssignedTo
 from middleware.authGuard import getCurrentRole, requiresRole, requiresAuth
 from api.user import userToReturn
 from datetime import date
+
 appRouter = Blueprint('app', __name__, url_prefix='app') # handles /app
 
 baseDir = 'pages'

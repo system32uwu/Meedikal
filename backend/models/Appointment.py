@@ -1,6 +1,6 @@
 from ._base import BaseModel, TableWithId
 from dataclasses import dataclass
-from datetime import datetime, date as d
+from datetime import time, date as d
 from typing import Optional
 
 appointmentStates = ('OK','CANCELLED', 'RESCHEDULING')
@@ -14,8 +14,8 @@ class Appointment(BaseModel, TableWithId):
     state:str
     date:d
 
-    startsAt:Optional[datetime] = None
-    endsAt:Optional[datetime] = None
+    startsAt:Optional[time] = None
+    endsAt:Optional[time] = None
     etpp:Optional[int] = None # estimated time per patient, in seconds
     maxTurns:Optional[int] = None # max patients to be attended
 
@@ -27,12 +27,12 @@ class Appointment(BaseModel, TableWithId):
         self.date = d.fromisoformat(date)
 
         try:
-            self.startsAt = datetime.fromisoformat(startsAt)
+            self.startsAt = time.fromisoformat(startsAt)
         except:
             self.startsAt = None
 
         try:
-            self.endsAt = datetime.fromisoformat(endsAt)
+            self.endsAt = time.fromisoformat(endsAt)
         except:
             self.endsAt = None
             
@@ -52,12 +52,12 @@ class AssistsAp(BaseModel): # MedicalAssistant < assistsAp > [ Doctor < assigned
 
     idAp: int
     ciMa: int
-    time: datetime
+    time: time
 
     def __init__(self,idAp:int,ciMa:int,time:str):
         self.idAp = idAp
         self.ciMa = ciMa
-        self.time = datetime.fromisoformat(time)
+        self.time = time.fromisoformat(time)
 
 @dataclass
 class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appointment]
@@ -67,7 +67,7 @@ class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appo
     ciPa: int
 
     motive: Optional[str] = None
-    time: Optional[datetime] = None
+    time: Optional[time] = None
     number: Optional[int] = None
 
     def __init__(self,idAp:int,ciPa:int,motive:str=None,time:str=None, number:int=None):
@@ -76,7 +76,7 @@ class AttendsTo(BaseModel): # Patient < attendsTo > [ Doctor < assignedTo > Appo
         self.motive = motive
         
         try:
-            self.time = datetime.fromisoformat(time)
+            self.time = time.fromisoformat(time)
         except:
             self.time = None
             

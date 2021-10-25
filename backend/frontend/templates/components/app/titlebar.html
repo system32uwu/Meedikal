@@ -20,23 +20,12 @@
           <img src="{{url_for('static', filename='icons/bell.svg')}}" alt="notification bell" />
         </button>
         <button class="z-10 w-6 h-6 rounded-full bg-white" id="profile">
-          <img id="userPhoto" src="{{url_for('static', filename='icons/user.svg')}}" class="object-cover p-1"
-            onclick="window.location.href = '/app/profile'" />
+          <img id="userPhoto" src="{{url_for('static', filename='icons/user.svg')}}" class="object-cover p-1" onclick="window.location.href = '/app/profile'" />
         </button>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
-  document.onload = function () {
-    fetch("/api/auth/me").then((res) => {
-      res.json().then((data) => {
-        if (res.ok) {
-          if (res.data.user.photoUrl) {
-            document.getElementById("userPhoto").src = res.data.user.photoUrl;
-          }
-        }
-      });
-    });
-  };
+  document.getElementById('userPhoto').src = me.user.photoUrl ||'/static/icons/user.svg'
 </script>

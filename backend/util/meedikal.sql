@@ -71,8 +71,8 @@ CREATE TABLE appointment (
     state VARCHAR(36) NOT NULL DEFAULT 'OK',
     date date NOT NULL,
     -- OPTIONAL FIELDS
-    startsAt datetime,
-    endsAt datetime,
+    startsAt TIME,
+    endsAt TIME,
     etpp INTEGER,
     maxTurns INTEGER
 ); --etpp: estimated time per patient (tiempo estimado por turno de paciente en la consulta)
@@ -109,7 +109,7 @@ CREATE TABLE attendsTo (
     ciPa INTEGER NOT NULL,
     -- OPTIONAL FIELD
     motive VARCHAR(256),
-    time DATETIME, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
+    time TIME, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
     number INTEGER, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
     
     UNIQUE (idAp, ciPa),
@@ -157,7 +157,7 @@ END;
 CREATE TABLE assistsAp (
     idAp INTEGER NOT NULL,
     ciMa INTEGER NOT NULL,
-    time datetime NOT NULL,
+    time TIME NOT NULL,
 
     FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE

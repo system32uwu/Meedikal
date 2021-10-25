@@ -35,6 +35,12 @@ def createAppointment(data:dict):
 def updateAppointment(data:dict):
     return crudReturn(Appointment.update(data))
 
+@router.route('/<int:id>', methods=['PUT', 'PATCH']) # PUT | PATCH /api/appointment/id
+@requiresRole(['administrative'])
+@passJsonData
+def updateAppointmentById(id:int, data:dict, **kw):
+    return crudReturn(Appointment.updateById(id, data))
+
 @router.delete('') # DELETE /api/appointment
 @requiresRole(['administrative'])
 @passJsonData

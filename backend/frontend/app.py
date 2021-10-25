@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from flask import Blueprint, render_template, request
 from config import Config
-from models.User import User
+from models.User import User, Doctor
 from models.Branch import Branch
 from models.Appointment import Appointment, AssignedTo
 from middleware.authGuard import getCurrentRole, requiresRole, requiresAuth
@@ -64,7 +64,7 @@ def diseases(**any):
 
 @appRouter.get('/branches')
 def branches():
-    return render_template(f'{baseDirApp}/branches.html', branches=Branch.query())
+    return render_template(f'{baseDirApp}/branches.html', branches=Branch.query(), selectedBranch=None, assignMode=False)
 
 @appRouter.get('/settings')
 @requiresAuth
@@ -105,6 +105,35 @@ def createBranch():
 def updateBranch(id:int):
     branch = asdict(Branch.getById(id))
     return render_template(f'{baseDirApp}/administrative/branch.html', branch=branch)
+
+@appRouter.get('/create-appointment')
+@requiresRole(['administrative'])
+def createAppointment():
+    branches = Branch.query()
+    selectedBranch = {}
+    
+    if len(branches) > 0:
+        branches = [asdict(b) for b in branches]
+        selectedBranch = branches[0]
+
+    return render_template(f'{baseDirApp}/administrative/appointment.html', appointment={},
+                           selectedBranch=selectedBranch, branches=branches,
+                           selectedDoctor={}, assignMode=True)
+
+@appRouter.get('/update-appointment/<int:id>')
+@requiresRole(['administrative'])
+def updateAppointment(id:int):
+    appointment = asdict(Appointment.getById(id))
+    branches = Branch.query()
+    if len(branches) > 0:
+        branches = [asdict(b) for b in branches]
+
+    _selectedBranch = Branch.getBranchOfAp(id) or {}
+    selectedBranch = asdict(_selectedBranch)
+    
+    _selectedDoctor = userToReturn(Doctor.getDocOfAp(id))
+    selectedDoctor = None if not _selectedDoctor else asdict(_selectedDoctor)
+    return render_template(f'{baseDirApp}/administrative/appointment.html', appointment=appointment, branches=branches, selectedBranch=selectedBranch, selectedDoctor=selectedDoctor)
 
 @appRouter.get('/stats')
 @requiresRole(['administrative'])

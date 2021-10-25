@@ -19,25 +19,26 @@ class Branch(BaseModel, TableWithId):
        self.googleMapsSrc = googleMapsSrc
 
     @classmethod
-    def updateById(cls, id:int, data:dict):
-        sets = [f'{k} = ?' for k in data.keys()]
-
+    def getBranchOfAp(cls, idAp):
         statement = f"""
-        UPDATE {cls.__tablename__} SET
-        {', '.join(sets)}
-        WHERE id = ?
+        SELECT branch.* FROM branch, apTakesPlace
+        WHERE apTakesPlace.idAp = ? AND apTakesPlace.idBranch = branch.id
         """
 
-        values = [v for v in data.values()] + [id]
-        cursor = db.cursor()
-        cursor.execute(statement, values)
-        db.commit()
+        result = db.execute(statement,[idAp]).fetchone()
 
-        return cursor.rowcount
+        try:
+            return cls(*result)
+        except:
+            return None
 
 @dataclass
-class ApTakesPlace(BaseModel): # Appointment < apTakesPlace > Branch
+class ApTakesPlace(BaseModel, TableWithId): # Appointment < apTakesPlace > Branch
     __tablename__ = 'apTakesPlace'
 
     idAp: int
     idBranch: int
+
+    @classmethod
+    def updateBranch(cls, idAp:int, data:dict):
+        return cls.updateById(idAp,data, 'idAp')

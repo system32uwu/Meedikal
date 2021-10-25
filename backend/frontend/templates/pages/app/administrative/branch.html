@@ -1,9 +1,9 @@
 {% from "components/app/form-field.html" import formField with context %}
 
 {% extends 'layouts/app-base.html' %}
-{% block title %}Update Branch{% endblock %}
+{% block title %}{{'Create' if 'create' in request.endpoint else 'Update'}} Branch{% endblock %}
 
-{% block page_content %}
+{% block pageContent %}
 <div class="w-full px-6 lg:px-10 pt-4">
     <div class="shadow-xl p-4 space-y-2" id="branch-fields">
 

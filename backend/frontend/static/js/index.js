@@ -112,6 +112,16 @@ const generateActionsCell = (id, fnSuffix) => `
     </td
 `;
 
+const generateSelectDoctorCell = (id, fn) => `
+    <td>
+      <div class="flex justify-center">
+        <button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="${fn}(${id})">
+          <img id='icon-${id}' src="/static/icons/swap.svg" width="16"/>
+        </button>
+      </div>
+    </td
+`;
+
 const generateColumn = (colName) => `
       <th scope="col" id="${colName}" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
         ${colName}
@@ -145,7 +155,7 @@ const generateTable = (tableId, colNames, rows) => `
     </div>
     `;
 
-    const generatePhoneChip = (value) => `
+const generatePhoneChip = (value) => `
     <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
         <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
             ${value}
@@ -237,18 +247,18 @@ const setPagination = async (
 
   options.headers =  {
     Accept: "application/json",
-    "Content-Type": "application/json",
   }
 
   if (conditions){
     try{
       options.body = JSON.stringify(conditions)
       options.method = 'POST';
+      options["Content-Type"] = "application/json"
     }catch(e){
-      options.body = {};
+      options.method = 'GET';
     }
   }
-
+  
   res = await fetch(`/api/pagination/total/${tablename}`, options);
 
   data = await res.json();
@@ -283,7 +293,7 @@ const setPagination = async (
     paginationContainer.innerHTML = btns.join("\n");
     return total;
   } else {
-    Promise.reject(res.data);
+    Promise.reject(data);
   }
 };
 

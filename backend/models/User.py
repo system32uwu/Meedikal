@@ -224,6 +224,16 @@ class Doctor(BaseModel):
     __tablename__ = 'doctor'
     ci: int
     
+    @classmethod
+    def getDocOfAp(cls, idAp:int):
+        statement = f"""
+        SELECT user.* FROM user, assignedTo WHERE
+        assignedTo.idAp = ? AND assignedTo.ciDoc = user.ci
+        """
+
+        result = db.execute(statement, [idAp]).fetchone()
+
+        return User(*result)
 @dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
 class MedicalAssitant(BaseModel):
     __tablename__ = 'medicalAssistant'

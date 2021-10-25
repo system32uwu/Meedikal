@@ -68,3 +68,9 @@ def apTakesPlace(data:dict=None):
 @requiresAuth
 def getApTakesPlace(idAp:int):
     return crudReturn(ApTakesPlace.filter({'idAp': idAp}))
+
+@router.route('/apTakesPlace/<int:idAp>', methods=['PUT', 'PATCH'])
+@passJsonData
+@requiresRole(['administrative'])
+def updateApTakesPlace(idAp:int, data:dict, **kw):
+    return crudReturn(ApTakesPlace.updateBranch(idAp, data))

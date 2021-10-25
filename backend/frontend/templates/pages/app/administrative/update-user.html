@@ -1,7 +1,7 @@
 {% extends 'layouts/app-base.html' %} {% from "components/app/profile.html" import profile with context %}
 
 {% block title %}Update User{% endblock %}
-{%block page_content %}
+{%block pageContent %}
 {{profile(user, None, 'toggleRole', 'icons/remove.svg', 'updateUser')}}
 
 <script type="text/javascript">
@@ -226,18 +226,18 @@
             user.specialties = [];
         }
 
-        if (!user.specialties.includes(value)) {
-            user.specialties.push(value);
+        if (!user.specialties.includes(specialty)) {
+            user.specialties.push(specialty);
             document.getElementById('container-Specialties').innerHTML += generateSpecialtyChip(specialty);
         }
 
-        await fetch('/medicalPersonnel/mpHasSpec', {
+        await fetch('/api/user/medicalPersonnel/mpHasSpec', {
             method: 'POST',
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ mpHasSpec: [{ ci: user.ci, title: specialty }] })
+            body: JSON.stringify({ mpHasSpec: [{ ciMp: user.user.ci, title: specialty }] })
         });
 
     }

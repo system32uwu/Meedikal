@@ -3,7 +3,7 @@
 
 {% block title %}Create User{% endblock %} 
 
-{% block page_content %}
+{% block pageContent %}
 {{profile({'roles': ['patient', 'administrative', 'doctor', 'medicalAssistant']}, None, 'toggleRole', 'icons/add.svg', 'saveUser')}}
 
 <script type="text/javascript">
@@ -43,7 +43,7 @@
     }
 
     const deletePhone = (value) => {
-        phones = specialties.find(el => el !== value);
+        phones = phones.find(el => el !== value);
         document.getElementById(value).remove();
     }
 
@@ -123,23 +123,27 @@
             });
         }
 
-        await fetch(`/api/user/phoneNumbers/${createdUser.result.user.ci}`, {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({userPhone: phones.map(p => ({ci: createdUser.result.user.ci, phone: p}))})
-        });
+        if (phones.length > 0){
+            await fetch(`/api/user/phoneNumbers/${createdUser.result.user.ci}`, {
+                method: 'POST',
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({userPhone: phones.map(p => ({ci: createdUser.result.user.ci, phone: p}))})
+            });
+        }
 
-        await fetch('/medicalPersonnel/mpHasSpec', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({mpHasSpec: specialties.map(sp => ({ci: createdUser.result.user.ci, title: sp}))})
-        });
+        if (specialties.length > 0){
+            await fetch('/api/user/medicalPersonnel/mpHasSpec', {
+                method: 'POST',
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({mpHasSpec: specialties.map(sp => ({ciMp: createdUser.result.user.ci, title: sp}))})
+            });
+        }
 
         showOkModal();
 

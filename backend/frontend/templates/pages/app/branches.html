@@ -1,6 +1,6 @@
 {% extends 'layouts/app-base.html' %}
 {% block title %}Branches{% endblock %}
-{% block page_content %}
+{% block pageContent %}
 <script>
     const deleteBranch = async(id) => {
         await fetch(`/api/branch`, {

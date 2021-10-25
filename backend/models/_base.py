@@ -107,6 +107,7 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         return extraTables, conditionList, values, statement
     
     if command == 'SELECT':
+        print(statement)
         result = db.execute(statement, values)
         if paginationOnly:
             return result.fetchone()[0]
@@ -170,11 +171,11 @@ class BaseModel:
         return buildQueryComponents(cls, conditions, command='INSERT', returns=returns)
 
     @classmethod 
-    def saveOrGet(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all'):
+    def saveOrGet(cls, conditions: dict= {}, logicalOperator:str = 'AND', returns='all', offset:int=None, limit:int=None, paginationOnly:bool=False):
         try:
             return cls.save(conditions, returns)
         except sqlite3.IntegrityError: # record already exists
-            return cls.filter(conditions,logicalOperator,returns)
+            return cls.filter(conditions, logicalOperator, returns, offset, limit, paginationOnly)
 
     @classmethod
     def delete(cls, conditions: dict= {}, logicalOperator: str = 'AND', returns='DELETE'):
@@ -190,3 +191,20 @@ class TableWithId: # tables that have "id" field will inherit from this one in o
     @classmethod
     def getById(cls: BaseModel, id: int):
         return cls.filter({'id': id}, returns='one')
+
+    @classmethod
+    def updateById(cls, id:int, data:dict, idField:str='id'):
+        sets = [f'{k} = ?' for k in data.keys()]
+
+        statement = f"""
+        UPDATE {cls.__tablename__} SET
+        {', '.join(sets)}
+        WHERE {idField} = ?
+        """
+
+        values = [v for v in data.values()] + [id]
+        cursor = db.cursor()
+        cursor.execute(statement, values)
+        db.commit()
+
+        return cursor.rowcount

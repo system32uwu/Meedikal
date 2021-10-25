@@ -1,6 +1,6 @@
 {% from "components/app/chip.html" import chip, chipAction with context %} 
 
-{% macro formField(name, value, readOnly) %}
+{% macro formField(name, value, readOnly, placeholder='') %}
 <div class="flex">
   <span
     class="
@@ -20,7 +20,6 @@
   >
     {{name}}
   </span>
-  {% if readOnly%}
   <input
     class="
       px-4
@@ -31,27 +30,14 @@
       shadow-sm
       w-4/6
     "
-    readonly
+    {% if readOnly %}
+      readonly
+    {% endif %}
+    placeholder="{{placeholder}}"
     type="text"
     value='{{value}}'
     id='{{name}}'
   />
-  {% else %}
-  <input
-    class="
-      px-4
-      border-l-0
-      focus:outline-none focus:ring-1
-      ring-turqoise
-      rounded-md
-      shadow-sm
-      w-4/6
-    "
-    type="text"
-    value='{{value}}'
-    id='{{name}}'
-  />
-  {% endif %}
 </div>
 {% endmacro %}
 

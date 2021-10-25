@@ -1,45 +1,43 @@
-{% extends 'layouts/app-base.html' %} 
+{% extends 'layouts/app-base.html' %}
+{% from 'components/app/users-table.html' import usersTable with context%}
 {% block title %}Users{% endblock %}
-{% block page_content %}
+{% block pageContent %}
+<script>
+  const drawTable = (_data) => {
+    let rows = Array(_data.length);
+
+    for (let obj of _data) {
+      let userId = obj["user"]["ci"];
+
+      let cells = [
+        nameCell(
+          `${obj["user"]["name1"]} ${obj["user"]["surname1"]}`,
+          obj["user"]["photoUrl"]
+        ),
+        generateCell(userId),
+        generateCell(obj["user"]["sex"]),
+        generateCell(obj["user"]["birthdate"].split("T")[0]),
+      ];
+
+      if (me.user.ci !== userId){
+        cells.push(generateActiveCell(userId, obj["user"]["active"], 'toggleActive'));
+        cells.push(generateActionsCell(userId, "User"));
+      }else{
+        cells.push(generateActiveCell(userId, obj["user"]["active"], ''));
+      }
+
+      rows.push(generateRow(cells, userId));
+    }
+
+    tableContainer.innerHTML = generateTable(
+      "users-table",
+      ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
+      rows
+    );
+  }
+</script>
 <div class="w-full h-full px-6 lg:px-10">
-  <div class="pt-4 relative" id="filters">
-    <div>
-      <input type="text" id="search" placeholder="ID, Surname or Name + Surname" class="w-full bg-white rounded-lg border focus:ring-2 focus:ring-turqoise border-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
-      <button id="search-btn" onclick="search()" class="absolute right-0 py-2 my-1 mr-2 rounded-full px-2 hover:bg-gray-200">
-        <img src="/static/icons/search.svg" width="18" />
-      </button>
-    </div>
-    <div class="border border-turqoise rounded-lg mt-2 py-2">
-      <div class="lg:-mx-0 -mx-2 w-full flex flex-row space-x-4 justify-center items-center flex-wrap gap-1">
-        <div>
-          <input type="radio" value="all" name="role" checked />
-          <label for="all">All</label>
-        </div>
-        <div>
-          <input type="radio" value="patient" name="role" />
-          <label for="patient">Patient</label>
-        </div>
-        <div>
-          <input type="radio" value="doctor" name="role" />
-          <label for="doctor">Doctor</label>
-        </div>
-        <div>
-          <input type="radio" value="medicalAssistant" name="role" />
-          <label for="medicalAssistant">Medical Assistant</label>
-        </div>
-        <div>
-          <input type="radio" value="administrative" name="role" />
-          <label for="administrative">Administrative</label>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="z-0 relative h-3/5 pt-2">
-    <div class="lg:overflow-x-hidden">
-      <div class="py-2" id="users-table-container"></div>
-    </div>
-    <div id="pagination-info" class="border w-full flex items-center justify-center py-1 space-x-2"></div>
-  </div>
+  {{usersTable()}}
   <div class="w-full flex items-center justify-center mt-4">
     <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12"
       onclick="window.location.href ='/app/create-user'">
@@ -48,16 +46,12 @@
   </div>
 </div>
 <script type="text/javascript">
-  let _search = document.getElementById('search');
-  let searchBtn = document.getElementById('search-btn');
-  let _roles = document.getElementsByName('role');
 
-  let total = 0;
-  let offset = 0;
-  let limit = 3;
-
-  let tableContainer = document.getElementById("users-table-container");
-  let paginationContainer = document.getElementById("pagination-info");
+  tableContainer.innerHTML = generateTable(
+    "users-table",
+    ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
+    []
+  );
 
   const toggleActive = async (userId) => {
 
@@ -110,72 +104,15 @@
     );
   }
 
-  tableContainer.innerHTML = generateTable(
-    "users-table",
-    ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
-    []
-  );
-
-  const loadUsers = async (offset, conditions = null) => {
-    if (offset < 0 && !id) {
-      return;
-    }
-    let res;
-
-    if (conditions) {
-      res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`, {
-        body: JSON.stringify(conditions),
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        }
-      });
-    } else {
-      res = await fetch(`/api/user/all?offset=${offset}&limit=${limit}`);
-    }
+  (async function () {
+    let res = await fetch("/api/auth/me");
 
     let data = await res.json();
 
-    if (res.status == 200) {
-      let _data = data.result;
-
-      if (!Array.isArray(_data)) {
-        _data = Array(_data)
-      }
-
-      let rows = Array(_data.length);
-
-      for (let obj of _data) {
-        let userId = obj["user"]["ci"];
-
-        let cells = [
-          nameCell(
-            `${obj["user"]["name1"]} ${obj["user"]["surname1"]}`,
-            obj["user"]["photoUrl"]
-          ),
-          generateCell(userId),
-          generateCell(obj["user"]["sex"]),
-          generateCell(obj["user"]["birthdate"].split("T")[0]),
-          generateActiveCell(userId, obj["user"]["active"], 'toggleActive'),
-          generateActionsCell(userId, "User"),
-        ];
-        rows.push(generateRow(cells, userId));
-      }
-
-      tableContainer.innerHTML = generateTable(
-        "users-table",
-        ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
-        rows
-      );
-
-      return Promise.resolve("users loaded");
-    } else {
-      Promise.reject(res.data); //error object {error: "", extraMessage: ""}
+    if (res.ok) {
+      me = data.result;
     }
-  };
 
-  (async function () {
     await loadUsers(offset);
     await setPagination(
       "user",
@@ -186,75 +123,5 @@
       {}
     );
   })();
-
-  const search = async () => {
-
-    let value = _search.value;
-
-    conditions = {};
-
-    if (parseInt(value)) {
-      conditions.ci = parseInt(value);
-      //search by id
-      await loadUsers(0, conditions);
-      await setPagination(
-        "user",
-        0,
-        1,
-        paginationContainer,
-        "loadUsers",
-        conditions
-      );
-    } else {
-      let role;
-    
-      for (let i = 0; i < _roles.length; i++) {
-        if (_roles[i].checked) {
-          role = _roles[i].value;
-          break;
-        }
-      }
-
-      if (role && role !== "all"){
-        conditions.extraFilters = {role: role};
-      }
-
-      if (value && value.trim()) {
-        let name1;
-        let surname1;
-
-        if (value.includes(' ')) {
-          name1 = value.split(' ')[0];
-          surname1 = value.split(' ')[1];
-
-          name1 = `%${name1}%`;
-          surname1 = `%${surname1}%`;
-
-          conditions.name1 = { 'value': name1, operator: 'LIKE' };
-          conditions.surname1 = { 'value': surname1, 'operator': 'LIKE' }; 
-        } else {
-          surname1 = `%${value}%`;
-
-          conditions.surname1 = { 'value': surname1, 'operator': 'LIKE' };
-        }
-      }
-
-      await loadUsers(0, conditions);
-      await setPagination(
-        "user",
-        0,
-        limit,
-        paginationContainer,
-        "loadUsers",
-        conditions
-      );
-    }
-  }
-
-  _search.addEventListener('keyup', (e) => {
-    if (e.keyCode === 13) {
-      searchBtn.click();
-    }
-  })
 </script>
-{% endblock page_content %}
+{% endblock pageContent %}

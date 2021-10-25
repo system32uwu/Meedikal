@@ -18,7 +18,7 @@ def userToReturn(user: User, role=None):
         return None
     if role is None:
         role = parseRole(request)
-    
+
     obj = {'user': asdict(user), 
            'roles': User.getRoles(ci=user.ci),
            'phoneNumbers': [asdict(p) for p in UserPhone.getByCi(user.ci)]}
@@ -38,7 +38,7 @@ def userToReturn(user: User, role=None):
 @requiresAuth
 @paginated()
 def allUsers(offset:int, limit: int, data:dict=None, **kwargs):
-    return crudReturn([userToReturn(u) for u in User.filter(data, offset=offset, limit=limit)])
+    return crudReturn([userToReturn(u) for u in User.filter(dict(data or {}).copy(), offset=offset, limit=limit)])
 
 @router.get('/<int:ciUser>') # GET /api/user/<ci>
 @requiresAuth
@@ -84,7 +84,7 @@ def updatePhoto(ci:int, file:FileStorage):
 @passJsonData
 def patient(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Patient(**data).saveOrGet(data))
+        result = userToReturn(Patient(**data).saveOrGet(data, returns='one'))
     else:
         result = Patient.delete(data)
 
@@ -95,7 +95,7 @@ def patient(data:dict):
 @passJsonData
 def medicalPersonnel(data:dict):
     if request.method == 'POST':
-        result = userToReturn(MedicalPersonnel(**data).saveOrGet(data))
+        result = userToReturn(MedicalPersonnel(**data).saveOrGet(data, returns='one'))
     else:
         result = MedicalPersonnel.delete(data)
 
@@ -106,7 +106,7 @@ def medicalPersonnel(data:dict):
 @passJsonData
 def doctor(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Doctor(**data).saveOrGet(data))
+        result = userToReturn(Doctor(**data).saveOrGet(data, returns='one'))
     else:
         result = Doctor.delete(data)
 
@@ -117,7 +117,7 @@ def doctor(data:dict):
 @passJsonData
 def medicalAssitant(data:dict):
     if request.method == 'POST':
-        result = userToReturn(MedicalAssitant(**data).saveOrGet(data))
+        result = userToReturn(MedicalAssitant(**data).saveOrGet(data, returns='one'))
     else:
         result = MedicalAssitant.delete(data)
 
@@ -128,7 +128,7 @@ def medicalAssitant(data:dict):
 @passJsonData
 def administrative(data:dict):
     if request.method == 'POST':
-        result = userToReturn(Administrative(**data).saveOrGet(data))
+        result = userToReturn(Administrative(**data).saveOrGet(data, returns='one'))
     else:
         result = Administrative.delete(data)
 
@@ -228,15 +228,16 @@ def filterMpUsersBySpecialty(offset:int, limit: int, specialty:str=None, data:di
                         'joins': True},
                       'mpHasSpec.idSpec':{
                           'value': 'specialty.id',
+                          'joins': True,
+                      'user.ci':{
+                          'value': 'mpHasSpec.ciMp',
                           'joins': True
-                     }}
+                    }}}
     if data:
         data = baseConditions | data
     else:
         data = baseConditions
 
-    mps:list[MedicalPersonnel] = MedicalPersonnel.filter(data, offset=offset, limit=limit)
+    users:list[User] = User.filter(data, offset=offset, limit=limit)
 
-    users = [User.getByCi(mp.ci) for mp in mps]
-            
     return crudReturn([userToReturn(u, 'medicalPersonnel') for u in users])

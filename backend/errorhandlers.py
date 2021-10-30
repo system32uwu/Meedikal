@@ -1,4 +1,5 @@
 from flask import redirect
+from flask.templating import render_template
 from routers import apiRouter, frontendRouter
 from util.returnMessages import *
 from util.errors import *
@@ -95,3 +96,7 @@ def handleException(e:Exception):
 @frontendRouter.errorhandler(jwt.InvalidTokenError)
 def missingCookieError(e):
     return redirect('/login')
+
+@frontendRouter.errorhandler(MissingRoleError)
+def missingRoleErrorF(e: MissingRoleError):
+    return redirect('/app')

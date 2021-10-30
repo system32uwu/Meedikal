@@ -30,7 +30,7 @@ class Branch(BaseModel, TableWithId):
         try:
             return cls(*result)
         except:
-            return None
+            return {}
 
 @dataclass
 class ApTakesPlace(BaseModel, TableWithId): # Appointment < apTakesPlace > Branch

@@ -3,7 +3,7 @@
 
 {% block content %}
 <script>
-  let me = { user: {}, phoneNumbers: [], roles: [] };
+  let me = {{me|tojson|safe}};
 </script>
 {{modal("ok-modal", "bg-green-100", 'icons/success.svg')}}
 {{modal("loading-modal", "bg-white", '' , "Loading...", "Please wait until the operation completes", 

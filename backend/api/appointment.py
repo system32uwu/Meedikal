@@ -1,7 +1,9 @@
 from flask import Blueprint, request
 from dataclasses import asdict
 
+from models.User import Doctor, User
 from models.Appointment import *
+from models.Branch import Branch
 from models.ClinicalSign import ClinicalSign, RegistersCs
 from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy
@@ -9,6 +11,8 @@ from util.crud import *
 from util.returnMessages import *
 from middleware.authGuard import requiresRole, requiresAuth
 from middleware.data import passJsonData, paginated
+from models import db
+from .user import userToReturn
 
 router = Blueprint('appointment', __name__, url_prefix='/appointment')
 
@@ -61,6 +65,7 @@ def operateUserAppointment(relationship:BaseModel, data:dict):
     if request.method == 'POST':
         return crudReturn(relationship(**data).save(data))
     elif request.method == 'PUT' or request.method == 'PATCH':
+        print(data)
         return crudReturn(relationship.update(data))
     elif request.method == 'DELETE':
         return crudReturn(relationship.delete(data))
@@ -77,22 +82,9 @@ def operateAssignedTo(data:dict):
 @paginated()
 def getAssignedTo(idAp:int=None, ciDoc:int=None, **kwargs): # a [doctor] is <assigned to> an [appointment]
     return getUserAppointment(AssignedTo, idAp, ciDoc, 'ciDoc')
-
-@router.route('/assistsAp', methods=['POST', 'PUT', 'PATCH', 'DELETE']) # POST | PUT | PATCH | DELETE /api/appointment/assistsAp
-@requiresRole(['administrative'])
-@passJsonData
-def operateAssistsAp(data:dict):
-    return operateUserAppointment(AssistsAp, data)
-
-@router.get('/assistsAp/<int:idAp>')
-@router.get('/assistsAp/ciMa/<int:ciMa>')
-@requiresAuth
-@paginated()
-def getAssistsAp(idAp:int=None, ciMa:int=None, **kwargs): # a [medicalAssistant] <assists an> an [appointment]
-    return getUserAppointment(AssistsAp, idAp, ciMa, 'ciMa')
         
 @router.route('/attendsTo', methods=['POST', 'PUT', 'PATCH', 'GET', 'DELETE']) # POST | PUT | PATCH | GET | DELETE /api/appointment/attendsTo
-@requiresRole(['administrative', 'patient'])
+@requiresRole(['administrative', 'patient', 'doctor'])
 @passJsonData
 def operateAttendsTo(data:dict):
     # TODO: -1: if it's patient making the appointment, ensure that the ci provided body is equal to the logged in patient
@@ -116,12 +108,12 @@ def getSufferingOfAp(entity:BaseModel, relationship:BaseModel, idAp:int, ciPa:in
 def operateSufferingOfAp(entity:BaseModel, relationship:BaseModel, data:dict, idField:str, nameField:str='name'):
     result = []
     for row in data[relationship.__tablename__]:
+        if row.get(idField, None) is None:
+            _entity = entity.saveOrGet({nameField: row[nameField]}, returns='one')
+            row[idField] = _entity.id
+            row.pop(nameField)
+
         if request.method == 'POST':
-            if row.get(idField, None) is None:
-                _entity = entity.saveOrGet({nameField: row[nameField]}, returns='one')
-                row[idField] = _entity.id
-                row.pop(nameField)
-                            
             relationshipInstance = relationship(**row).save(row)
             relationshipReturn = asdict(relationshipInstance)
             relationshipReturn[nameField] = asdict(entity.getById(row[idField]))[nameField]
@@ -133,7 +125,7 @@ def operateSufferingOfAp(entity:BaseModel, relationship:BaseModel, data:dict, id
     return crudReturn(result)
 
 @router.route('/diagnoses', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/diagnoses
-@requiresRole(['medicalPersonnel'])
+@requiresRole(['doctor'])
 @passJsonData
 def operateDiagnose(data:dict):
     return operateSufferingOfAp(Disease, Diagnoses, data, 'idDis')
@@ -144,7 +136,7 @@ def getDiagnosed(idAp:int=None, ciPa:int=None, **kwargs): # get diagnosed diseas
     return getSufferingOfAp(Disease, Diagnoses, idAp, ciPa, 'idDis')
 
 @router.route('/registersSy', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersSy
-@requiresRole(['medicalPersonnel'])
+@requiresRole(['doctor'])
 @passJsonData
 def operateRegistersSy(data:dict):
     return operateSufferingOfAp(Symptom, RegistersSy, data, 'idSy')
@@ -155,7 +147,7 @@ def getRegisteredSy(idAp:int=None,ciPa:int=None, **kwargs): # get registered sym
     return getSufferingOfAp(Symptom, RegistersSy, idAp, ciPa, 'idSy')
 
 @router.route('/registersCs', methods=['POST', 'DELETE']) # POST | DELETE /api/appointment/registersCs
-@requiresRole(['medicalPersonnel'])
+@requiresRole(['doctor'])
 @passJsonData
 def operateRegistersCs(data:dict):
     return operateSufferingOfAp(ClinicalSign, RegistersCs, data, 'idCs')
@@ -164,3 +156,92 @@ def operateRegistersCs(data:dict):
 @requiresAuth
 def getRegisteredCs(idAp:int=None, ciPa:int=None, **kwargs): # input registered clinical signs
     return getSufferingOfAp(ClinicalSign, RegistersCs, idAp, ciPa, 'idCs')
+
+@router.post('/filter')
+@requiresAuth
+@paginated()
+def filterAps(ci:int, offset:int, limit:int, data:dict={}, **kwargs): # return appointment, doctor and branch
+    _selectedDate = data['selectedDate']
+    _from = data['timeInterval']['from']
+    _to = data['timeInterval']['to']
+    _timeFilter = data['timeFilter']
+    _typeFilter = data['typeFilter']
+    _doctorSurname1 = data.get('doctorSurname1', None)
+    _appointmentName = data.get('appointmentName', None)
+
+    tables = ['appointment']
+    conditions = []
+    values = []
+
+    if _timeFilter == 'selectedDay' or _timeFilter == 'selectedMonth':
+        conditions.append('appointment.date >= ? and appointment.date <= ?') # ?1: _from, ?2: _to
+        values.append(_from)
+        values.append(_to)
+    elif _timeFilter == 'future':
+        conditions.append('appointment.date >= ?') # ?1: _selectedDate
+        values.append(_selectedDate)
+    elif _timeFilter == 'past':
+        conditions.append('appointment.date <= ?') # ?1: _selectedDate
+        values.append(_selectedDate)
+
+    if _appointmentName:
+        conditions.append("appointment.name LIKE ?")
+        values.append(_appointmentName)
+    
+    if _typeFilter == 'mine':
+        conditions.append('attendsTo.ciPa = ?') 
+        conditions.append('attendsTo.idAp = appointment.id') 
+        tables.append('attendsTo')
+        values.append(ci)
+    if _typeFilter == 'mine-doctor':
+        conditions.append('assignedTo.ciDoc = ?')
+        conditions.append('assignedTo.idAp = appointment.id')
+        tables.append('assignedTo')
+        values.append(ci)
+
+    if _doctorSurname1:
+        conditions.append("user.surname1 LIKE ?")
+        conditions.append("user.ci = doctor.ci")
+        conditions.append('assignedTo.ciDoc = doctor.ci')
+        conditions.append('assignedTo.idAp = appointment.id')
+        tables.append('assignedTo')
+        tables.append('doctor')
+        tables.append('user')
+        values.append(_doctorSurname1)
+
+    statementData = f"""
+    SELECT appointment.* FROM {', '.join(tables)}
+    {' WHERE ' + ' AND '.join(conditions) if len(conditions) > 0 else ''}
+    LIMIT {limit} OFFSET {offset}
+    """
+    print(statementData,values)
+    statementCount = f"""
+    SELECT COUNT(appointment.id) FROM {', '.join(tables)}
+    {' WHERE ' + ' AND '.join(conditions) if len(conditions) > 0 else ''}
+    """
+
+    resultData = [{'appointment': asdict(Appointment(*ap))} for ap in db.execute(statementData, values).fetchall()]
+
+    resultCount = db.execute(statementCount, values).fetchone()[0]
+    
+    for r in resultData:
+        doc = Doctor.getDocOfAp(r['appointment']['id'])
+        br = Branch.getBranchOfAp(r['appointment']['id'])
+
+        if isinstance(doc, User):
+            r['doctor'] = userToReturn(doc)
+        else:
+            r['doctor'] = {}
+
+        if isinstance(br, Branch):
+            r['branch'] = asdict(br)
+        else:
+            r['branch'] = {}
+
+        patients = AttendsTo.getPatients(r['appointment']['id']) or []
+        if len(patients) > 0:
+            r['patients'] = [asdict(p) for p in patients]
+        else:
+            r['patients'] = []
+
+    return crudReturn(resultData, {'total': resultCount})

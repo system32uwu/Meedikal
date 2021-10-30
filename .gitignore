@@ -35,3 +35,5 @@ backend/images
 node_modules
 
 backend/static/styles/node_modules
+
+test.sql

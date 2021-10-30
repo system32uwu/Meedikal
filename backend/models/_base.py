@@ -1,8 +1,6 @@
 from dataclasses import dataclass, fields
 import sqlite3
 
-from werkzeug.datastructures import ContentSecurityPolicy
-
 from util.createDb import getDb
 
 db = getDb()
@@ -10,16 +8,14 @@ db = getDb()
 def getTotal(tablename:str, data:dict=None) -> int:
     _module = __import__('models')
     _class:'BaseModel' = getattr(_module, tablename.capitalize())
-        
-    total = _class.filter(data, paginationOnly=True)
-    return total
+    return _class.filter(data, paginationOnly=True)
 
 def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:str='AND', command:str='SELECT', returns='tuple', offset:int=0, limit:int=10, paginationOnly:bool=False):
     extraTables = []
     conditionList = []
     values = []
     newValues = []
-
+    
     if command == 'INSERT':
         data = {}
 
@@ -107,7 +103,6 @@ def buildQueryComponents(cls:'BaseModel', conditions:dict={}, logicalOperator:st
         return extraTables, conditionList, values, statement
     
     if command == 'SELECT':
-        print(statement)
         result = db.execute(statement, values)
         if paginationOnly:
             return result.fetchone()[0]

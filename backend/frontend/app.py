@@ -1,9 +1,12 @@
 from dataclasses import asdict
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect
 from config import Config
 from models.User import User, Doctor
-from models.Branch import Branch
-from models.Appointment import Appointment, AssignedTo
+from models.Branch import *
+from models.Appointment import *
+from models.Disease import *
+from models.Symptom import *
+from models.ClinicalSign import *
 from middleware.authGuard import getCurrentRole, requiresRole, requiresAuth
 from api.user import userToReturn
 from datetime import date
@@ -30,22 +33,83 @@ def profile(ci:int, currentRole:str):
 @requiresAuth
 def profileById(ciUser:int, asRole:str=None, *args, **kwargs):
     user = userToReturn(User.getByCi(ciUser), asRole)
-    return render_template(f'{baseDirApp}/profile.html', me=user, readOnly=True)
+    return render_template(f'{baseDirApp}/view-profile.html', user=user, asRole=asRole, readOnly=True)
 
 @appRouter.get('/appointments')
 @requiresAuth
 def appointments(**any):
     return render_template(f'{baseDirApp}/appointments.html')
 
-@appRouter.get('/appointment/<int:id>')
+@appRouter.get('/appointments/<int:id>') # show all the patients attending to this appointment
+@requiresRole(['doctor', 'administrative'])
+@getCurrentRole
+def scheduledAppointments(id:int, **kw):
+    appointment = asdict(Appointment.getById(id))
+    assignedDoctor = userToReturn(Doctor.getDocOfAp(id))
+    branch = Branch.getBranchOfAp(id)
+
+    if branch:
+        branch = asdict(branch)
+
+    attendingPatients = AttendsTo.filter({'idAp': id}) or []
+    if len(attendingPatients) > 0:
+        attendingPatients = [asdict(atp) for atp in attendingPatients]
+        for atp in attendingPatients:
+            atp['patient'] = userToReturn(User.getByCi(atp['ciPa']))
+
+    return render_template(f'{baseDirApp}/scheduled-patients.html', appointment=appointment, branch=branch, assignedDoctor=assignedDoctor, attendingPatients=attendingPatients)
+
+@appRouter.get('/appointments/patient/<int:ciUser>') # show all scheduled appointments for this patient
 @requiresAuth
-def appointmentById(id:int, **any):
-    ap = Appointment.getById(id)
-    ciDoc = AssignedTo.filter({'idAp': ap.id}, 'one')
+def patientScheduledAppointments(ciUser:int, **kw):
+    pass
+
+@appRouter.get('/appointments/doctor/<int:ciUser>') # show all scheduled appointments for this doctor
+@requiresAuth
+def doctorScheduledAppointments(ciUser:int, **kw):
+    pass
+
+@appRouter.get('/appointment/<int:id>/<int:ciUser>') # view details of an specific appoitment of a patient
+@requiresAuth
+def appointmentById(id:int, ciUser:int, **any):
+    ap = asdict(Appointment.getById(id))
+    attendsTo = AttendsTo.filter({'idAp': id, 'ciPa': ciUser}, returns='one')
+    doctor = userToReturn(Doctor.getDocOfAp(id), 'doctor') or {}
+    branch = Branch.getBranchOfAp(id)
+    patient = userToReturn(User.getByCi(ciUser))
+
+    if isinstance(branch, Branch):
+        branch = asdict(branch)
+
+    if isinstance(attendsTo, AttendsTo):
+        attendsTo = asdict(attendsTo)
+
+    diagnosedDiseases = Diagnoses.filter({'ciPa': ciUser, 'idAp': id}) or []
+    if len(diagnosedDiseases) > 0:
+        diagnosedDiseases = [asdict(d) for d in diagnosedDiseases]
+
+        for diagnosed in diagnosedDiseases:
+            diagnosed['name'] = Disease.getById(diagnosed['idDis']).name
     
-    doctor = userToReturn(User.getByCi(ciDoc))
+    registeredSymptoms = RegistersSy.filter({'ciPa': ciUser, 'idAp': id}) or []
+    if len(registeredSymptoms) > 0:
+        registeredSymptoms = [asdict(s) for s in registeredSymptoms]
+
+        for registered in registeredSymptoms:
+            registered['name'] = Symptom.getById(registered['idSy']).name
     
-    return render_template(f'{baseDirApp}/appointment.html', appointment=ap, doctor=doctor)
+    registeredCs = RegistersCs.filter({'ciPa': ciUser, 'idAp': id}) or []
+    if len(registeredCs) > 0:
+        registeredCs = [asdict(cs) for cs in registeredCs]
+
+        for registered in registeredCs:
+            registered['name'] = ClinicalSign.getById(registered['idCs']).name
+
+    return render_template(f'{baseDirApp}/appointment-details.html', attendsTo=attendsTo,
+                            appointment=ap, branch=branch, doctor=doctor, patient=patient,
+                            diagnosedDiseases=diagnosedDiseases, 
+                            registeredSymptoms=registeredSymptoms,
+                            registeredCs=registeredCs)
 
 @appRouter.get('/symptoms')
 @requiresAuth
@@ -125,15 +189,23 @@ def createAppointment():
 def updateAppointment(id:int):
     appointment = asdict(Appointment.getById(id))
     branches = Branch.query()
+    
     if len(branches) > 0:
         branches = [asdict(b) for b in branches]
 
-    _selectedBranch = Branch.getBranchOfAp(id) or {}
-    selectedBranch = asdict(_selectedBranch)
-    
-    _selectedDoctor = userToReturn(Doctor.getDocOfAp(id))
-    selectedDoctor = None if not _selectedDoctor else asdict(_selectedDoctor)
-    return render_template(f'{baseDirApp}/administrative/appointment.html', appointment=appointment, branches=branches, selectedBranch=selectedBranch, selectedDoctor=selectedDoctor)
+    _selectedBranch = Branch.getBranchOfAp(id)
+    if isinstance(_selectedBranch, Branch):
+        selectedBranch = asdict(_selectedBranch)
+    else:
+        selectedBranch = {}
+
+    _selectedDoctor = Doctor.getDocOfAp(id) 
+    if isinstance(_selectedDoctor, User):
+        selectedDoctor = userToReturn(_selectedDoctor, 'doctor')
+    else:
+        selectedDoctor = {}
+
+    return render_template(f'{baseDirApp}/administrative/appointment.html', appointment=appointment, branches=branches, selectedBranch=selectedBranch, selectedDoctor=selectedDoctor, assignMode=True)
 
 @appRouter.get('/stats')
 @requiresRole(['administrative'])
@@ -150,6 +222,6 @@ def appVars(ci:int, currentRole:str):
         url = url.split('/')[1]
         url = url.replace('-', ' ')
 
-    return dict(myRole=currentRole, ci=ci, 
+    return dict(myRole=currentRole, me=asdict(User.getByCi(ci)), 
     appPages=Config.app_pages, roleColors=Config.role_colors,
     currentPage=url.capitalize(), currentDate = date.today())

@@ -6,6 +6,11 @@
 
 {% block pageContent%}
 <script>
+
+  let branches = {{ branches| tojson | safe}};
+  let selectedBranch = {{ selectedBranch| tojson | safe}};
+  let selectedDoctor = {{ selectedDoctor| tojson | safe}};
+
   let doctors = [];
 
   const drawTable = (_data) => {
@@ -35,6 +40,12 @@
       ["Name", "ID", "Sex", "Birthdate", "Status", "Actions"],
       rows
     );
+
+    try {
+      if (selectedDoctor.user) {
+        document.getElementById(`icon-${selectedDoctor.user.ci}`).src = '/static/icons/success.svg';
+      }
+    } catch { }
   }
 </script>
 <div class="w-full h-full px-6 lg:px-10 pt-4">
@@ -45,10 +56,10 @@
     {% endif %}
     {{formField("Name", appointment.get('name', ''))}}
     {{formField("State", appointment.get('state', 'OK'))}}
-    {{formField("Date", appointment.get('date', ''))}}
-    {{formField("Starts At", appointment.get('startsAt', ''))}}
-    {{formField("Ends At", appointment.get('endsAt', ''))}}
-    {{formField("ETPP", appointment.get('etpp', ''))}}
+    {{formField("Date", appointment.get('date', 'T').split('T')[0], false, 'YYYY-MM-DD')}}
+    {{formField("Starts At", appointment.get('startsAt', 'T:00').split('T')[1].rsplit(':',1)[0], false, 'HH:MM')}}
+    {{formField("Ends At", appointment.get('endsAt', 'T').split('T')[1].rsplit(':',1)[0], false, 'HH:MM')}}
+    {{formField("ETPP", appointment.get('etpp', ''), false, 'Automatically calculated if times provided.')}}
     {{formField("Number of Turns", appointment.get('maxTurns', ''), false, 'Automatically calculated if times provided.')}}
   </div>
   <div id="error-box-ap-data" class="hidden">
@@ -112,24 +123,34 @@
   let mode = "{{request.endpoint.rsplit('.')[2]}}" === 'createAppointment' ? 'CREATE' : 'UPDATE';
 
   let errorBox = document.getElementById('error-box');
+  let errorText = errorBox.getElementsByTagName('p')[0];
   let errorApDataBox = document.getElementById('error-box-ap-data');
   let errorApDataText = errorApDataBox.getElementsByTagName('p')[0];
   _searchSpContainer.classList.remove('hidden');
 
-  let branches = {{ branches| tojson | safe}};
-  let selectedBranch = {{ selectedBranch| tojson | safe}};
-  let selectedDoctor = {{ selectedDoctor| tojson | safe}};
-
   const selectBranch = async (id) => {
     if (mode === 'UPDATE') {
-      let res = await fetch(`/api/branch/apTakesPlace/${appointment.id}`, {
-        method: 'POST',
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idBranch: parseInt(id) })
-      });
+      if (selectedBranch){
+        if (selectedBranch.id !== id) {
+          let res = await fetch(`/api/branch/apTakesPlace/{{appointment.id}}`, {
+            method: 'PUT',
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ idBranch: parseInt(id) })
+          });
+        }
+      }else{
+        let res = await fetch(`/api/branch/apTakesPlace/{{appointment.id}}`, {
+          method: 'POST',
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idBranch: parseInt(id) })
+        });
+      }
     }
 
     document.getElementById(`icon-${selectedBranch.id}`).src = '/static/icons/swap.svg';
@@ -140,14 +161,27 @@
 
   const selectDoctor = async (id) => {
     if (mode === 'UPDATE') {
-      let res = await fetch(`/api/appointment/assignedTo`, {
-        method: 'PUT',
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idAp: appointment.id, ciDoc: {value: selectedDoctor.user.ci, newValue: id} })
-      });
+      if (selectedDoctor.user) {
+        if (selectedDoctor.user.ci !== id) {
+          let res = await fetch(`/api/appointment/assignedTo`, {
+            method: 'PUT',
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ idAp: appointment.id, ciDoc: { value: selectedDoctor.user.ci, newValue: id } })
+          });
+        }
+      } else {
+        let res = await fetch(`/api/appointment/assignedTo`, {
+          method: 'POST',
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idAp: appointment.id, ciDoc: { value: selectedDoctor.user.ci, newValue: id } })
+        });
+      }
     }
 
     if (selectedDoctor.user) {
@@ -174,23 +208,28 @@
       maxTurns: parseInt(document.getElementById('Number of Turns').value) || null
     }
 
-    if (isNaN(new Date(body.date))){
+    let d = new Date(body.date);
+
+    if (isNaN(d)) {
       errorApDataText.textContent = 'invalid date format';
       errorApDataBox.classList.remove("hidden");
       toggleLoadingModal(true);
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
       return;
+    } else {
+      d.setUTCHours(0, 0, 0, 0);
+      body.date = d.toISOString();
     }
 
-    if (body.startsAt && body.endsAt){
-      let start = new Date();
-      let end = new Date();
+    if (body.startsAt && body.endsAt) {
+      let start = new Date(body.date);
+      let end = new Date(body.date);
 
       let [startHour, startMinute] = body.startsAt.split(":");
       let [endHour, endMinute] = body.endsAt.split(":");
 
-      start.setHours(startHour, startMinute, 0);
-      end.setHours(endHour, endMinute, 0);
+      start.setUTCHours(startHour, startMinute, 0, 0);
+      end.setUTCHours(endHour, endMinute, 0, 0);
 
       if (isNaN(start) || isNaN(end)) {
         errorApDataText.textContent = 'invalid time format';
@@ -198,11 +237,14 @@
         toggleLoadingModal(true);
         window.scrollTo(0, 0);
         return;
+      } else {
+        body.startsAt = start.toISOString();
+        body.endsAt = end.toISOString();
       }
 
       //difference in minutes / etpp = maxTurns
-      let diffMins = Math.round(Math.abs(end - start)/1000/60); //ms / 1000 = seconds / 60 = minutes
-      if (body.etpp){
+      let diffMins = Math.round(Math.abs(end - start) / 1000 / 60); //ms / 1000 = seconds / 60 = minutes
+      if (body.etpp) {
         body.maxTurns = Math.floor(diffMins / parseInt(body.etpp));
         document.getElementById('Number of Turns').value = body.maxTurns;
       }
@@ -237,7 +279,11 @@
       return;
     }
 
-    if (selectBranch){
+    if (mode === 'UPDATE') {
+      return showOkModal();
+    }
+
+    if (selectedBranch) {
       const apTakesPlaceRes = await fetch('/api/branch/apTakesPlace', {
         method: 'POST',
         headers: {
@@ -251,8 +297,8 @@
       });
     }
 
-    if (selectDoctor.user){
-      const DocAssignedToRes = await fetch('/api/appointment/assignedTo',{
+    if (selectedDoctor.user) {
+      const DocAssignedToRes = await fetch('/api/appointment/assignedTo', {
         method: 'POST',
         headers: {
           Accept: "application/json",

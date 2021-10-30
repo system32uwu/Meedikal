@@ -17,7 +17,9 @@ const firstWeekDayOfMonth = () =>
 
 const generateCalendar = () => {
   let calendar = document.getElementById(_calendar);
-  let daysBtns = Date.prototype.getDaysList(selectedMonth).map((v) => {
+  
+  let daysList = Date.prototype.getDaysList(selectedMonth);
+  let daysBtns = daysList.map((v) => {
     let container = document.createElement("div");
     container.innerHTML = generateDayChip(v);
     return container;
@@ -34,9 +36,16 @@ const generateCalendar = () => {
                         <span class="px-2 w-8 font-semibold">Sun</span>`;
 
   daysBtns.map((d) => calendar.appendChild(d));
+
+  if (selectedDay in daysList){
+    showDay(selectedDay);
+  }else{
+    selectedDay = daysList.slice(-1)[0];
+    showDay(selectedDay);
+  }
 };
 
-const fetchAppointments = async (day) => {
+const showDay = (day) => {
   selectedDay = day;
   if (previousSelectedDay) {
     previousSelectedDay.classList.remove("bg-turqoise");
@@ -50,32 +59,30 @@ const fetchAppointments = async (day) => {
   dayBtn.classList.add("text-white");
 
   previousSelectedDay = dayBtn;
+};
 
-  _callback('DAY', new Date(selectedYear, selectedMonth, selectedDay));
+const selectDay = async (day) => {
+  showDay(day);
+  _callback("DAY", new Date(selectedYear, selectedMonth, selectedDay));
 };
 
 const generateDropDowns = (monthYearSelectors, monthSelect, yearSelect) => {
   let mySelectors = document.getElementById(monthYearSelectors);
   mySelectors.innerHTML = generateDropDown(monthSelect, MONTHS);
   mySelectors.innerHTML += generateDropDown(yearSelect, YEARS);
-  
+
   document.getElementById(monthSelect).onchange = (ev) => {
     selectedMonth = parseInt(ev.target.value);
-    refreshCalendar();
-    _callback('MONTH', new Date(selectedYear, selectedMonth, selectedDay));
+    generateCalendar();
+    _callback("MONTH", new Date(selectedYear, selectedMonth, selectedDay));
   };
 
   document.getElementById(yearSelect).onchange = (ev) => {
     selectedYear = parseInt(ev.target.value);
-    refreshCalendar();
-    _callback('YEAR', new Date(selectedYear, selectedMonth, selectedDay));
+    generateCalendar();
+    _callback("YEAR", new Date(selectedYear, selectedMonth, selectedDay));
   };
 };
-
-const refreshCalendar = (calendar) => {
-  generateCalendar(calendar);
-  fetchAppointments(selectedDay);
-}
 
 const initCalendar = (
   monthYearSelectors,
@@ -87,5 +94,6 @@ const initCalendar = (
   _callback = callback;
   _calendar = calendar;
   generateDropDowns(monthYearSelectors, monthSelect, yearSelect);
-  refreshCalendar();
+  generateCalendar();
+  selectDay(CURRENT_DAY);
 };

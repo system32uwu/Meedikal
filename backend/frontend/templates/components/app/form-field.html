@@ -2,66 +2,21 @@
 
 {% macro formField(name, value, readOnly, placeholder='') %}
 <div class="flex">
-  <span
-    class="
-      text-sm
-      border
-      bg-blue-50
-      font-bold
-      uppercase
-      border-2
-      rounded-l
-      px-4
-      py-2
-      bg-gray-50
-      whitespace-no-wrap
-      w-2/6
-    "
-  >
+  <span class="text-sm border bg-blue-50 font-bold uppercase border-2 px-4 py-2 bg-gray-50 whitespace-no-wrap w-2/6">
     {{name}}
   </span>
-  <input
-    class="
-      px-4
-      border-l-0
-      focus:outline-none focus:ring-1
-      ring-turqoise
-      rounded-md
-      shadow-sm
-      w-4/6
-    "
-    {% if readOnly %}
-      readonly
-    {% endif %}
-    placeholder="{{placeholder}}"
-    type="text"
-    value='{{value}}'
-    id='{{name}}'
-  />
+  <input class="px-4 border-l-0 focus:outline-none focus:ring-1 ring-turqoise rounded-md shadow-sm w-4/6" {% if readOnly %} readonly {% endif %} placeholder="{{placeholder}}" type="text" value='{{value}}' id='{{name}}'/>
 </div>
 {% endmacro %}
 
-{% macro formFieldChips(name, values, displayAttr, fn, icon='icons/delete.svg', canAdd=false, addFn='') %}
+{% macro formFieldChips(name, values, displayAttr, fn, icon='icons/delete.svg', canAdd=false, addFn='', addOnly=false) %}
 <div class="flex h-full">
-  <span
-    class="
-      text-sm
-      border
-      bg-blue-50
-      font-bold
-      uppercase
-      border-2
-      rounded-l
-      px-4
-      py-2
-      bg-gray-50
-      whitespace-no-wrap
-      w-2/6
-    "
-  >
+  {% if not addOnly %}
+  <span class="text-sm border bg-blue-50 font-bold uppercase border-2 rounded-l px-4 py-2 bg-gray-50 whitespace-no-wrap w-2/6">
     {{name}}
   </span>
-  <div class="shadow-sm flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
+  {% endif %}
+  <div class="flex flex-wrap items-center justify-center md:justify-start px-4 gap-1 w-4/6">
     <div class="flex flex-row w-full" id="container-{{name}}">
       {% if canAdd %}
         {% for v in values %} 
@@ -73,7 +28,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    {% if canAdd %}
+    {% if canAdd is true %}
     <div class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 h-8">
       <div>
         <input id='new-{{name}}' type="text" class="px-1 w-full text-black text-center focus:outline-none" value=""/> 

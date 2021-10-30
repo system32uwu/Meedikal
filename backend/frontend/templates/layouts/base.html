@@ -6,20 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{ url_for('static', filename='styles/tailwind-prod.css' if ENV == 'production' else 'styles/tailwind.css')}}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{ url_for('static', filename='styles/index.css')}}"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tailwind-prod.css' if ENV == 'production' else 'css/tailwind.css')}}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css')}}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css')}}"/>
     <script type="text/javascript" src="{{url_for('static', filename='js/index.js')}}"></script>
     <title>{% block title %}HCC{% endblock %}</title>
   </head>

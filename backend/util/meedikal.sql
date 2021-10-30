@@ -17,27 +17,22 @@ CREATE TABLE user (
 
 CREATE TABLE medicalPersonnel (
     ci INTEGER PRIMARY KEY NOT NULL,
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE doctor (
     ci INTEGER PRIMARY KEY NOT NULL,
-    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
-) WITHOUT ROWID;
-
-CREATE TABLE medicalAssistant (
-    ci INTEGER PRIMARY KEY NOT NULL,
-    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ci) REFERENCES medicalPersonnel(ci)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE administrative (
     ci INTEGER PRIMARY KEY NOT NULL,
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE patient (
     ci INTEGER PRIMARY KEY NOT NULL,
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE userPhone (
@@ -45,7 +40,7 @@ CREATE TABLE userPhone (
     phone VARCHAR(32) NOT NULL,
 
     PRIMARY KEY(ci,phone),
-    FOREIGN KEY (ci) REFERENCES user(ci) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ci) REFERENCES user(ci)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 -- Nurses and Doctors might be specialized.
@@ -61,8 +56,8 @@ CREATE TABLE mpHasSpec (
     detail VARCHAR(256),
 
     PRIMARY KEY (idSpec,ciMp),
-    FOREIGN KEY (ciMp) REFERENCES medicalPersonnel(ci) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (idSpec) REFERENCES specialty(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ciMp) REFERENCES medicalPersonnel(ci)  ON UPDATE CASCADE,
+    FOREIGN KEY (idSpec) REFERENCES specialty(id)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE appointment (
@@ -71,11 +66,11 @@ CREATE TABLE appointment (
     state VARCHAR(36) NOT NULL DEFAULT 'OK',
     date date NOT NULL,
     -- OPTIONAL FIELDS
-    startsAt TIME,
-    endsAt TIME,
+    startsAt DATETIME,
+    endsAt DATETIME,
     etpp INTEGER,
     maxTurns INTEGER
-); --etpp: estimated time per patient (tiempo estimado por turno de paciente en la consulta)
+); --etpp: estimated time per patient (tiempo estimado por turno de paciente en la consulta), en minutos
 
 -- Branch significa sucursal, una cita medica tomara lugar en alguna de las sucursales.
 CREATE TABLE branch (
@@ -91,8 +86,8 @@ CREATE TABLE apTakesPlace (
     idBranch INTEGER NOT NULL,
 
     PRIMARY KEY(idAp,idBranch),
-    FOREIGN KEY(idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(idBranch) REFERENCES Branch(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY(idAp) REFERENCES appointment(id)  ON UPDATE CASCADE,
+    FOREIGN KEY(idBranch) REFERENCES Branch(id)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE assignedTo (
@@ -100,8 +95,8 @@ CREATE TABLE assignedTo (
     ciDoc INTEGER NOT NULL,
 
     PRIMARY KEY(idAp),
-    FOREIGN KEY (ciDoc) REFERENCES doctor(ci) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ciDoc) REFERENCES doctor(ci)  ON UPDATE CASCADE,
+    FOREIGN KEY (idAp) REFERENCES appointment(id)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE attendsTo (
@@ -109,60 +104,16 @@ CREATE TABLE attendsTo (
     ciPa INTEGER NOT NULL,
     -- OPTIONAL FIELD
     motive VARCHAR(256),
-    time TIME, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
+    time DATETIME, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
     number INTEGER, --NULLABLE, but in case it's provided it should be unique with both idAp and ciPa
+    notes TEXT,
     
     UNIQUE (idAp, ciPa),
-    FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE,
-    FOREIGN KEY (ciPa) REFERENCES patient(ci) ON DELETE CASCADE
+    FOREIGN KEY (idAp) REFERENCES appointment(id) ,
+    FOREIGN KEY (ciPa) REFERENCES patient(ci) 
 );
-
--- If a number is already picked, or is not in range of (0, maxTurns) raise an error
--- If a time is already picked, or is not in range of (startsAt, endsAt) raise an error
--- If the appointment does not have maxTurns, but a number for a turn is trying to be inserted in attendsTo, raise an error 
--- If the appointment does not have startsAt and endsAt setted, but a time for a turn is trying to be inserted in attendsTo, raise an error
-CREATE TRIGGER assign_to_attendsTo 
-    BEFORE INSERT ON attendsTo
-BEGIN
-    SELECT CASE WHEN new.number IS NOT NULL THEN
-        CASE
-            WHEN NOT EXISTS (SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND appointment.maxTurns IS NOT NULL)
-                THEN RAISE(ABORT, 'number of turns is not setted yet')
-
-            WHEN EXISTS(SELECT 1 FROM attendsTo WHERE number = new.number AND idAp = new.idAp)
-                THEN RAISE(ABORT, 'number is already picked')
-            
-            WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (new.number > 0 and new.number <= appointment.maxTurns)) 
-                THEN RAISE(ABORT, 'number is not in the range of 0 and maximum turns')
-        
-        END
-    END;
-
-    SELECT CASE WHEN new.time IS NOT NULL THEN
-        CASE
-            WHEN EXISTS (SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (appointment.startsAt IS NULL OR appointment.startsAt IS NULL))
-                THEN RAISE(ABORT, 'start and end time for this appointment are not setted yet')
-
-            WHEN EXISTS(SELECT 1 FROM attendsTo WHERE time = new.time AND idAp = new.idAp)
-                THEN RAISE(ABORT, 'time is already picked')
-            
-            WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (new.time >= appointment.startsAt AND new.time <= appointment.endsAt)) 
-                THEN RAISE(ABORT, 'time is not in the range of start and end time for this appointment')
-        
-        END
-    END;
-    
-END;
-
-CREATE TABLE assistsAp (
-    idAp INTEGER NOT NULL,
-    ciMa INTEGER NOT NULL,
-    time TIME NOT NULL,
-
-    FOREIGN KEY (idAp) REFERENCES assignedTo(idAp) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (ciMa) REFERENCES medicalAssistant(ci) ON DELETE CASCADE ON UPDATE CASCADE
-    PRIMARY KEY(idAp,ciMa,time)
-) WITHOUT ROWID;
+-- time is calculated based on appointment.etpp, appointment.startsAt and appointment.endsAt 
+-- number is calculated based on appointment.maxTurns and freeTurns.value (table containing the deleted records of attendTo that got an assigned turn).
 
 CREATE TABLE clinicalSign (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -193,8 +144,8 @@ CREATE TABLE registersCs (
     detail VARCHAR(256),
 
     PRIMARY KEY(idAp,ciPa,idCs),
-    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (idCs) REFERENCES clinicalSign(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa)  ON UPDATE CASCADE,
+    FOREIGN KEY (idCs) REFERENCES clinicalSign(id)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE registersSy (
@@ -205,8 +156,8 @@ CREATE TABLE registersSy (
     detail VARCHAR(256),
     
     PRIMARY KEY(idAp,ciPa,idSy),
-    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (idSy) REFERENCES symptom(id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa)  ON UPDATE CASCADE,
+    FOREIGN KEY (idSy) REFERENCES symptom(id)  ON UPDATE CASCADE
 ) WITHOUT ROWID;
 
 CREATE TABLE diagnoses (
@@ -220,3 +171,80 @@ CREATE TABLE diagnoses (
     FOREIGN KEY (idAp, ciPa) REFERENCES attendsTo(idAp, ciPa) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (idDis) REFERENCES disease(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) WITHOUT ROWID;
+
+-- HELPERS
+
+CREATE TABLE freeTurns(
+    idAp INTEGER NOT NULL,
+    value INTEGER NOT NULL,
+
+    PRIMARY KEY(idAp, value),
+    FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE
+) WITHOUT ROWID; -- Keep track of the free turns of an appointment
+
+CREATE TABLE freeTimes(
+    idAp INTEGER NOT NULL,
+    value TEXT NOT NULL,
+
+    PRIMARY KEY(idAp, value),
+    FOREIGN KEY (idAp) REFERENCES appointment(id) ON DELETE CASCADE
+); -- Keep track of the free times of an appointment
+
+CREATE TRIGGER assignTurnAndTimeToAttendsTo 
+    AFTER INSERT ON attendsTo
+BEGIN
+    UPDATE attendsTo SET number = (SELECT num FROM (SELECT MIN(value) OR (MAX(attendsTo.idAp) + 1 OR 1) AS num FROM freeTurns, attendsTo WHERE attendsTo.idAp = new.idAp AND freeTurns.idAp = new.idAp)) WHERE attendsTo.idAp = new.idAp;
+	UPDATE attendsTo SET time = (SELECT value FROM freeTimes WHERE idAp = new.idAp LIMIT 1 OFFSET 0) WHERE attendsTo.idAp = new.idAp;
+END; -- automatically assigned in case appointment.startsAt and appointment.endsAt were provided
+
+CREATE trigger deleteFreeTurnAndTime
+	AFTER UPDATE ON attendsTo
+BEGIN
+	DELETE FROM freeTurns WHERE freeTurns.value = new.number AND freeTurns.idAp = new.idAp;
+	DELETE FROM freeTimes WHERE freeTimes.value = new.time AND freeTimes.idAp = new.idAp;
+END; -- when a patient takes a turn and/or time, delete it/them from the freeTurns/freeTimes tables. 
+
+CREATE TRIGGER addFreeTurnAndTime
+    AFTER DELETE ON attendsTo WHEN old.number IS NOT NULL
+BEGIN
+    INSERT INTO freeTurns (idAp, value) VALUES (old.idAp, old.number);
+	INSERT INTO freeTimes (idAp, value) VALUES (old.idAp, old.time);
+END; -- when a patient cancels their scheduled appointment, add the number and time they took to the freeTurns/freeTimes tables.
+
+-- If a number is already picked, or is not in range of (0, maxTurns) raise an error
+-- If a time is already picked, or is not in range of (startsAt, endsAt) raise an error
+-- If the appointment does not have maxTurns, but a number for a turn is trying to be inserted in attendsTo, raise an error 
+-- If the appointment does not have startsAt and endsAt setted, but a time for a turn is trying to be inserted in attendsTo, raise an error
+CREATE TRIGGER assignToAttendsTo 
+    BEFORE INSERT ON attendsTo
+BEGIN
+    SELECT CASE WHEN ((SELECT COUNT(idAp) FROM attendsTo WHERE attendsTo.idAp = new.idAp) >= (SELECT maxTurns FROM appointment WHERE id = new.idAp))
+        THEN RAISE(ABORT, 'max number of turns already reached')
+    END;
+
+    SELECT CASE WHEN new.number IS NOT NULL THEN
+        CASE
+            WHEN NOT EXISTS (SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND appointment.maxTurns IS NOT NULL)
+                THEN RAISE(ABORT, 'number of turns is not setted yet')
+
+            WHEN EXISTS(SELECT 1 FROM attendsTo WHERE number = new.number AND idAp = new.idAp)
+                THEN RAISE(ABORT, 'number is already picked')
+            
+            WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (new.number > 0 and new.number <= appointment.maxTurns)) 
+                THEN RAISE(ABORT, 'number is not in the range of 0 and maximum turns')
+        END
+    END;
+
+    SELECT CASE WHEN new.time IS NOT NULL THEN
+        CASE
+            WHEN EXISTS (SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (appointment.startsAt IS NULL OR appointment.startsAt IS NULL))
+                THEN RAISE(ABORT, 'start and end time for this appointment are not setted yet')
+
+            WHEN EXISTS(SELECT 1 FROM attendsTo WHERE time = new.time AND idAp = new.idAp)
+                THEN RAISE(ABORT, 'time is already picked')
+            
+            WHEN NOT EXISTS(SELECT 1 FROM appointment WHERE appointment.id = new.idAp AND (new.time >= appointment.startsAt AND new.time <= appointment.endsAt)) 
+                THEN RAISE(ABORT, 'time is not in the range of start and end time for this appointment')
+        END
+    END;
+END;

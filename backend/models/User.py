@@ -1,4 +1,5 @@
 from os import remove
+from dateutil.parser.isoparser import isoparse
 from flask import json
 from flask.wrappers import Request
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -27,7 +28,7 @@ class User(SharedUserMethods):
     name1:str
     surname1:str
     sex:str
-    birthdate:datetime
+    birthdate:str
     location:str
     email:str
     password:str
@@ -42,7 +43,12 @@ class User(SharedUserMethods):
         self.name1 = name1
         self.surname1 = surname1
         self.sex = sex
-        self.birthdate = datetime.fromisoformat(birthdate)
+        try:
+            isoparse(birthdate)
+            self.birthdate = birthdate
+        except:
+            self.birthdate = None
+
         self.location = location
         self.email = email
         self.password = password
@@ -78,7 +84,7 @@ class User(SharedUserMethods):
         birthdate = conditions.get('birthdate', None)
 
         if birthdate is not None:
-            conditions['birthdate'] = datetime.fromisoformat(birthdate)
+            conditions['birthdate'] = isoparse(birthdate)
         
         return super().update(conditions, logicalOperator, 'all')
 
@@ -95,10 +101,9 @@ class User(SharedUserMethods):
         if MedicalPersonnel.filter({'ci': ci}, returns='one') is not None:
             if Doctor.filter({'ci': ci}, returns='one') is not None:
                 roles.append(Doctor.__tablename__)
-            
-            if MedicalAssitant.filter({'ci': ci}, returns='one') is not None:
-                roles.append(MedicalAssitant.__tablename__)
-
+            else:
+                roles.append(MedicalPersonnel.__tablename__)
+                
         return roles
 
     @classmethod
@@ -129,7 +134,7 @@ class User(SharedUserMethods):
         birthdate = data.get('birthdate', None)
 
         if birthdate is not None:
-            data['birthdate'] = datetime.fromisoformat(birthdate)
+            data['birthdate'] = isoparse(birthdate)
 
         sets = [f'{k} = ?' for k in data.keys()]
 
@@ -233,12 +238,10 @@ class Doctor(BaseModel):
 
         result = db.execute(statement, [idAp]).fetchone()
 
-        return User(*result)
-@dataclass # users from the medical personnel, who are medical assistants (i.e: nurses)
-class MedicalAssitant(BaseModel):
-    __tablename__ = 'medicalAssistant'
-    ci: int
-
+        if result:
+            return User(*result)
+        else:
+            return {}
 @dataclass
 class Administrative(BaseModel):
     __tablename__ = 'administrative'

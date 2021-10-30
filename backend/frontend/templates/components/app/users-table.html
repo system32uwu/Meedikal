@@ -32,20 +32,16 @@
         <label for="doctor">Doctor</label>
       </div>
       <div>
-        <input type="radio" value="medicalAssistant" name="role" onchange="selectRole('medicalAssistant')"/>
-        <label for="medicalAssistant">Medical Assistant</label>
-      </div>
-      <div>
         <input type="radio" value="administrative" name="role" onchange="selectRole('administrative')"/>
         <label for="administrative">Administrative</label>
       </div>
       {% else %}
-      {% for role in roles %}
-      <div>
-        <input type="radio" value="{{role}}" name="role" {% if defaultRole==role %} checked {% endif %} />
-        <label for="{{role}}">{{role.capitalize()}}</label>
-      </div>
-      {% endfor %}
+        {% for role in roles %}
+        <div>
+          <input type="radio" value="{{role}}" name="role" {% if defaultRole==role %} checked {% endif %} />
+          <label for="{{role}}">{{role.capitalize()}}</label>
+        </div>
+        {% endfor %}
       {% endif %}
     </div>
   </div>
@@ -72,7 +68,7 @@
   let paginationContainer = document.getElementById("pagination-info");
 
   const selectRole = (role) => {
-    if (!(['doctor', 'medicalAssistant'].includes(role))){
+    if (!(['doctor', 'medicalPersonnel'].includes(role))){
       _searchSpContainer.classList.add('hidden');
     }else{
       _searchSpContainer.classList.remove('hidden');

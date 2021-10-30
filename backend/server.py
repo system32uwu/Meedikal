@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask.templating import render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 from config import DevelopmentConfig, ProductionConfig, Config
@@ -9,6 +10,9 @@ import errorhandlers
 import mimetypes 
 
 load_dotenv() # load .env file
+
+def handleNotFound(e):
+    return render_template('wip.html')
 
 def create_app() -> Flask:
 
@@ -37,6 +41,8 @@ def create_app() -> Flask:
     # solve mime type bugs when using javascript files in templates
     mimetypes.add_type('application/javascript', '.js')
     mimetypes.add_type('text/javascript', '.js')
+    
+    app.register_error_handler(404, handleNotFound)
     
     return app
 

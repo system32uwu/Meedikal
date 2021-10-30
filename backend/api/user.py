@@ -23,7 +23,7 @@ def userToReturn(user: User, role=None):
            'roles': User.getRoles(ci=user.ci),
            'phoneNumbers': [asdict(p) for p in UserPhone.getByCi(user.ci)]}
 
-    if role == 'medicalPersonnel' or role == 'doctor' or role == 'medicalAssitant':
+    if role == 'medicalPersonnel' or role == 'doctor':
         hasSpec = MpHasSpec.filter({'ciMp': user.ci})
         obj['specialties'] = [asdict(hsp) for hsp in hasSpec]
 
@@ -109,17 +109,6 @@ def doctor(data:dict):
         result = userToReturn(Doctor(**data).saveOrGet(data, returns='one'))
     else:
         result = Doctor.delete(data)
-
-    return crudReturn(result)
-
-@router.route('/medicalAssistant', methods=['POST', 'DELETE']) # POST | DELETE /api/medicalAssistant
-@requiresRole(['administrative'])
-@passJsonData
-def medicalAssitant(data:dict):
-    if request.method == 'POST':
-        result = userToReturn(MedicalAssitant(**data).saveOrGet(data, returns='one'))
-    else:
-        result = MedicalAssitant.delete(data)
 
     return crudReturn(result)
 

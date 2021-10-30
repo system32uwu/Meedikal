@@ -12,7 +12,6 @@
         "patient",
         "administrative",
         "doctor",
-        "medicalAssistant",
     ];
 
     let rolesContainer = document.getElementById("roles");
@@ -30,7 +29,7 @@
     specialtiesContainer.classList.add("hidden");
 
     (async function () {
-        if (user.roles.includes('doctor') || user.roles.includes('medicalAssistant')) {
+        if (user.roles.includes('doctor')) {
             let chips = "";
 
             if (!user.specialties) {
@@ -62,7 +61,7 @@
         if (!user['roles'].includes(role)) { //add
             toggleLoadingModal();
 
-            if (role === "doctor" || role === "medicalAssistant") {
+            if (role === "doctor") {
                 if (!user['roles'].includes('medicalPersonnel')) {
                     await fetch(`/api/user/medicalPersonnel`, {
                         method: 'POST',
@@ -111,7 +110,7 @@
             toggleLoadingModal();
         }
 
-        if (user['roles'].includes('doctor') || user['roles'].includes('medicalAssistant')) {
+        if (user['roles'].includes('doctor')) {
             document.getElementById('Specialties').classList.remove('hidden');
         } else {
             document.getElementById('Specialties').classList.add('hidden');

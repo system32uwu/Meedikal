@@ -2,7 +2,7 @@ const PHONE_REGEX = /^[\+]?[0-9]*/;
 
 const RUNNING_SINCE = 2021;
 
-const TODAY = new Date();
+let TODAY = new Date(new Date().setHours(0, 0, 0, 0));
 
 const CURRENT_MONTH = TODAY.getMonth();
 
@@ -14,47 +14,89 @@ const CURRENT_WEEKDAY = TODAY.getDay();
 
 Date.locale = {
   en: {
-    monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    dayNames: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    monthNames: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    dayNames: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
   },
   es: {
-    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-    dayNames: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
-  }
+    monthNames: [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre",
+    ],
+    dayNames: [
+      "Lunes",
+      "Martes",
+      "Miercoles",
+      "Jueves",
+      "Viernes",
+      "Sabado",
+      "Domingo",
+    ],
+  },
 };
 
-Date.prototype.getMonthName = (number, lang='en') => {
+Date.prototype.getMonthName = (number, lang = "en") => {
   return Date.locale[lang].monthNames[number];
 };
 
-Date.prototype.getMonthNumber = (name, lang='en') => {
+Date.prototype.getMonthNumber = (name, lang = "en") => {
   return Date.locale[lang].monthNames.indexOf(name);
 };
 
 Date.prototype.getMonthDays = (monthNumber) => {
   let d = new Date(CURRENT_YEAR, monthNumber + 1, 0);
   return d.getDate();
-}
+};
 
 Date.prototype.getDaysList = (monthNumber) => {
   let dayCount = Date.prototype.getMonthDays(monthNumber);
-  return Array.from({length: dayCount}, (_, i) => i+1);
-}
+  return Array.from({ length: dayCount }, (_, i) => i + 1);
+};
 
-Date.prototype.getDayName = (date, lang='en') => {
-  return date.toLocaleString(lang, {weekday:'short'})
-}
+Date.prototype.getDayName = (date, lang = "en") => {
+  return date.toLocaleString(lang, { weekday: "short" });
+};
 
 const YEARS = Array.from(Array(CURRENT_YEAR + 5 - RUNNING_SINCE), (_, i) => ({
-    value: i + RUNNING_SINCE,
-    label: i + RUNNING_SINCE,
-    selected: i + RUNNING_SINCE === CURRENT_YEAR,
-  }));
-  
+  value: i + RUNNING_SINCE,
+  label: i + RUNNING_SINCE,
+  selected: i + RUNNING_SINCE === CURRENT_YEAR,
+}));
+
 const MONTHS = Array.from(Array(12).keys()).map((v) => ({
-    value: v,
-    label: Date.prototype.getMonthName(v),
-    selected: v === CURRENT_MONTH,
+  value: v,
+  label: Date.prototype.getMonthName(v),
+  selected: v === CURRENT_MONTH,
 }));
 
 const nameCell = (name, photoUrl) => `
@@ -211,7 +253,7 @@ const generateRoleChip = (value, roleColor) => `
 
 const generateDayChip = (value) => `
     <div class="inline-flex items-center rounded-full px-1 py-2 h-8">
-      <button id="${value}" onclick="fetchAppointments(${value})" class="h-6 w-8 rounded-full focus:outline-none hover:bg-turqoise hover:text-white text-gray-500">
+      <button id="${value}" onclick="selectDay(${value})" class="h-6 w-8 rounded-full focus:outline-none hover:bg-turqoise hover:text-white text-gray-500">
         <span class="px-1 w-full leading-none text-center">
           ${value}
         </span>
@@ -228,12 +270,49 @@ const generateDropDown = (id, options) => `
         <select id='${id}' class="border border-gray-300 rounded-lg text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none">
           ${options.map((op) =>
             op.selected
-              ? `<option value=${op.value !== undefined ? op.value : op} selected>${op.label ? op.label : op}</option>`
-              : `<option value=${op.value !== undefined ? op.value : op}>${op.label ? op.label : op}</option>`
+              ? `<option value=${
+                  op.value !== undefined ? op.value : op
+                } selected>${op.label ? op.label : op}</option>`
+              : `<option value=${op.value !== undefined ? op.value : op}>${
+                  op.label ? op.label : op
+                }</option>`
           )}
         </select>
     </div>
 `;
+
+const generateSymptomChip = (value) => `
+    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
+        <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+            ${value}
+        </span>
+        <button onclick="deleteSymptom(${value})" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+            <img src="/static/icons/delete.svg" width="16" height="16" />
+        </button>
+    </div>
+    `;
+
+const generateCsChip = (value) => `
+    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
+        <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+            ${value}
+        </span>
+        <button onclick="deleteClinicalSign(${value})" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+            <img src="/static/icons/delete.svg" width="16" height="16" />
+        </button>
+    </div>
+    `;
+  
+const generateDiseaseChip = (value) => `
+    <div id='${value}' class="inline-flex items-center rounded-full border border-gray-200 px-1 py-2 bg-turqoise h-8">
+        <span class="px-1 w-full leading-none text-white text-center text-white font-bold">
+            ${value}
+        </span>
+        <button onclick="deleteDisease(${value})" class="h-5 w-5 rounded-full bg-opacity-25 focus:outline-none">
+            <img src="/static/icons/delete.svg" width="16" height="16" />
+        </button>
+    </div>
+    `;
 
 const setPagination = async (
   tablename,
@@ -241,33 +320,32 @@ const setPagination = async (
   limit,
   paginationContainer,
   fn,
-  conditions=null
+  conditions = null
 ) => {
   let options = {};
 
-  options.headers =  {
+  options.headers = {
     Accept: "application/json",
-  }
+  };
 
-  if (conditions){
-    try{
-      options.body = JSON.stringify(conditions)
-      options.method = 'POST';
-      options["Content-Type"] = "application/json"
-    }catch(e){
-      options.method = 'GET';
+  if (conditions) {
+    try {
+      options.body = JSON.stringify(conditions);
+      options.method = "POST";
+      options.headers["Content-Type"] = "application/json";
+    } catch (e) {
+      options.method = "GET";
     }
   }
-  
+
   res = await fetch(`/api/pagination/total/${tablename}`, options);
 
   data = await res.json();
 
   if (res.status === 200) {
-
     let total = data.result;
-    if (total < 1){
-      paginationContainer.innerHTML = '';
+    if (total < 1) {
+      paginationContainer.innerHTML = "";
       return 0;
     }
 
@@ -277,15 +355,19 @@ const setPagination = async (
 
     let itemsPerPage = limit - offset;
 
+    if (itemsPerPage === 0){
+      itemsPerPage = limit;
+    }  
+
     let pageCount = total / itemsPerPage;
 
     let btns = Array(Math.ceil(pageCount)); //round up
 
     for (let i = 0; i < pageCount; i++) {
       btns.push(`
-              <button 
-              class="rounded-xl bg-turqoise text-white font-bold px-2 text-center"
-              onclick='${fn}(${itemsPerPage * i} ${options.body ? ', ' + options.body : null})'>
+              <button class="rounded-xl bg-turqoise text-white font-bold px-2 text-center" onclick='${fn}(${
+        itemsPerPage * i
+      } ${options.body ? ", " + options.body : null})'>
               ${i + 1}
               </button>
             `);
@@ -295,6 +377,45 @@ const setPagination = async (
   } else {
     Promise.reject(data);
   }
+};
+
+const setPaginationFromTotal = (
+  offset,
+  limit,
+  total,
+  paginationContainer,
+  fn
+) => {
+  if (total < 1) {
+    paginationContainer.innerHTML = "";
+    return 0;
+  }
+
+  if (total < limit) {
+    limit = total;
+  }
+  let itemsPerPage = limit - offset;
+  
+  if (itemsPerPage === 0){
+    itemsPerPage = limit;
+  }
+
+  let pageCount = total / itemsPerPage;
+
+  let btns = Array(Math.ceil(pageCount)); //round up
+
+  for (let i = 0; i < pageCount; i++) {
+    btns.push(`
+            <button class="rounded-xl bg-turqoise text-white font-bold px-2 text-center" onclick='${fn}(${
+      itemsPerPage * i
+    })'>
+            ${i + 1}
+            </button>
+          `);
+  }
+
+  paginationContainer.innerHTML = btns.join("\n");
+  return total;
 };
 
 const toggleLoadingModal = (forceHide = false, forceShow = false) => {

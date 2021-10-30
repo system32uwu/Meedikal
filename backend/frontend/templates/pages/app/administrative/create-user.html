@@ -4,7 +4,7 @@
 {% block title %}Create User{% endblock %} 
 
 {% block pageContent %}
-{{profile({'roles': ['patient', 'administrative', 'doctor', 'medicalAssistant']}, None, 'toggleRole', 'icons/add.svg', 'saveUser')}}
+{{profile({'roles': ['patient', 'administrative', 'doctor']}, None, 'toggleRole', 'icons/add.svg', 'saveUser')}}
 
 <script type="text/javascript">
 
@@ -58,7 +58,7 @@
             img.src = '/static/icons/add.svg';
         }
 
-        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalAssistant')){
+        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalPersonnel')){
             //show specialties field    
             document.getElementById('Specialties').classList.remove('hidden');
         }else{
@@ -104,7 +104,7 @@
             return;
         }
 
-        if (selectedUserRoles.includes('doctor') || selectedUserRoles.includes('medicalAssistant')){  
+        if (selectedUserRoles.includes('doctor')){  
             if (!selectedUserRoles.includes('medicalPersonnel')){
                 selectedUserRoles.unshift('medicalPersonnel') // push medicalPersonnel to be the first item of the list.
             }

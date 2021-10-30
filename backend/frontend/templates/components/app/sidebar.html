@@ -1,122 +1,27 @@
 <div class="z-30 relative">
   <div class="relative lg:hidden" id="sidebar-btn-outter">
-    <button
-      class="
-        absolute
-        text-white
-        top-2
-        left-2
-        focus:outline-none focus:text-gray-600
-        lg:hidden
-      "
-      aria-label="toggle menu"
-      onclick="toggleSidebar()"
-    >
+    <button class="absolute text-white top-2 left-2 focus:outline-none focus:text-gray-600 lg:hidden" aria-label="toggle menu" onclick="toggleSidebar()">
       <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
-        <path
-          fillRule="evenodd"
-          d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
-        ></path>
+        <path fillRule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"></path>
       </svg>
     </button>
   </div>
-  <div
-    id="sidebar"
-    class="
-      z-90
-      transform
-      transition-all
-      duration-300
-      fixed
-      top-0
-      -translate-x-64
-      lg:-left-0 lg:translate-x-0
-    "
-  >
-    <div
-      class="
-        flex
-        align-center
-        h-screen
-        overflow-y-auto
-        flex-col
-        bg-white
-        w-64
-        px-4
-        py-8
-        border-r
-        min-h-screen
-        relative
-      "
-    >
-      <a
-        href="/"
-        class="
-          z-100
-          fixed
-          top-2
-          text-xl
-          font-semibold
-          text-gray-800 text-center
-          self-center
-          lg:mr-0
-          mr-4
-        "
-      >
+  <div id="sidebar" class="z-90 transform transition-all duration-300 fixed top-0 -translate-x-64 lg:-left-0 lg:translate-x-0">
+    <div class="flex align-center h-screen overflow-y-auto flex-col bg-white w-64 px-4 py-8 border-r min-h-screen relative">
+      <a href="/" class="z-100 fixed top-2 text-xl font-semibold text-gray-800 text-center self-center lg:mr-0 mr-4">
         Healthcare <span class="text-turqoise">Company</span>
       </a>
-      <button
-        onclick="toggleSidebar()"
-        class="
-          self-center
-          absolute
-          top-1.5
-          right-1
-          text-gray-600
-          w-8
-          h-8
-          rounded-full
-          flex
-          items-center
-          justify-center
-          active:bg-gray-300
-          focus:outline-none
-          hover:bg-gray-200 hover:text-gray-800
-          lg:hidden
-        "
-      >
+      <button onclick="toggleSidebar()" class="self-center absolute top-1.5 right-1 text-gray-600 w-8 h-8 rounded-full flex items-center justify-center active:bg-gray-300 focus:outline-none hover:bg-gray-200 hover:text-gray-800 lg:hidden">
         <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
-          <path
-            fillRule="evenodd"
-            d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
-          ></path>
+          <path fillRule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"></path>
         </svg>
       </button>
       <div class="flex flex-col justify-between flex-1">
         <nav>
           {% for page in appPages%} 
             {% if myRole in page.accessibleBy and page.name != "Profile"%}
-              <a
-                href="{{page.route}}"
-                class="
-                  flex
-                  items-end
-                  px-4
-                  py-2
-                  mt-4
-                  text-hard-blue
-                  hover:bg-gray-200 hover:text-gray-700
-                  transition-colors
-                  duration-200
-                  transform
-                  rounded-md
-                "
-              >
-                <img
-                  src="{{url_for('static', filename=page.icon)}}"
-                  height="25"
-                  width="25"
-                />
+              <a href="{{page.route}}" class="flex items-end px-4 py-2 mt-4 text-hard-blue hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md">
+                <img src="{{url_for('static', filename=page.icon)}}" height="25" width="25"/>
                 <p class="align-middle font-bold leading-none mx-4">
                   {{page.name}}
                 </p>
@@ -125,52 +30,13 @@
           {% endfor %}
           <hr class="my-2" />
           <div class="bottom-0">
-            <a
-              href="/app/settings"
-              class="
-                flex
-                items-end
-                px-4
-                py-2
-                mt-4
-                text-hard-blue
-                hover:bg-gray-200 hover:text-gray-700
-                transition-colors
-                duration-200
-                transform
-                rounded-md
-              "
-            >
-              <img
-                src="{{url_for('static', filename='icons/settings.svg')}}"
-                height="25"
-                width="25"
-              />
+            <a href="/app/settings" class="flex items-end px-4 py-2 mt-4 text-hard-blue hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md">
+              <img src="{{url_for('static', filename='icons/settings.svg')}}" height="25" width="25"/>
               <p class="align-middle font-bold leading-none mx-4">Settings</p>
             </a>
 
-            <button
-              class="
-                flex
-                items-end
-                px-4
-                py-2
-                mt-4
-                text-hard-blue
-                hover:bg-gray-200 hover:text-gray-700
-                transition-colors
-                duration-200
-                transform
-                rounded-md
-                w-full
-              "
-              onclick="logout()"
-            >
-              <img
-                src="{{url_for('static', filename='icons/logout.svg')}}"
-                height="25"
-                width="25"
-              />
+            <button class="flex items-end px-4 py-2 mt-4 text-hard-blue hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md w-full" onclick="logout()">
+              <img src="{{url_for('static', filename='icons/logout.svg')}}" height="25" width="25"/>
               <p class="align-middle font-bold leading-none mx-4">Logout</p>
             </button>
           </div>

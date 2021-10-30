@@ -1,12 +1,11 @@
 from flask import Blueprint
-from backend.middleware.data import passJsonData
 
 from models.ClinicalSign import ClinicalSign
 from models.Disease import Disease
 from models.Symptom import Symptom
 from util.crud import *
 from middleware.authGuard import requiresRole, requiresAuth
-from middleware.data import paginated
+from middleware.data import paginated, passJsonData
 
 router = Blueprint('suffering', __name__, url_prefix='/suffering')
 
@@ -14,6 +13,8 @@ router = Blueprint('suffering', __name__, url_prefix='/suffering')
 @requiresAuth
 @paginated()
 def searchSuffering(sufferingType:str, offset:int, limit:int, data:dict={}, **kw):
+    result = []
+
     if sufferingType == 'disease':
         result = Disease.filter(data, 'OR', offset=offset, limit=limit) or []
     elif sufferingType == 'symptom':
@@ -30,10 +31,12 @@ def searchSuffering(sufferingType:str, offset:int, limit:int, data:dict={}, **kw
 
     return crudReturn(result)
 
-@router.post('/<string:sufferingType>', methods=['POST'])
+@router.post('/<string:sufferingType>')
 @requiresRole(['doctor', 'administrative'])
 @passJsonData
-def suffering(sufferingType:str, data:dict={}):
+def createSuffering(sufferingType:str, data:dict={}):
+    result = None
+
     if sufferingType == 'disease':
         result = Disease(**data).save(data)
     elif sufferingType == 'symptom':
@@ -43,10 +46,12 @@ def suffering(sufferingType:str, data:dict={}):
 
     return crudReturn(result)
 
-router.post('/<string:sufferingType>', methods=['PUT', 'PATCH'])
+@router.route('/<string:sufferingType>', methods=['PUT', 'PATCH'])
 @requiresRole(['doctor', 'administrative'])
 @passJsonData
-def suffering(sufferingType:str, data:dict={}):
+def updateSuffering(sufferingType:str, data:dict={}):
+    result = None
+
     if sufferingType == 'disease':
         result = Disease.update(data)
     elif sufferingType == 'symptom':
@@ -56,10 +61,11 @@ def suffering(sufferingType:str, data:dict={}):
         
     return crudReturn(result)
 
-router.post('/<string:sufferingType>', methods=['DELETE'])
+@router.delete('/<string:sufferingType>')
 @requiresRole(['doctor', 'administrative'])
 @passJsonData
-def suffering(sufferingType:str, data:dict={}):
+def deleteSuffering(sufferingType:str, data:dict={}):
+    result = None
     if sufferingType == 'disease':
         result = Disease.delete(data)
     elif sufferingType == 'symptom':

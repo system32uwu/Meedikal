@@ -5,7 +5,7 @@ from api.user import router as userRouter # handles /api/user
 from api.appointment import router as appointmentRouter # handles /api/appointment
 from api.branch import router as branchRouter # handles /api/branch
 from api.auth import router as authRouter # handles /api/auth
-from api.suffering import router as sufferingRouter # handles /api/pagination
+from api.suffering import router as sufferingRouter # handles /api/suffering
 from api.pagination import router as paginationRouter # handles /api/pagination
 from frontend.router import frontendRouter
 # modular routing, instead of having all the routes in this file, I'm making multiple routers that handle each table of the database. 

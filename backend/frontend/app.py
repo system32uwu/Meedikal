@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from flask import Blueprint, render_template, request, redirect
+from backend.api.suffering import searchSuffering
 from config import Config
 from models.User import User, Doctor
 from models.Branch import *
@@ -117,6 +118,52 @@ def appointmentById(id:int, ciUser:int, **any):
 @requiresAuth
 def symptoms(**any):
     return render_template(f'{baseDirApp}/sufferings.html')
+
+@appRouter.get('/create-symptom')
+@requiresRole(['doctor', 'administrative'])
+def createSymptom(**any):
+    return render_template(f'{baseDirApp}/suffering.html', sufferingType='symptom', suffering={})
+
+@appRouter.get('/create-clinical-sign')
+@requiresRole(['doctor', 'administrative'])
+def createClinicalSign(**any):
+    return render_template(f'{baseDirApp}/suffering.html', sufferingType='clinicalSign', suffering={})
+
+@appRouter.get('/create-disease')
+@requiresRole(['doctor', 'administrative'])
+def createDisease(**any):
+    return render_template(f'{baseDirApp}/suffering.html', sufferingType='disease', suffering={})
+
+@appRouter.get('/update-symptom/<int:id>')
+@requiresRole(['doctor', 'administrative'])
+def updateSymptom(id:int, **any):
+    symptom = Symptom.getById(id)
+    if symptom is None:
+        return redirect('/app/symptoms')
+    
+    symptom = asdict(symptom)
+    return render_template(f'{baseDirApp}/suffering.html', sufferingType='symptom', suffering=symptom)
+
+@appRouter.get('/update-clinical-sign/<int:id>')
+@requiresRole(['doctor', 'administrative'])
+def updateClinicalSign(id:int, **any):
+    clinicalSign = ClinicalSign.getById(id)
+    if clinicalSign is None:
+        return redirect('/app/clinical-signs')
+    
+    clinicalSign = asdict(clinicalSign)
+    return render_template(f'{baseDirApp}/suffering.html', sufferingType='clinicalSign', suffering=clinicalSign)
+
+@appRouter.get('/update-disease/<int:id>')
+@requiresRole(['doctor', 'administrative'])
+def updateDisease(id:int, **any):
+    disease = ClinicalSign.getById(id)
+    if disease is None:
+        return redirect('/app/diseases')
+    
+    disease = asdict(disease)
+
+    return render_template(f'{baseDirApp}/suffering.html', sufferingType='disease', suffering=disease)
 
 @appRouter.get('/branches')
 def branches():

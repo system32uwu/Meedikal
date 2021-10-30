@@ -121,5 +121,24 @@
       })
     })
   }
+
+  const updatePassword = async() => {
+    let password = document.getElementById('Password').value;
+     
+    let res = await fetch(`/api/auth/updatePassword`, {
+      method: 'PUT', 
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+      password: password
+      })
+    });
+
+    if (res.status === 200){
+      showOkModal();
+    }
+  }
 </script>
 {% endblock %}

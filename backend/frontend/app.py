@@ -112,19 +112,11 @@ def appointmentById(id:int, ciUser:int, **any):
                             registeredCs=registeredCs)
 
 @appRouter.get('/symptoms')
-@requiresAuth
-def symptoms(**any):
-    return render_template(f'{baseDirApp}/symptoms.html')
-
 @appRouter.get('/clinical-signs')
-@requiresAuth
-def clinicalSigns(**any):
-    return render_template(f'{baseDirApp}/clinical-signs.html')
-
 @appRouter.get('/diseases')
 @requiresAuth
-def diseases(**any):
-    return render_template(f'{baseDirApp}/diseases.html')
+def symptoms(**any):
+    return render_template(f'{baseDirApp}/sufferings.html')
 
 @appRouter.get('/branches')
 def branches():

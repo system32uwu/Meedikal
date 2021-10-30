@@ -1,0 +1,43 @@
+{% extends 'layouts/app-base.html' %} 
+{% from 'components/app/sufferings-table.html' import sufferingsTable with context %}
+
+{% block title %}{{currentPage}}{% endblock %}
+
+{% block pageContent %}
+<div class="w-full h-full px-6 lg:px-10 pt-4">
+{{sufferingsTable()}}
+</div>
+<script>
+  let sufferingType = '{{currentPage}}'.toLowerCase().slice(0,-1)
+  if (sufferingType === 'clinical sign'){
+    sufferingType = 'clinicalSign'
+  }
+
+  const drawTable = (_data) => {
+      let rows = Array(_data.length);
+  
+      for (let obj of _data) {
+        let cells = [
+          generateCell(obj["name"]),
+          generateCell(obj["id"]),
+          generateCell(obj["description"] || "-"),
+        ];
+  
+        rows.push(generateRow(cells, obj["id"]));
+      }
+  
+      tableContainer.innerHTML = generateTable(
+        `${sufferingType}-table`,
+        ["Name", "ID", "description"],
+        rows
+      );
+    }
+
+  tableContainer.innerHTML = generateTable(
+    `${sufferingType}-table`,
+    ["Name", "ID", "description"],
+    []
+  );
+
+</script>
+{% endblock %}

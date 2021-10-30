@@ -7,7 +7,8 @@ from util.crud import crudReturn
 router = Blueprint('pagination', __name__, url_prefix='/pagination')
 
 @router.route('/total/<string:tablename>', methods=['GET', 'POST'])
+@router.route('/total/<string:tablename>/<string:operator>', methods=['GET', 'POST'])
 @passJsonData
 @requiresAuth
-def totalOfTable(tablename:str, data:dict={}, **kw):
-    return crudReturn(getTotal(tablename, data))
+def totalOfTable(tablename:str, operator:str='AND', data:dict={}, **kw):
+    return crudReturn(getTotal(tablename, operator, data))

@@ -320,7 +320,8 @@ const setPagination = async (
   limit,
   paginationContainer,
   fn,
-  conditions = null
+  conditions = null,
+  operator=null
 ) => {
   let options = {};
 
@@ -338,7 +339,7 @@ const setPagination = async (
     }
   }
 
-  res = await fetch(`/api/pagination/total/${tablename}`, options);
+  res = await fetch(`/api/pagination/total/${tablename}` + (operator ? `/${operator}` : ''), options);
 
   data = await res.json();
 

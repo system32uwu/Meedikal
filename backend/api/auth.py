@@ -38,6 +38,7 @@ def me(ci:int):
 @requiresAuth
 @passJsonData
 def updatePassword(ci:int,data:dict):
+    print(data['password'])
     res = User.updatePassword(ci,data['password'])
     return crudReturn(res)
 

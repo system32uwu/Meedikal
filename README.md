@@ -25,3 +25,13 @@ This project was done as the last activity of the educational program [Sembrando
 ## Work In Progress notice
 
 Some documentation might be in spanish but not yet translated to english or vice-versa, when the development is completed it will get fully translated to both languages. The project is not yet completed but the estimated date for it to be finished is early december.
+
+## Run it!
+
+### Windows
+
+Execute the file `run.ps1`, you need to have execution rights of powershell scripts, if you don't, open powershell and run the command: `set-executionpolicy unrestricted`
+
+### Linux
+
+Execute the file `run.sh`, you need to have execution rights of this file, if you don't, open your terminal and run the command: `chmod u+x run.sh`

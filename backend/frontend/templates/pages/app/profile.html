@@ -116,9 +116,8 @@
       "role": role
       })
     }).then((res) =>{
-      res.json().then(data =>{
+        localStorage.setItem('preferredRole', role);
         window.location.reload();
-      })
     })
   }
 

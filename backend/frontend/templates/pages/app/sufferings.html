@@ -13,11 +13,16 @@
 </div>
 </div>
 <script>
-  let myRole = '{{myRole|safe}}';
   let sufferingType = '{{currentPage}}'.toLowerCase().slice(0,-1)
 
   if (sufferingType === 'clinical sign'){
     sufferingType = 'clinicalSign'
+  }
+
+  let _headers = ["Name", "description"]
+
+  if (myRole === 'administrative' || myRole === 'doctor'){
+    _headers.push('Actions')
   }
 
   document.getElementById('new-suffering').addEventListener('click', () =>{
@@ -45,7 +50,7 @@
         ];
 
         if (myRole === 'administrative' || myRole === 'doctor'){
-          generateActionsCell(obj["id"], suffering, false);
+          cells.push(generateActionsCell(obj["id"], 'Suffering', false));
         }
   
         rows.push(generateRow(cells, obj["id"]));
@@ -53,14 +58,14 @@
   
       tableContainer.innerHTML = generateTable(
         `${sufferingType}-table`,
-        ["Name", "description"],
+        _headers,
         rows
       );
     }
 
   tableContainer.innerHTML = generateTable(
     `${sufferingType}-table`,
-    ["Name", "description"],
+    _headers,
     []
   );
 

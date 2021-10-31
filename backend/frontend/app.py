@@ -209,9 +209,9 @@ def settings(ci:int, **any):
 
 # mp specifics
 @appRouter.get('/patients')
-@requiresRole(['medicalPersonnel'])
+@requiresRole(['doctor'])
 def patients():
-    return render_template(f'{baseDirApp}/mp/patients.html')
+    return render_template(f'{baseDirApp}/patients.html')
 
 # administrative specifics
 

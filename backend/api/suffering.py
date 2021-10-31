@@ -25,7 +25,7 @@ def searchSuffering(sufferingType:str, offset:int, limit:int, data:dict={}, **kw
     if len(result) > 0:
         for r in result:
             if r.description is not None:
-                r.description = r.description[:15] + '..' * (len(r.description) > 15)
+                r.description = r.description[:30] + '..' * (len(r.description) > 30)
 
         result = [asdict(r) for r in result]
 

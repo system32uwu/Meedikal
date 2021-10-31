@@ -5,14 +5,12 @@
 
 {% block pageContent %}
 <div class="w-full px-6 lg:px-10 pt-4">
-    <div class="shadow-xl p-4 space-y-2" id="branch-fields">
-        {% if branch.get('ID', none) is not none %}
-        {{formField("ID", branch.get('ID', ''), true)}}
+    <div class="shadow-xl p-4 space-y-2" id="suffering-fields">
+        {% if suffering.get('ID', none) is not none %}
+        {{formField("ID", suffering.get('ID', ''), true)}}
         {% endif %}
-        {{formField("Name", branch.get('name', ''))}}
-        {{formField("Phone", branch.get('phoneNumber', ''))}}
-        {{formField("Location", branch.get('location', ''))}}
-        {{formField("GoogleMaps", branch.get('googleMapsSrc', ''))}}
+        {{formField("Name", suffering.get('name', ''))}}
+        {{formField("Description", suffering.get('description', ''))}}
     </div>
     <div id="error-box" class="hidden">
         <p class="text-red-500 font-semibold"></p>
@@ -30,38 +28,21 @@
     let errorBox = document.getElementById('error-box');
     let errorText = errorBox.getElementsByTagName('p')[0];
 
-    let mode = "{{request.endpoint.rsplit('.')[2]}}" === 'createBranch' ? 'CREATE' : 'UPDATE';
+    let suffering = {{suffering | tojson | safe}};
+    let sufferingType = "{{sufferingType}}";
+    let mode = "{{request.endpoint.rsplit('.')[2]}}".includes('create') ? 'CREATE' : 'UPDATE';
 
     document.getElementById('save').addEventListener('click', async () => {
         toggleLoadingModal();
         errorBox.classList.add("hidden");
         let res;
 
-        googleMapsSrc = document.getElementById('GoogleMaps').value;
-
-        let body = {
-            name: document.getElementById('Name').value,
-            phoneNumber: document.getElementById('Phone').value,
-            location: document.getElementById('Location').value,
-            googleMapsSrc: null
-        }
-
-        if (googleMapsSrc) {
-            try {
-                body.googleMapsSrc = googleMapsSrc.split('src=')[1].split(' width')[0].replace('"', '')
-            } catch {
-                if (!googleMapsSrc.startsWith('https://www.google.com/maps/embed')) {
-                    toggleLoadingModal();
-                    errorBox.classList.remove("hidden");
-                    errorText.textContent = 'Invalid googlemaps iframe.'
-                } else {
-                    body.googleMapsSrc = googleMapsSrc
-                }
+        if (mode === 'CREATE') {    
+            let body = {
+                name: document.getElementById('Name').value,
+                description: document.getElementById('Description').value,
             }
-        }
-
-        if (mode === 'CREATE') {
-            res = await fetch('/api/branch', {
+            res = await fetch(`/api/suffering/${sufferingType}`, {
                 method: 'POST',
                 headers: {
                     Accept: "application/json",
@@ -69,8 +50,20 @@
                 },
                 body: JSON.stringify(body)
             });
-        } else {
-            res = await fetch('/api/branch/{{branch.id}}', {
+        } else {    
+            let body = {
+                id: suffering.id,
+                name: {
+                    value: suffering.name,
+                    newValue: document.getElementById('Name').value
+                },
+                description:{
+                    value: suffering.description,
+                    newValue: document.getElementById('Description').value
+                }
+            }
+
+            res = await fetch(`/api/suffering/${sufferingType}`, {
                 method: 'PUT',
                 headers: {
                     Accept: "application/json",
@@ -80,10 +73,10 @@
             });
         }
 
-        const savedBranch = await res.json();
+        const savedsuffering = await res.json();
 
         if (res.status !== 200) {
-            errorText.textContent = savedBranch.error;
+            errorText.textContent = savedsuffering.error;
             errorBox.classList.remove("hidden");
             toggleLoadingModal(true);
             return;

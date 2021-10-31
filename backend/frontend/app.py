@@ -1,6 +1,5 @@
 from dataclasses import asdict
 from flask import Blueprint, render_template, request, redirect
-from backend.api.suffering import searchSuffering
 from config import Config
 from models.User import User, Doctor
 from models.Branch import *
@@ -165,6 +164,39 @@ def updateDisease(id:int, **any):
 
     return render_template(f'{baseDirApp}/suffering.html', sufferingType='disease', suffering=disease)
 
+@appRouter.get('/symptom/<int:id>')
+@requiresAuth
+def readSymptom(id:int, **any):
+    symptom = Symptom.getById(id)
+    if symptom is None:
+        return redirect('/app/symptoms')
+    
+    symptom = asdict(symptom)
+
+    return render_template(f'{baseDirApp}/read-suffering.html', sufferingType='symptom', suffering=symptom)
+
+@appRouter.get('/clinical-sign/<int:id>')
+@requiresAuth
+def readCs(id:int, **any):
+    cs = ClinicalSign.getById(id)
+    if cs is None:
+        return redirect('/app/clinical-signs')
+    
+    cs = asdict(cs)
+
+    return render_template(f'{baseDirApp}/read-suffering.html', sufferingType='clinicalSign', suffering=cs)
+    
+@appRouter.get('/disease/<int:id>')
+@requiresAuth
+def readDisease(id:int, **any):
+    disease = Disease.getById(id)
+    if disease is None:
+        return redirect('/app/diseases')
+    
+    disease = asdict(disease)
+
+    return render_template(f'{baseDirApp}/read-suffering.html', sufferingType='disease', suffering=disease)
+    
 @appRouter.get('/branches')
 def branches():
     return render_template(f'{baseDirApp}/branches.html', branches=Branch.query(), selectedBranch=None, assignMode=False)

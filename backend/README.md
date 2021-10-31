@@ -48,26 +48,45 @@ Once you've updated the values of the said object, run:
 python util/createAdmin.py
 ```
 
+## Customizing Meedikal from its config file
+
+The file `config.py` contains the Config class, which has the fields:
+
+- company_name (The name of your company)
+- central_data (address, email, phone, google maps embedded link)
+- role_colors (the colors used to differentiate users)
+- plans (name, price, popular, features and a legend)
+
+You should update said fields according to your company's information.
+
+## Running since
+
+The file `frontend/static/js/index.js` has the field `RUNNING_SINCE`, this indicates since which year appointments may be queried by users. (This is useful in case you have acquired this system but you previously relied on paper documentation, and you want to add said past documentation digitally to Meedikal). In case it's not of your interest to digitize past appointments (or your company is a new one), you should set the value to the present year.
+
 ## Generating tailwindcss styles
 
 The production styles are already generated, but if you change something you can re-build them using the following commands:
 
 Move to the frontend/static/styles directory, run:
+
 ```sh
 yarn install
 ```
 
 ### export NODE_ENV variable to production
 
-### In windows (powershell):
+### In windows (powershell)
+
 ```powershell
 $Env:NODE_ENV="production"
 ```
 
-### In linux:
+### In linux
+
 export NODE_ENV="production"
 
-### Build the styles:
+### Build the styles
+
 ```sh
 yarn build
 ```

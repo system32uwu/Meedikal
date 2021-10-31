@@ -59,24 +59,6 @@ class Config(object):
         'google_maps_link': 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d13095.168728844454!2d-56.1938193!3d-34.8614488!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xa3c298c9fd703d35!2sSociedad%20M%C3%A9dica%20Universal!5e0!3m2!1sen!2suy!4v1633202238613!5m2!1sen!2suy'
         }
 
-    landing_pages = [
-        Page(route='/', name='Home'), 
-        Page(route='/contact', name='Contact'), 
-        Page(route='/plans', name='Plans')
-        ]
-
-    app_pages = [
-        AppPage('/app', 'Home', icon='icons/home.svg'),
-        AppPage('/app/users', 'Users', ['administrative'], icon='icons/users.svg'),
-        AppPage('/app/appointments', 'Appointments', icon='icons/appointments.svg'),
-        AppPage('/app/patients', 'Patients', ['doctor'], icon='icons/users.svg'),
-        AppPage('/app/symptoms', 'Symptoms',  icon='icons/symptoms.svg'),
-        AppPage('/app/diseases', 'Diseases', icon='icons/diseases.svg'),
-        AppPage('/app/clinical-signs', 'Clinical Signs', icon='icons/clinical_signs.svg'),
-        AppPage('/app/branches', 'Branches', icon='icons/branches.svg'),
-        AppPage('/app/profile', 'Profile'),
-    ]
-
     role_colors = {
         'user': 'bg-gray-300',
         'administrative': 'bg-red-500',
@@ -126,6 +108,24 @@ class Config(object):
                       'feature 6',
                       'feature 7'],
             legendText='Golden Plan.'),
+    ]
+
+    landing_pages = [
+        Page(route='/', name='Home'), 
+        Page(route='/contact', name='Contact'), 
+        Page(route='/plans', name='Plans')
+        ]
+
+    app_pages = [
+        AppPage('/app', 'Home', icon='icons/home.svg'),
+        AppPage('/app/users', 'Users', ['administrative'], icon='icons/users.svg'),
+        AppPage('/app/appointments', 'Appointments', icon='icons/appointments.svg'),
+        AppPage('/app/patients', 'Patients', ['doctor'], icon='icons/users.svg'),
+        AppPage('/app/symptoms', 'Symptoms',  icon='icons/symptoms.svg'),
+        AppPage('/app/diseases', 'Diseases', icon='icons/diseases.svg'),
+        AppPage('/app/clinical-signs', 'Clinical Signs', icon='icons/clinical_signs.svg'),
+        AppPage('/app/branches', 'Branches', icon='icons/branches.svg'),
+        AppPage('/app/profile', 'Profile'),
     ]
 
 class ProductionConfig(Config):

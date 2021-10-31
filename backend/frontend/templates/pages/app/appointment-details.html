@@ -74,7 +74,6 @@
     });
     if (res.status === 200){
       symptomsContainer.innerHTML += generateSymptomChip(sy);
-
     }
   }
 
@@ -100,7 +99,7 @@
   const addClinicalSign = async() => {
     let cs = document.getElementById('new-cs').value;
 
-    await fetch ('/api/appointment/registersCs',  {
+    let res = await fetch ('/api/appointment/registersCs',  {
       method: 'POST',
       headers: {
         Accept: "application/json",
@@ -141,7 +140,7 @@
   const addDisease = async() => {
     let disease = document.getElementById('new-disease').value;
 
-    await fetch ('/api/appointment/diagnoses',  {
+    let res = await fetch ('/api/appointment/diagnoses',  {
       method: 'POST',
       headers: {
         Accept: "application/json",

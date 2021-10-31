@@ -156,7 +156,7 @@ def updateClinicalSign(id:int, **any):
 @appRouter.get('/update-disease/<int:id>')
 @requiresRole(['doctor', 'administrative'])
 def updateDisease(id:int, **any):
-    disease = ClinicalSign.getById(id)
+    disease = Disease.getById(id)
     if disease is None:
         return redirect('/app/diseases')
     

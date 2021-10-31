@@ -15,7 +15,7 @@ if ((-not $run) -or ($run -eq 0)) {
     Move-Item config.example.py config.py # replace config file #
     ./util/createDb.py && ./util/createAdmin.py # create db and admin #
     
-    Set-Location frontend/static/styles
+    Set-Location frontend/static/css
     npm install # install dependencies #
     npm run build # build and minify tailwindcss file #
     Set-Location ../../../

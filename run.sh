@@ -13,7 +13,7 @@ if [!$run || $run -eq 0] {
     mv config.example.py config.py # replace config file 
     python util/createDb.py && python util/createAdmin.py # create db and admin
     
-    cd frontend/static/styles
+    cd frontend/static/css
     npm install # install dependencies 
     npm run build # build and minify tailwindcss file 
     cd ../../../

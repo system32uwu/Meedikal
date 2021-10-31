@@ -8,17 +8,24 @@
     let offset = 0;
     let limit = 3;
     let activeFilters = {};
-    let _me = ciUser ? {user: {ci: ciUser}} : me;
+    let _me = ciUser !== 'False' ? {user: {ci: ciUser}} : me;
 
-    if (!ciUser){
-        if (myRole === 'doctor'){
+    if (ciUser === 'False'){
+        if (myRole === 'administrative'){
+            console.log('a')
+            activeFilters.typeFilter = 'all';
+        }else if (myRole === 'doctor'){
             activeFilters.typeFilter = 'mine-doctor'
         }else{
-            activeFilters.typeFilter = 'all'
+            activeFilters.typeFilter = 'mine'
         }
     }else{
-        activeFilters.typeFilter = 'mine'
-        activeFilters.ci = _me.user.ci
+        if (location.pathname.includes('doctor')){
+            activeFilters.typeFilter = 'mine+doctor';
+        }else if (location.pathname.includes('patient')){
+            activeFilters.typeFilter = 'mine';
+            activeFilters.ci = _me.user.ci
+        }
     }
 
     activeFilters.timeFilter = 'selectedDay';
@@ -62,13 +69,13 @@
 
         if (myRole === 'patient') {
             if (appointment.patients.length) {
-                if (appointment.patients.find(p => p.ci == '{{me.user.ci}}')) {
+                if (appointment.patients.find(p => p.ci == `${_me.user.ci}`)) {
                     isMyAppointment = true;
                 }
             }
         } else if (myRole === 'doctor') {
             if (appointment.doctor.user) {
-                if (appointment.doctor.user.ci == '{{me.user.ci}}') {
+                if (appointment.doctor.user.ci == `${_me.user.ci}`) {
                     isMyAppointment = true;
                 }
             }
@@ -112,9 +119,9 @@
                         </button>
                     </div>
                   {% endif %}
-                  ${myRole === 'patient' ?
+                  ${myRole === 'patient' || location.pathname.includes('patient') ?
                 isMyAppointment ? `
-                    <a href="/app/appointment/${appointment.appointment.id}/{{me.user.ci}}">
+                    <a href="/app/appointment/${appointment.appointment.id}/${_me.user.ci}">
                         <button class="button w-full rounded-full bg-turqoise text-white font-bold px-2 py-1">
                             View Details
                         </button>
@@ -124,11 +131,11 @@
                         `<button onclick="attendToAppointment(${appointment.appointment.id})" class="w-full rounded-full bg-turqoise text-white font-bold px-2 py-1" onclick="${fn}(${appointment.appointment.id})">
                             Attend
                         </button>` :
-                myRole === 'doctor' ?
+                myRole === 'doctor' || location.pathname.includes('doctor') ?
                     isMyAppointment ?
                         `<a href="/app/appointments/${appointment.appointment.id}">
                             <button class="button w-full rounded-full bg-turqoise text-white font-bold px-2 py-1">
-                                ${pastDate ? 'View Details' : 'Attend'}
+                                ${pastDate || myRole === 'administrative' ? 'View Details' : 'Attend'}
                             </button>
                         </a>` : 
                         `<a href="/app/appointments/${appointment.appointment.id}">

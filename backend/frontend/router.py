@@ -23,6 +23,10 @@ def plans():
 def login():
     return render_template('pages/landing/login.html')
 
+@frontendRouter.get('/affiliate')
+def affiliate():
+    return render_template('pages/landing/affiliate.html')
+
 @frontendRouter.context_processor
 def globalVars():
     return dict(company_name=Config.company_name, 

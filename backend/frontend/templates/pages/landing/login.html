@@ -10,8 +10,8 @@
           <p class="text-2xl font-bold">Welcome</p>
           <p class="text-2xs">
             Don't have an account?
-            <a to="/app/register" class="text-turqoise font-bold pl-1">
-              Register
+            <a href="/affiliate" class="text-turqoise font-bold pl-1">
+              Affiliate
             </a>
           </p>
         </div>
@@ -40,7 +40,7 @@
             <p class="text-red-500 font-semibold"></p>
           </div>
           <div class="mt-4 text-right">
-            <a to="/forgot" class="text-turqoise"> Forgot your password? </a>
+            <a href="mailto:{{central_data['email']}}?subject=Forgot%20password&body=CI%3A%20" class="text-turqoise"> Forgot your password? </a>
           </div>
           <div class="mt-4">
             <button class="focus:outline-none shadow bg-turqoise focus:shadow-outline text-white font-bold py-2 px-4 rounded w-full" type="submit">

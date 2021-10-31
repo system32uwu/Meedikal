@@ -26,7 +26,7 @@ def home(**any):
 @getCurrentRole
 def profile(ci:int, currentRole:str):
     user = userToReturn(User.getByCi(ci), currentRole)
-    return render_template(f'{baseDirApp}/profile.html', me=user, readOnly=False)
+    return render_template(f'{baseDirApp}/profile.html', user=user, readOnly=False)
 
 @appRouter.get('/profile/<int:ciUser>')
 @appRouter.get('/profile/<int:ciUser>/<string:asRole>')
@@ -203,8 +203,9 @@ def branches():
 
 @appRouter.get('/settings')
 @requiresAuth
-def settings(**any):
-    return render_template(f'{baseDirApp}/settings.html')
+def settings(ci:int, **any):
+    myRoles = User.getRoles(ci)
+    return render_template(f'{baseDirApp}/settings.html', myRoles=myRoles)
 
 # mp specifics
 @appRouter.get('/patients')
@@ -293,6 +294,6 @@ def appVars(ci:int, currentRole:str):
         url = url.split('/')[1]
         url = url.replace('-', ' ')
 
-    return dict(myRole=currentRole, me=asdict(User.getByCi(ci)), 
+    return dict(myRole=currentRole, me=userToReturn(User.getByCi(ci)), 
     appPages=Config.app_pages, roleColors=Config.role_colors,
     currentPage=url.capitalize(), currentDate = date.today())

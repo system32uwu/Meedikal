@@ -23,15 +23,7 @@
         <a href="{{page.route}}" class="focus:outline-none my-1 text-sm font-medium hover:text-turqoise md:mx-4 md:my-0 {{'text-turqoise' if request.path == page.route else 'text-gray-700'}}">
           {{page.name}}
         </a>
-        {% endfor %} {% if request.path == '/login' %}
-        <a href="/register" class="focus:outline-none my-1 text-sm font-medium hover:text-turqoise md:mx-4 md:my-0 text-gray-700">
-          Register
-        </a>
-        {% else %}
-        <a href="/login" class="focus:outline-none my-1 text-sm font-medium hover:text-turqoise md:mx-4 md:my-0 text-gray-700">
-          Login
-        </a>
-        {% endif %}
+        {% endfor %}
       </div>
     </div>
   </div>

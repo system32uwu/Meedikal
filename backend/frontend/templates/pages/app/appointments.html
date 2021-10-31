@@ -37,9 +37,9 @@
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ idAp: id, ciPa: me.ci })
+            body: JSON.stringify({ idAp: id, ciPa: me.user.ci })
         })
-        window.location.href = `/app/appointment/${id}/${me.ci}`;
+        window.location.href = `/app/appointment/${id}/${me.user.ci}`;
     }
 
     const generateAppointmentCard = (appointment, fn, mode) => {
@@ -54,13 +54,13 @@
 
         if (myRole === 'patient') {
             if (appointment.patients.length) {
-                if (appointment.patients.find(p => p.ci == '{{me.ci}}')) {
+                if (appointment.patients.find(p => p.ci == '{{me.user.ci}}')) {
                     isMyAppointment = true;
                 }
             }
         } else if (myRole === 'doctor') {
             if (appointment.doctor.user) {
-                if (appointment.doctor.user.ci == '{{me.ci}}') {
+                if (appointment.doctor.user.ci == '{{me.user.ci}}') {
                     isMyAppointment = true;
                 }
             }
@@ -106,7 +106,7 @@
                   {% endif %}
                   ${myRole === 'patient' ?
                 isMyAppointment ? `
-                    <a href="/app/appointment/${appointment.appointment.id}/{{me.ci}}">
+                    <a href="/app/appointment/${appointment.appointment.id}/{{me.user.ci}}">
                         <button class="button w-full rounded-full bg-turqoise text-white font-bold px-2 py-1">
                             View Details
                         </button>

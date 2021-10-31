@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, session
+from werkzeug.utils import redirect
 from config import Config
 import os
 from .app import appRouter 
@@ -21,7 +22,16 @@ def plans():
 
 @frontendRouter.get('/login')
 def login():
-    return render_template('pages/landing/login.html')
+    token = None
+    try:
+        token = session.get('authToken', None)
+    except: # flask out of context error (raises when starting the app)
+        pass
+
+    if token is None:
+        return render_template('pages/landing/login.html')
+    else:
+        return redirect('/app')
 
 @frontendRouter.get('/affiliate')
 def affiliate():

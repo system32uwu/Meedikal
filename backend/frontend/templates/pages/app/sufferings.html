@@ -6,13 +6,14 @@
 {% block pageContent %}
 <div class="w-full h-full px-6 lg:px-10 pt-4">
 {{sufferingsTable()}}
-<div class="w-full flex items-center justify-center mt-4">
+<div class="{% if myRole != 'administrative' or myRole != 'doctor' %}hidden{% endif %} w-full flex items-center justify-center mt-4">
   <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12" id='new-suffering'>
     New {{currentPage[:-1]}}
   </button>
 </div>
 </div>
 <script>
+  let myRole = '{{myRole|safe}}';
   let sufferingType = '{{currentPage}}'.toLowerCase().slice(0,-1)
 
   if (sufferingType === 'clinical sign'){
@@ -27,6 +28,13 @@
     window.location.href = `/app/create-${sufferingType}`
   });
 
+  const updateSuffering = (id) => {
+    if (sufferingType === 'clinicalSign'){
+      sufferingType = 'clinical-sign'
+    }
+    window.location.href = `/app/update-${sufferingType}/${id}`
+  }
+
   const drawTable = (_data) => {
       let rows = Array(_data.length);
   
@@ -35,6 +43,10 @@
           generateCell(`<a class="hover:text-turqoise" href="/app/${sufferingType}/${obj["id"]}">${obj["name"]}</a>`),
           generateCell(obj["description"] || "-"),
         ];
+
+        if (myRole === 'administrative' || myRole === 'doctor'){
+          generateActionsCell(obj["id"], suffering, false);
+        }
   
         rows.push(generateRow(cells, obj["id"]));
       }

@@ -141,15 +141,15 @@ const generateActiveCell = (userId, value, fn) => `
         </div>
       </td>`;
 
-const generateActionsCell = (id, fnSuffix) => `
+const generateActionsCell = (id, fnSuffix, _delete=true, _edit=true) => `
     <td>
       <div class="flex space-x-2 justify-center">
-        <button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="delete${fnSuffix}(${id})">
-          <img src="/static/icons/delete.svg" width="16"/>
-        </button>
-        <button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="update${fnSuffix}(${id})">
-          <img src="/static/icons/edit.svg" width="16"/>
-        </button>
+        ${_delete ? `<button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="delete${fnSuffix}(${id})">
+        <img src="/static/icons/delete.svg" width="16"/>
+      </button>`: ''}
+        ${_edit ? `<button class="rounded-full hover:bg-gray-300 px-2 py-2" onclick="update${fnSuffix}(${id})">
+        <img src="/static/icons/edit.svg" width="16"/>
+      </button>` : ''}
       </div>
     </td
 `;

@@ -54,6 +54,7 @@
   };
 
   const logout = () => {
+    localStorage.removeItem('preferredRole');
     fetch("/api/auth/logout", { method: "POST" }).then(() => {
       window.location.href = "/";
     });

@@ -9,7 +9,7 @@ from models.Disease import Disease, Diagnoses
 from models.Symptom import Symptom, RegistersSy
 from util.crud import *
 from util.returnMessages import *
-from middleware.authGuard import requiresRole, requiresAuth
+from middleware.authGuard import requiresRole, requiresAuth, getCurrentRole
 from middleware.data import passJsonData, paginated
 from models import db
 from .user import userToReturn
@@ -158,9 +158,9 @@ def getRegisteredCs(idAp:int=None, ciPa:int=None, **kwargs): # input registered 
     return getSufferingOfAp(ClinicalSign, RegistersCs, idAp, ciPa, 'idCs')
 
 @router.post('/filter')
-@requiresAuth
+@getCurrentRole
 @paginated()
-def filterAps(ci:int, offset:int, limit:int, data:dict={}, **kwargs): # return appointment, doctor and branch
+def filterAps(ci:int, offset:int, limit:int, currentRole:str, data:dict={}, **kwargs): # return appointment, doctor and branch
     _selectedDate = data['selectedDate']
     _from = data['timeInterval']['from']
     _to = data['timeInterval']['to']
@@ -168,6 +168,11 @@ def filterAps(ci:int, offset:int, limit:int, data:dict={}, **kwargs): # return a
     _typeFilter = data['typeFilter']
     _doctorSurname1 = data.get('doctorSurname1', None)
     _appointmentName = data.get('appointmentName', None)
+    _ci = data.get('ci', None)
+
+    if currentRole != 'patient': # doctors and administrative users can see the appointments of other users, but a patient cannot see appointments of other patients.
+        if _ci:
+            ci = _ci
 
     tables = ['appointment']
     conditions = []

@@ -2,6 +2,14 @@
 {% from 'components/app/users-table.html' import usersTable with context%}
 {% block title %}Users{% endblock %}
 {% block pageContent %}
+<div class="w-full h-full px-6 lg:px-10">
+  {{usersTable()}}
+  <div class="w-full flex items-center justify-center mt-4">
+    <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="window.location.href ='/app/create-user'">
+      New User
+    </button>
+  </div>
+</div>
 <script>
   const drawTable = (_data) => {
     let rows = Array(_data.length);
@@ -11,7 +19,7 @@
 
       let cells = [
         nameCell(
-          `<a class="hover:text-turqoise" href="/app/profile/${userId}">${obj["user"]["name1"]} ${obj["user"]["surname1"]}</a>`,
+          `<a class="hover:text-turqoise" href="/app/profile/${userId}${selectedRole ? `/${selectedRole}` : ''}">${obj["user"]["name1"]} ${obj["user"]["surname1"]}</a>`,
           obj["user"]["photoUrl"]
         ),
         generateCell(userId),
@@ -36,14 +44,6 @@
     );
   }
 </script>
-<div class="w-full h-full px-6 lg:px-10">
-  {{usersTable()}}
-  <div class="w-full flex items-center justify-center mt-4">
-    <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="window.location.href ='/app/create-user'">
-      New User
-    </button>
-  </div>
-</div>
 <script type="text/javascript">
 
   tableContainer.innerHTML = generateTable(

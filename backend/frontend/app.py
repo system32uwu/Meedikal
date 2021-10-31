@@ -38,7 +38,7 @@ def profileById(ciUser:int, asRole:str=None, *args, **kwargs):
 @appRouter.get('/appointments')
 @requiresAuth
 def appointments(**any):
-    return render_template(f'{baseDirApp}/appointments.html')
+    return render_template(f'{baseDirApp}/appointments.html', ciUser=False, timeFilter=False, readOnly=False)
 
 @appRouter.get('/appointments/<int:id>') # show all the patients attending to this appointment
 @requiresRole(['doctor', 'administrative'])
@@ -62,12 +62,12 @@ def scheduledAppointments(id:int, **kw):
 @appRouter.get('/appointments/patient/<int:ciUser>') # show all scheduled appointments for this patient
 @requiresAuth
 def patientScheduledAppointments(ciUser:int, **kw):
-    pass
+    return render_template(f'{baseDirApp}/appointments.html', ciUser=ciUser, timeFilter='all', readOnly=True)
 
 @appRouter.get('/appointments/doctor/<int:ciUser>') # show all scheduled appointments for this doctor
 @requiresAuth
 def doctorScheduledAppointments(ciUser:int, **kw):
-    pass
+    return render_template(f'{baseDirApp}/appointments.html', ciUser=ciUser, timeFilter='all', readOnly=True)
 
 @appRouter.get('/appointment/<int:id>/<int:ciUser>') # view details of an specific appoitment of a patient
 @requiresAuth

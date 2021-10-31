@@ -2,14 +2,23 @@
 {% block title %}Appointments{% endblock %}
 {% block pageContent %}
 <script>
+    let readOnly = '{{readOnly|safe}}';
+    let ciUser = '{{ciUser|safe}}';
+    let timeFilter = '{{timeFilter|safe}}';
     let offset = 0;
     let limit = 3;
     let activeFilters = {};
+    let _me = ciUser ? {user: {ci: ciUser}} : me;
 
-    if (myRole === 'doctor'){
-        activeFilters.typeFilter = 'mine-doctor'
+    if (!ciUser){
+        if (myRole === 'doctor'){
+            activeFilters.typeFilter = 'mine-doctor'
+        }else{
+            activeFilters.typeFilter = 'all'
+        }
     }else{
-        activeFilters.typeFilter = 'all'
+        activeFilters.typeFilter = 'mine'
+        activeFilters.ci = _me.user.ci
     }
 
     activeFilters.timeFilter = 'selectedDay';
@@ -36,9 +45,9 @@
                 Accept: "application/json",
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ idAp: id, ciPa: me.user.ci })
+            body: JSON.stringify({ idAp: id, ciPa: _me.user.ci })
         })
-        window.location.href = `/app/appointment/${id}/${me.user.ci}`;
+        window.location.href = `/app/appointment/${id}/${_me.user.ci}`;
     }
 
     const generateAppointmentCard = (appointment, fn, mode) => {
@@ -121,7 +130,12 @@
                             <button class="button w-full rounded-full bg-turqoise text-white font-bold px-2 py-1">
                                 ${pastDate ? 'View Details' : 'Attend'}
                             </button>
-                        </a>` : '' : ''
+                        </a>` : 
+                        `<a href="/app/appointments/${appointment.appointment.id}">
+                            <button class="button w-full rounded-full bg-turqoise text-white font-bold px-2 py-1">
+                                View Details
+                            </button>
+                        </a>` : ''
             }
               </div>
             </div>
@@ -140,7 +154,7 @@
         <div class="border-2 border-turqoise rounded-3xl h-full w-full mt-4">
             <div id="ap-search-filters">
                 <div class="py-4 flex flex-col relative">
-                    <div class="px-4 {% if myRole == 'doctor' %}hidden{% endif %}">
+                    <div class="px-4 {% if myRole == 'doctor' and not ciUser %}hidden{% endif %}">
                         <input type="text" id="search-doc" placeholder="Doctor's surname"
                             class="w-full bg-white rounded-2xl border focus:ring-2 focus:ring-turqoise border-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
                         <button id="search-doc-btn" onclick="searchDoc()"
@@ -148,7 +162,7 @@
                             <img src="/static/icons/search.svg" width="18" />
                         </button>
                     </div>
-                    <div class="px-4 pt-2 {% if myRole == 'doctor' %}hidden{% endif %}">
+                    <div class="px-4 pt-2 {% if myRole == 'doctor' and not ciUser %}hidden{% endif %}">
                         <input type="text" id="search-sp" placeholder="oftalmology, cardiology..."
                             class="w-full bg-white rounded-2xl border focus:ring-2 focus:ring-turqoise border-turqoise text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
                         <button id="search-sp-btn" onclick="searchSp()"
@@ -179,6 +193,7 @@
                         </div>
                     </div>
                     <div class="{% if myRole == 'administrative' or myRole == 'doctor' %} hidden {% endif %} lg:-mx-0 -mx-2 w-full flex flex-row space-x-4 justify-center items-center flex-wrap gap-1 py-2">
+                        {% if not ciUser%}
                         <div>
                             <input type="radio" value="all" name="type-filter" checked />
                             <label for="all">All</label>
@@ -187,6 +202,7 @@
                             <input type="radio" value="mine" name="type-filter" />
                             <label for="mine">Mine</label>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

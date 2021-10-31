@@ -1,4 +1,4 @@
-{% macro patientCard(patient, attendsTo, attend) %}
+{% macro patientCard(patient, attendsTo, attend, doctor) %}
 <div id='ap-{{attendsTo["idAp"]}}' class="rounded-2xl border border-turqoise flex flex-col justify-center items-center h-full w-full self-center pt-2 relative">
     <div class="relative flex flex-row justify-center items-center space-x-1 h-full w-full">
         <a href='/app/profile/{{patient.get("user", {}).get("ci", "")}}' class="pt-2 flex flex-col items-center justify-center space-y-1 h-full w-1/2">
@@ -15,16 +15,18 @@
                 <span class="w-full">{{attendsTo['number']}}</span>
             </div>
         </div>
+        {% if me['user']['ci'] == doctor['user']['ci'] or patient['user']['ci'] == me['user']['ci'] %}
         <button class="absolute right-4 bottom-2" onclick="updateMotive('{{patient.user.ci}}', '{{attendsTo.idAp}}')">
             <img width="24" height="24" src="{{url_for('static', filename='icons/save.svg')}}"/>
         </button>
+        {% endif %}
     </div>
     {% if attend %}
-    <a href="/app/appointment/{{attendsTo['idAp']}}/{{patient['user']['ci']}}">
-        <button class="absolute bottom-2 rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="window.location.href ='/app/create-branch'">
-            Attend Patient
-        </button>
-    </a>
+            <a href="/app/appointment/{{attendsTo['idAp']}}/{{patient['user']['ci']}}">
+                <button class="absolute bottom-2 rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="window.location.href ='/app/create-branch'">
+                    {{'Attend Patient' if me['user']['ci'] == doctor['user']['ci'] else 'View Details'}}
+                </button>
+            </a>
     {% endif %}
 </div>
 <script>

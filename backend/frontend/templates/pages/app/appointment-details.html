@@ -12,33 +12,33 @@
   </div>
   <div class="h-1/3 w-full flex items-center justify-center">
     <h3 class="w-1/3 font-bold">Patient information:</h3>
-    {{patientCard(patient, attendsTo)}}
+    {{patientCard(patient, attendsTo, false, doctor)}}
   </div>
   <div class="h-1/3 w-full flex items-center justify-center">
     <h3 class="w-1/3 font-bold">Registered Symptoms:</h3>
     <div class="py-2 w-full h-full flex border border-turqoise rounded-full">
-        {{formFieldChips('symptom', registeredSymptoms, 'name', 'deleteSymptom', 'icons/delete.svg', true if myRole != 'patient' else false, 'addSymptom', true)}}
+        {{formFieldChips('symptom', registeredSymptoms, 'name', 'deleteSymptom', 'icons/delete.svg', true if myRole != 'patient' and me['user']['ci'] == doctor['user']['ci'] else false, 'addSymptom', true)}}
     </div>
   </div>
   <div class="h-1/3 w-full flex items-center justify-center">
     <h3 class="w-1/3 font-bold">Registered Clinical Signs:</h3>
     <div class="py-2 w-full h-full flex border border-turqoise rounded-full">
-        {{formFieldChips('cs', registeredCs, 'name', 'deleteClinicalSign', 'icons/delete.svg', true if myRole != 'patient' else false, 'addClinicalSign', true)}}
+        {{formFieldChips('cs', registeredCs, 'name', 'deleteClinicalSign', 'icons/delete.svg', true if myRole != 'patient' and me['user']['ci'] == doctor['user']['ci'] else false, 'addClinicalSign', true)}}
     </div>
   </div>
   <div class="h-1/3 w-full flex items-center justify-center">
     <h3 class="w-1/3 font-bold">Diagnosed Diseases:</h3>
     <div class="py-2 w-full h-full flex border border-turqoise rounded-full">
-      {{formFieldChips('disease', diagnosedDiseases, 'name', 'deleteDisease', 'icons/delete.svg', true if myRole != 'patient' else false, 'addDisease', true)}}
+      {{formFieldChips('disease', diagnosedDiseases, 'name', 'deleteDisease', 'icons/delete.svg', true if myRole != 'patient' and me['user']['ci'] == doctor['user']['ci'] else false, 'addDisease', true)}}
     </div>
   </div>
   <div class="h-full w-full flex items-center justify-center pb-5">
     <h3 class="w-1/3 font-bold">Notes:</h3>
     <div class="w-full h-full flex border border-turqoise">
-      <textarea id="notes" {% if myRole == 'patient' %}readonly{% endif %} class="rounded-lg resize-none w-full h-full">{{attendsTo['notes']}}</textarea>
+      <textarea id="notes" {% if myRole == 'patient' or me['user']['ci'] != doctor['user']['ci'] %}readonly{% endif %} class="rounded-lg resize-none w-full h-full">{{attendsTo['notes']}}</textarea>
     </div>
   </div>
-  {% if myRole == 'doctor' %}
+  {% if myRole == 'doctor' and me['user']['ci'] == doctor['user']['ci'] %}
     <div class="w-full flex items-center justify-center mt-4 pb-4">
         <button class="rounded-3xl bg-turqoise text-white font-bold w-64 h-12" onclick="saveNotes()">
             Save

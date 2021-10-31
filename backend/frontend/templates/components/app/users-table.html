@@ -56,6 +56,7 @@
   let total = 0;
   let offset = 0;
   let limit = 3;
+  let selectedRole;
 
   let _search = document.getElementById('search');
   let _searchSp = document.getElementById('search-specialty');
@@ -73,6 +74,7 @@
     }else{
       _searchSpContainer.classList.remove('hidden');
     }
+    selectedRole = role;
   }
 
   const search = async () => {

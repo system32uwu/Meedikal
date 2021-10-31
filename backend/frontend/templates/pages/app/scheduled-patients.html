@@ -13,7 +13,7 @@
     <div class="overflow-y-auto h-full flex flex-col pb-2 space-y-2 px-4">
         {% for atp in attendingPatients %}
             <div class="w-full h-56">
-                {{patientCard(atp['patient'], atp, true)}}
+                {{patientCard(atp['patient'], atp, true, assignedDoctor)}}
             </div>
         {% endfor %}
     </div>

@@ -11,8 +11,7 @@
     let _me = ciUser !== 'False' ? {user: {ci: ciUser}} : me;
 
     if (ciUser === 'False'){
-        if (myRole === 'administrative'){
-            console.log('a')
+        if (myRole === 'administrative' || myRole == 'patient'){
             activeFilters.typeFilter = 'all';
         }else if (myRole === 'doctor'){
             activeFilters.typeFilter = 'mine-doctor'

@@ -294,6 +294,6 @@ def appVars(ci:int, currentRole:str):
         url = url.split('/')[1]
         url = url.replace('-', ' ')
 
-    return dict(myRole=currentRole, me=userToReturn(User.getByCi(ci)), 
+    return dict(myRole=currentRole, me=userToReturn(User.getByCi(ci), currentRole), 
     appPages=Config.app_pages, roleColors=Config.role_colors,
     currentPage=url.capitalize(), currentDate = date.today())

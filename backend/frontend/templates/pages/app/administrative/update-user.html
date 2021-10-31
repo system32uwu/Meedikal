@@ -2,7 +2,7 @@
 
 {% block title %}Update User{% endblock %}
 {%block pageContent %}
-{{profile(user, None, 'toggleRole', 'icons/remove.svg', 'updateUser')}}
+{{profile(user, 'update', 'toggleRole', 'icons/remove.svg', 'updateUser')}}
 
 <script type="text/javascript">
     let user = JSON.parse('{{user|tojson}}');

@@ -29,10 +29,10 @@ def logout(**kwargs):
     return crudReturn('OK')
 
 @router.route('/me', methods=['POST', 'GET']) # POST /api/auth/me
-@requiresAuth
-def me(ci:int):
+@getCurrentRole
+def me(ci:int, currentRole:str,):
     user = User.getByCi(ci)
-    return crudReturn(userToReturn(user))
+    return crudReturn(userToReturn(user, currentRole))
 
 @router.route('/updatePassword', methods=['PUT', 'PATCH']) # POST /api/auth/updatePassword
 @requiresAuth

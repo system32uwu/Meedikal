@@ -279,10 +279,10 @@ def updateAppointment(id:int):
 
     return render_template(f'{baseDirApp}/administrative/appointment.html', appointment=appointment, branches=branches, selectedBranch=selectedBranch, selectedDoctor=selectedDoctor, assignMode=True)
 
-@appRouter.get('/stats')
-@requiresRole(['administrative'])
-def stats():
-    return render_template(f'{baseDirApp}/administrative/stats.html')
+# @appRouter.get('/stats')
+# @requiresRole(['administrative'])
+# def stats():
+#     return render_template(f'{baseDirApp}/administrative/stats.html')
 
 @appRouter.context_processor
 @getCurrentRole

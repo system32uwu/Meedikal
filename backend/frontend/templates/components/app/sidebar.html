@@ -16,11 +16,11 @@
           <path fillRule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"></path>
         </svg>
       </button>
-      <div class="flex flex-col justify-between flex-1">
-        <nav>
+      <div class="h-full flex flex-col justify-between flex-1">
+        <nav class="h-full">
           {% for page in appPages%} 
             {% if myRole in page.accessibleBy and page.name != "Profile"%}
-              <a href="{{page.route}}" class="flex items-end px-4 py-2 mt-4 text-hard-blue hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md">
+              <a href="{{page.route}}" class="flex items-end px-4 py-2 mt-3 text-hard-blue hover:bg-gray-200 hover:text-gray-700 transition-colors duration-200 transform rounded-md">
                 <img src="{{url_for('static', filename=page.icon)}}" height="25" width="25"/>
                 <p class="align-middle font-bold leading-none mx-4">
                   {{page.name}}
